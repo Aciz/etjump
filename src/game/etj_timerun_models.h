@@ -84,6 +84,7 @@ struct PrintRankingsParams {
   int clientNum{};
   int userId{};
   opt<std::string> season;
+  opt<int> details; // takes rank as value
   int page{};
   int pageSize{};
 };

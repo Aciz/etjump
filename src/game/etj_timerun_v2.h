@@ -75,13 +75,17 @@ public:
   };
 
   struct Ranking {
-    Ranking(int rank, int userId, std::string name, double score)
-        : rank(rank), userId(userId), name(std::move(name)), score(score) {}
+    Ranking(int rank, int userId, std::string name, double score,
+            int numRecords, std::array<int, 3> top3Records)
+        : rank(rank), userId(userId), name(std::move(name)), score(score),
+          numRecords(numRecords), top3Records(top3Records) {}
 
     int rank;
     int userId;
     std::string name;
     double score;
+    int numRecords;
+    std::array<int, 3> top3Records;
   };
 
   void computeRanks();
@@ -119,9 +123,8 @@ private:
    */
   const Timerun::Season *getMostRelevantSeason();
   void updateSeasonStates();
-  static std::string
-  getRankingsStringFor(const std::vector<Ranking> *vector,
-                       const Timerun::PrintRankingsParams &params);
+  static std::string getRankingsStringFor(const std::vector<Ranking> *rankings, const Timerun::PrintRankingsParams &params);
+  static std::string getRankingsDetailsFor(const std::vector<Ranking> *rankings, const Timerun::PrintRankingsParams &params);
 
   std::string _currentMap;
   std::unique_ptr<TimerunRepository> _repository;

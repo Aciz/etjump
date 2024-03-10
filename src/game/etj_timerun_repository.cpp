@@ -267,7 +267,7 @@ ETJump::TimerunRepository::getTopRecord(int seasonId, const std::string &map,
       player_name,
       metadata
     from record
-    where 
+    where
       season_id=? and
       map=? and
       run=?
@@ -539,7 +539,7 @@ std::vector<ETJump::Timerun::Record> ETJump::TimerunRepository::getRecords(
       player_name,
       metadata
     from record
-    where 
+    where
       (%s) and
       map=?
       %s
@@ -796,6 +796,25 @@ void ETJump::TimerunRepository::migrate() {
        "create index idx_season_id_map on record(season_id, map);",
        "create index idx_season_id_map_run on record(season_id, map, run);",
        "create index idx_season_id_map_run_user_id on record(season_id, map, run, user_id);"});
+  // clang-format on
+
+  _database->addMigration(
+  // clang-format off
+    "rankings",
+    {R"(
+        create table rankings (
+          season_id integer not null,
+          map text not null,
+          run text not null,
+          user_id int not null,
+          player_name text not null,
+          score real not null,
+          rank int not null,
+          primary key (season_id, map, run, user_id),
+          foreign key (season_id) references season(id)
+        );
+      )",
+    });
   // clang-format on
 
   _database->applyMigrations();

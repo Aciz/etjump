@@ -176,12 +176,16 @@ bool Rankings(gentity_t *ent, Arguments argv) {
       "rankings", ClientNum(ent),
       ETJump::CommandParser::CommandDefinition::create(
           "rankings",
-          "Displays the player rankings for a specific season. Uses the "
-          "overall as the default.\n\n    /rankings --season <season> --page "
-          "<page> --page-size <page size>\n\n    Has a shorthand format of:\n  "
-          "  /rankings <season>")
+          "Displays the player rankings for a specific season. Uses the overall as the default.\n\n"
+          "    /rankings --season <season> --page <page> --page-size <page size>\n"
+          "    /rankings --season <season> --details <rank>\n\n"
+          "    Has a shorthand format of:\n"
+          "    /rankings <season>")
           .addOption("season", "Name of the season to list rankings for",
                      ETJump::CommandParser::OptionDefinition::Type::MultiToken,
+                     false)
+          .addOption("details", "Prints detailed stats for a given rank",
+                     ETJump::CommandParser::OptionDefinition::Type::Integer,
                      false)
           .addOption("page", "Which page of rankings to show",
                      ETJump::CommandParser::OptionDefinition::Type::Integer,
@@ -198,6 +202,7 @@ bool Rankings(gentity_t *ent, Arguments argv) {
   auto command = optCommand.value();
 
   auto optSeason = command.getOptional("season");
+  auto optDetails = command.getOptional("details");
   auto optPage = command.getOptional("page");
   auto optPageSize = command.getOptional("page-size");
 
@@ -210,6 +215,8 @@ bool Rankings(gentity_t *ent, Arguments argv) {
   if (season.empty()) {
     season = optSeason.hasValue() ? optSeason.value().text : "Default";
   }
+
+  auto details = optDetails.hasValue() ? optDetails.value().integer : 0;
   auto page = optPage.hasValue() ? optPage.value().integer - 1 : 0;
   auto pageSize = optPageSize.hasValue() ? optPageSize.value().integer : 20;
 
@@ -218,7 +225,7 @@ bool Rankings(gentity_t *ent, Arguments argv) {
   auto userId = ETJump::session->GetId(ent);
 
   ETJump::Timerun::PrintRankingsParams params{
-      ClientNum(ent), userId, std::move(season), page, pageSize};
+      ClientNum(ent), userId, std::move(season),details, page, pageSize};
 
   game.timerunV2->printRankings(std::move(params));
   return true;

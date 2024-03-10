@@ -84,7 +84,10 @@ void ETJump::TimerunV2::computeRanks() {
         using UserId = int;
 
         std::map<SeasonId, std::map<UserId, double>> scores;
+        std::map<SeasonId, std::map<UserId, int>> numRecords{};
+        std::map<SeasonId, std::map<UserId, std::array<int, 3>>> top3Records{};
         std::map<UserId, std::string> latestName{};
+        std::map<std::pair<SeasonId, UserId>, std::map<Timerun::Record, std::map<int, double>>> rankAndScorePerRecord{};
         const double maxPointsPerRun = 1000.0;
 
         for (const auto &r : records) {
@@ -108,6 +111,8 @@ void ETJump::TimerunV2::computeRanks() {
             topTime = r.time;
 
             scores[r.seasonId][r.userId] += maxPointsPerRun;
+            numRecords[r.seasonId][r.userId]++;
+            top3Records[r.seasonId][r.userId][0]++;
           } else {
             if (topTime == 0 || r.time == 0) {
               continue;
@@ -136,6 +141,10 @@ void ETJump::TimerunV2::computeRanks() {
             }
 
             scores[r.seasonId][r.userId] += maxPointsPerRun * c1 * c2;
+            numRecords[r.seasonId][r.userId]++;
+            if (rank < 4) {
+              top3Records[r.seasonId][r.userId][rank == 2 ? 1 : 2]++;
+            }
           }
           ++rank;
         }
@@ -153,7 +162,8 @@ void ETJump::TimerunV2::computeRanks() {
               continue;
             }
             rankings[season.first].emplace_back(
-                0, user.first, latestName[user.first], user.second);
+                0, user.first, latestName[user.first], user.second,
+                numRecords[season.first][user.first], top3Records[season.first][user.first]);
           }
         }
 
@@ -846,45 +856,65 @@ public:
   std::string message;
 };
 
-std::string ETJump::TimerunV2::getRankingsStringFor(
-    const std::vector<Ranking> *rankings,
-    const Timerun::PrintRankingsParams &params) {
+std::string ETJump::TimerunV2::getRankingsStringFor(const std::vector<Ranking> *rankings, const Timerun::PrintRankingsParams &params) {
   std::string message;
-  message += "^gRank  Player                                      Score\n";
+  message += " ^gRank  Player                                   Records   Score\n";
   for (size_t i = 0, len = rankings->size(); i < len; ++i) {
     unsigned rank = i + 1;
     const auto *r = &(*rankings)[i];
-    auto isOnVisiblePage = rank > (params.page) * params.pageSize &&
-                           rank <= (params.page + 1) * params.pageSize;
+    auto isOnVisiblePage = rank > (params.page) * params.pageSize && rank <= (params.page + 1) * params.pageSize;
     auto isOwnRanking = r->userId == params.userId;
 
     if (isOnVisiblePage) {
-      auto rankString = rankToString(i + 1);
-      auto rankStringWidth = 5 + StringUtil::countExtraPadding(rankString);
+      auto rankString = rankToString(static_cast<int>(i + 1));
+      auto rankStringWidth = 4 + StringUtil::countExtraPadding(rankString);
 
       auto name = isOwnRanking ? (r->name + " ^g(You)") : r->name;
-      auto nameStringWidth =
-          MAX_NAME_LENGTH + 1 + 5 + StringUtil::countExtraPadding(name);
+      auto nameStringWidth = MAX_NAME_LENGTH + 3 + StringUtil::countExtraPadding(name);
 
-      std::string formatString = stringFormat("^7%%-%ds ^7%%-%ds  ^7%%.0f\n",
-                                              rankStringWidth, nameStringWidth);
+      std::string formatString = stringFormat(" ^7%%-%ds  ^7%%-%ds  ^7%%7d  %%6.0f\n", rankStringWidth, nameStringWidth);
 
-      message += stringFormat(formatString, rankString, name, r->score);
+      message += stringFormat(formatString, rankString, name, r->numRecords, r->score);
     }
 
     if (isOwnRanking && !isOnVisiblePage) {
-      auto rankString = rankToString(i + 1);
-      auto rankStringWidth = 5 + StringUtil::countExtraPadding(rankString);
-      auto name = isOwnRanking ? (r->name + " ^g(You)") : r->name;
-      auto nameStringWidth =
-          MAX_NAME_LENGTH + 1 + 5 + StringUtil::countExtraPadding(name);
+      auto rankString = rankToString(static_cast<int>(i + 1));
+      auto rankStringWidth = 4 + StringUtil::countExtraPadding(rankString);
+      auto name = r->name + " ^g(You)";
+      auto nameStringWidth = MAX_NAME_LENGTH + 3 + StringUtil::countExtraPadding(name);
 
-      std::string formatString = stringFormat("\n^7%%-%ds ^7%%-%ds  ^7%%.0f\n",
-                                              rankStringWidth, nameStringWidth);
+      std::string formatString = stringFormat("\n  ^7%%-%ds ^7%%-%ds  ^7%%7d  ^7%%6.0f\n", rankStringWidth, nameStringWidth);
 
-      message += stringFormat(formatString, rankString, name, r->score);
+      message += stringFormat(formatString, rankString, name, r->numRecords, r->score);
     }
   }
+  return message;
+}
+
+std::string ETJump::TimerunV2::getRankingsDetailsFor(const std::vector<Ranking> *rankings, const Timerun::PrintRankingsParams &params) {
+  std::string message;
+
+  std::vector<int> ranks{};
+  int numRecords = 0;
+  double score = 0;
+
+  for (const auto & ranking : *rankings) {
+    const auto *r = &ranking;
+    if (r->rank != params.details.value()) {
+      continue;
+    }
+
+    // FIXME: this formatting should probably be less manual
+    message += stringFormat(" ^gPlayer: ^7%s\n\n", r->name);
+    message += stringFormat(" ^gTotal score: ^7%22.0f\n", r->score);
+    message += stringFormat(" ^gAverage score: ^7%20.0f\n\n", r->score / r->numRecords);
+    message += stringFormat(" ^gTotal records: ^7%20d\n", r->numRecords);
+    message += stringFormat(" ^gTotal top 3 records: ^7%14d\n", r->top3Records[0] + r->top3Records[1] + r->top3Records[2]);
+    message += stringFormat(" %33s ^7%3d\n", rankToString(1), r->top3Records[0]);
+    message += stringFormat(" %33s ^7%3d\n", rankToString(2), r->top3Records[1]);
+    message += stringFormat(" %33s ^7%3d\n", rankToString(3), r->top3Records[2]);
+  }
+
   return message;
 }
 
@@ -895,7 +925,7 @@ void ETJump::TimerunV2::printRankings(Timerun::PrintRankingsParams params) {
   _sc->postTask(
       [this, params] {
         std::string message;
-        if (params.season.hasValue()) {
+        if (params.season.value() != "Default") {
           auto matchingSeasons =
               _repository->getSeasonsForName(params.season.value(), false);
 
@@ -906,17 +936,14 @@ void ETJump::TimerunV2::printRankings(Timerun::PrintRankingsParams params) {
             for (const auto &s : matchingSeasons) {
               if (_rankingsPerSeason.count(s.id) == 0) {
                 message = stringFormat("No records for season `%s`", s.name);
+              } else if (params.details.value() > 0) {
+                message = stringFormat("\n ^gDetailed rankings for season: ^2%s\n", s.name);
+                message += "^g--------------------------------------------------\n";
+                message += getRankingsDetailsFor(&_rankingsPerSeason[s.id], params);
               } else {
-                // clang-format off
-                message =
-                    stringFormat(
-                        "^g=============================================================\n"
-                        " ^gRankings for season: ^2%s^7\n"
-                        "^g=============================================================\n",
-                        s.name);
-                // clang-format on
-                message += this->getRankingsStringFor(&_rankingsPerSeason[s.id],
-                                                      params);
+                message = stringFormat("\n ^gRankings for season: ^2%s^7\n", s.name);
+                message += "^g-----------------------------------------------------------------\n";
+                message += getRankingsStringFor(&_rankingsPerSeason[s.id], params);
               }
             }
           }
@@ -924,15 +951,14 @@ void ETJump::TimerunV2::printRankings(Timerun::PrintRankingsParams params) {
         } else {
           if (_rankingsPerSeason.count(defaultSeasonId) == 0) {
             message += "No overall records";
+          } else if (params.details.value() > 0) {
+            message = "\n ^gDetailed overall rankings\n";
+            message += "^g--------------------------------------------------\n";
+            message += getRankingsDetailsFor(&_rankingsPerSeason[defaultSeasonId], params);
           } else {
-            // clang-format off
-            message =
-                "^g=============================================================\n"
-                " ^gOverall rankings^7\n"
-                "^g=============================================================\n";
-            // clang-format on
-            message += this->getRankingsStringFor(
-                &_rankingsPerSeason[defaultSeasonId], params);
+            message = "\n ^gOverall rankings^7\n";
+            message += "^g-----------------------------------------------------------------\n";
+            message += getRankingsStringFor(&_rankingsPerSeason[defaultSeasonId], params);
           }
         }
 
