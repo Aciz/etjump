@@ -172,11 +172,8 @@ jobs:
         path: ${{github.workspace}}/build/*.zip
 
     - name: Create latest build
-      uses: marvinpinto/action-automatic-releases@latest
+      uses: softprops/action-gh-release@v2
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        automatic_release_tag: "latest"
-        prerelease: false
-        title: Latest Build
+        name: Latest Build
         files: |
           ${{github.workspace}}/build/*.zip
