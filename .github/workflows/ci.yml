@@ -172,11 +172,9 @@ jobs:
         path: ${{github.workspace}}/build/*.zip
 
     - name: Create latest build
-      uses: marvinpinto/action-automatic-releases@latest
+      uses: svenstaro/upload-release-action@latest
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        automatic_release_tag: "latest"
-        prerelease: false
-        title: Latest Build
-        files: |
-          ${{github.workspace}}/build/*.zip
+        tag: ${{ github.ref }}
+        overwrite: true
+        file: ${{github.workspace}}/build/*.zip
