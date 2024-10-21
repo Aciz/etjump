@@ -2,6 +2,9 @@ name: etjump-release
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - '*'
 
 jobs:
   Windows:
@@ -138,7 +141,8 @@ jobs:
         make mod_release
 
     - name: Upload release 
-      uses: actions/upload-artifact@v4
+      uses: softprops/action-gh-release@v2
       with:
-        name: etjump-stable-release
-        path: ${{ github.workspace }}/build/*.zip
+        name: ETJump ${{ github.ref_name }}
+        files: ${{ github.workspace }}/build/*.zip
+        draft: true
