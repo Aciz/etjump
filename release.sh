@@ -104,20 +104,16 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 	if [[ -n $gpg_sign ]]; then
 		# no signing
 		# Create the release commit
-		# git commit -am "$version_message"
-		echo 'git commit -am "$version_message"'
+		git commit -am "$version_message"
 
 		# Tag it like a champ!
-		# git tag -a "$major.$minor.$patch" -m "$version_message"
-		echo 'git tag -a "$major.$minor.$patch" -m "$version_message"'
+		git tag -a "$major.$minor.$patch" -m "$version_message"
 	else
 		# Create the release commit
-		# git commit -a -S -m "$version_message"
-		echo 'git commit -a -S -m "$version_message"'
+		git commit -a -S -m "$version_message"
 
 		# sign the tag
-		# git tag -s "$major.$minor.$patch" -m "$version_message"
-		echo 'git tag -s "$major.$minor.$patch" -m "$version_message"'
+		git tag -s "$major.$minor.$patch" -m "$version_message"
 	fi
 
 	echo "Committed and tagged a new release"
@@ -127,10 +123,8 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 	read -p "Push commit and tag to remote '$upstream'? [Y/N]: " -n 1 -r
 	echo
 	if [[ $REPLY =~ ^[Yy]$ ]]; then
-		# git push "$upstream" master
-		# git push "$upstream" "$major.$minor.$patch"
-		echo 'git push "$upstream" master'
-		echo 'git push "$upstream" "$major.$minor.$patch"'
+		git push "$upstream" master
+		git push "$upstream" "$major.$minor.$patch"
 		echo "Pushed data to remote '$upstream'. Congrats!"
 	else
 		echo "You need to 'git push $upstream master' and 'git push $upstream --tags' manually."
