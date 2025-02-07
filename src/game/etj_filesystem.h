@@ -41,7 +41,7 @@ public:
   static std::vector<std::string>
 
   // if sort is true, the returned list is sorted case-insensitively
-  getFileList(const std::string &path, const std::string &ext, bool sort);
+  getFileList(const std::string &path, const std::string &ext, bool sort, bool stripExtension);
 
   class Path {
     static std::string buildOSPath(const std::string &file);

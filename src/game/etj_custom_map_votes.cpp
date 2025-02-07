@@ -25,9 +25,10 @@
 #include <fstream>
 #include <algorithm>
 #include <set>
+#include <random>
 
 #include "etj_custom_map_votes.h"
-#include "etj_map_statistics.h"
+#include "etj_map_statistics_v2.h"
 #include "etj_string_utilities.h"
 #include "utilities.hpp"
 #include "etj_printer.h"
@@ -35,7 +36,7 @@
 #include "etj_filesystem.h"
 
 namespace ETJump {
-CustomMapVotes::CustomMapVotes(const std::shared_ptr<MapStatistics> &mapStats,
+CustomMapVotes::CustomMapVotes(const std::shared_ptr<MapStatisticsV2> &mapStats,
                                std::unique_ptr<Log> log)
     : _mapStats(mapStats), logger(std::move(log)) {}
 
@@ -130,8 +131,8 @@ void CustomMapVotes::loadCustomvotes(const bool init) {
 
       mapName = sanitize(mapName, true);
 
-      if (std::binary_search(_currentMapsOnServer->begin(),
-                             _currentMapsOnServer->end(), mapName)) {
+      if (std::binary_search(_currentMapsOnServer.cbegin(),
+                             _currentMapsOnServer.cend(), mapName)) {
         uniqueMapsOnServer.insert(mapName);
       } else {
         uniqueMapsOther.insert(mapName);
@@ -562,6 +563,6 @@ std::string CustomMapVotes::randomMap(std::string const &type) {
 //  MapStatistics::isValidMap but that takes MapInfo as argument
 //  and isn't simple to refactor so bleh
 bool CustomMapVotes::isValidMap(const std::string &mapName) {
-  return game.mapStatistics->mapExists(mapName) && mapName != level.rawmapname;
+  return game.mapStatisticsV2->isValidMap(mapName);
 }
 } // namespace ETJump

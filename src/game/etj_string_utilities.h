@@ -65,13 +65,40 @@ std::string getPluralizedString(const T &val, const std::string &str) {
   return std::to_string(val) + " " + str + (val == 1 ? "" : "s");
 }
 
-std::string getSecondsString(const int &seconds);
-std::string getMinutesString(const int &minutes);
-std::string getHoursString(const int &hours);
-std::string getDaysString(const int &days);
-std::string getWeeksString(const int &weeks);
-std::string getMonthsString(const int &months);
-std::string getYearsString(const int &years);
+template <typename T>
+std::string getSecondsString(const T &seconds) {
+  return getPluralizedString(seconds, "second");
+}
+
+template <typename T>
+std::string getMinutesString(const T &minutes) {
+  return getPluralizedString(minutes, "minute");
+}
+
+template <typename T>
+std::string getHoursString(const T &hours) {
+  return getPluralizedString(hours, "hour");
+}
+
+template <typename T>
+std::string getDaysString(const T &days) {
+  return getPluralizedString(days, "day");
+}
+
+template <typename T>
+std::string getWeeksString(const T &weeks) {
+  return getPluralizedString(weeks, "week");
+}
+
+template <typename T>
+std::string getMonthsString(const T &months) {
+  return getPluralizedString(months, "month");
+}
+
+template <typename T>
+std::string getYearsString(const T &years) {
+  return getPluralizedString(years, "year");
+}
 
 namespace StringUtil {
 std::string toLowerCase(const std::string &input);

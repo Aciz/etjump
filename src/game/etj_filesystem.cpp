@@ -85,9 +85,7 @@ bool FileSystem::safeMove(const std::string &src, const std::string &dst) {
   return safeCopy(src, dst) && remove(src);
 }
 
-std::vector<std::string> FileSystem::getFileList(const std::string &path,
-                                                 const std::string &ext,
-                                                 const bool sort) {
+std::vector<std::string> FileSystem::getFileList(const std::string &path, const std::string &ext, const bool sort, const bool stripExtension) {
   const auto fileList = std::make_unique<char[]>(BIG_DIR_BUFFER);
   const int numFiles = trap_FS_GetFileList(path.c_str(), ext.c_str(),
                                            fileList.get(), BIG_DIR_BUFFER);
@@ -98,12 +96,19 @@ std::vector<std::string> FileSystem::getFileList(const std::string &path,
   char *namePtr = fileList.get();
 
   for (auto i = 0; i < numFiles; ++i) {
-    files.emplace_back(namePtr);
-    namePtr += strlen(namePtr) + 1;
+    if (stripExtension) {
+      char filename[MAX_QPATH];
+      COM_StripExtension(namePtr, filename);
+      files.emplace_back(filename);
+      namePtr += strlen(namePtr) + 1;
+    } else {
+      files.emplace_back(namePtr);
+      namePtr += strlen(namePtr) + 1;
+    }
   }
 
   if (sort) {
-    ETJump::StringUtil::sortStrings(files, true);
+    StringUtil::sortStrings(files, true);
   }
 
   return files;
@@ -146,11 +151,11 @@ std::string FileSystem::Path::buildOSPath(const std::string &file) {
   return path;
 }
 
-std::string ETJump::FileSystem::Path::sanitize(std::string path) {
+std::string FileSystem::Path::sanitize(std::string path) {
   return sanitizeFile(path);
 }
 
-std::string ETJump::FileSystem::Path::sanitizeFile(std::string path) {
+std::string FileSystem::Path::sanitizeFile(std::string path) {
   static const char illegalChars[] = "\\/:*?\"<>.|";
   for (char ch : illegalChars) {
     std::replace(path.begin(), path.end(), ch, '_');
@@ -158,7 +163,7 @@ std::string ETJump::FileSystem::Path::sanitizeFile(std::string path) {
   return path;
 }
 
-std::string ETJump::FileSystem::Path::sanitizeFolder(std::string path) {
+std::string FileSystem::Path::sanitizeFolder(std::string path) {
   static const char illegalChars[] = "\\:*?\"<>.|";
   for (char ch : illegalChars) {
     std::replace(path.begin(), path.end(), ch, '_');

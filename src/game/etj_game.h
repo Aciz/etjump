@@ -33,7 +33,7 @@ class Tokens;
 class ChatReplay;
 class Motd;
 class CustomMapVotes;
-class MapStatistics;
+class MapStatisticsV2;
 } // namespace ETJump
 
 class Levels;
@@ -45,7 +45,7 @@ struct Game {
 
   std::shared_ptr<Levels> levels;
   std::shared_ptr<Commands> commands;
-  std::shared_ptr<ETJump::MapStatistics> mapStatistics;
+  std::shared_ptr<ETJump::MapStatisticsV2> mapStatisticsV2;
   std::shared_ptr<ETJump::TimerunV2> timerunV2;
   std::shared_ptr<ETJump::RockTheVote> rtv;
 

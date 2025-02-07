@@ -10,6 +10,7 @@
 #include "etj_progression_tracker.h"
 #include "etj_timerun_entities.h"
 #include "etj_entity_utilities.h"
+#include "etj_map_statistics_v2.h"
 #include "etj_numeric_utilities.h"
 #include "etj_rtv.h"
 #include "etj_syscall_ext_shared.h"
@@ -234,6 +235,7 @@ vmCvar_t g_voteCooldown;
 vmCvar_t mod_version;
 
 vmCvar_t g_mapDatabase;
+vmCvar_t g_mapDatabase2;
 
 vmCvar_t g_disableVoteAfterMapChange;
 
@@ -489,6 +491,7 @@ cvarTable_t gameCvarTable[] = {
     {&mod_version, "mod_version", GAME_VERSION, CVAR_SERVERINFO},
 
     {&g_mapDatabase, "g_mapDatabase", "maps.dat", CVAR_ARCHIVE},
+    {&g_mapDatabase2, "g_mapDatabase2", "maps.v2.db", CVAR_ARCHIVE},
     {&g_disableVoteAfterMapChange, "g_disableVoteAfterMapChange", "30000",
      CVAR_ARCHIVE},
     {&g_motdFile, "g_motdFile", "motd.json", CVAR_ARCHIVE},
@@ -1562,6 +1565,8 @@ void G_UpdateCvars(void) {
               }
             }
           }
+        } else if (cv->vmCvar == &g_blockedMaps) {
+          game.mapStatisticsV2->setBlockedMaps();
         } else {
           fToggles =
               (G_checkServerToggle(cv->vmCvar) || fToggles) ? qtrue : qfalse;
@@ -3449,7 +3454,7 @@ uebrgpiebrpgibqeripgubeqrpigubqifejbgipegbrtibgurepqgbn%i", level.time)
         MAX_TEAM_LANDMINES - G_CountTeamLandmines(TEAM_ALLIES);
   }
 
-  RunFrame(levelTime);
+  RunFrame();
 
   ETJump_RunFrame(levelTime);
 }

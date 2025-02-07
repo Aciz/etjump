@@ -76,7 +76,7 @@ bool anyonePlaying();
 /**
  * Converts timestamp to date
  */
-std::string timestampToString(int timestamp,
+std::string timestampToString(uint32_t timestamp,
                               const char *format = "%d/%m/%y %H:%M:%S",
                               const char *start = "never");
 

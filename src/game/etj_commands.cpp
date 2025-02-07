@@ -41,6 +41,7 @@
 #include "etj_chat_replay.h"
 #include "etj_filesystem.h"
 #include "etj_savepos_command_handler.h"
+#include "etj_map_statistics_v2.h"
 
 typedef std::function<bool(gentity_t *ent, Arguments argv)> Command;
 typedef std::pair<std::function<bool(gentity_t *ent, Arguments argv)>, char>
@@ -367,8 +368,7 @@ bool GetChatReplay(gentity_t *ent, Arguments argv) {
 }
 
 static bool sendMaplist(gentity_t *ent, Arguments argv) {
-  std::string mapList =
-      ETJump::StringUtil::join(game.mapStatistics->getMaps(), " ");
+  const std::string mapList = ETJump::StringUtil::join(game.mapStatisticsV2->getCurrentMaps(), " ");
   const std::string prefix = "maplist ";
   const size_t msgLen = BYTES_PER_PACKET - prefix.length() - 1;
 
@@ -1089,8 +1089,8 @@ bool FindMap(gentity_t *ent, Arguments argv) {
     }
   }
 
-  auto maps = game.mapStatistics->getMaps();
-  std::sort(maps.begin(), maps.end());
+  const auto &maps = game.mapStatisticsV2->getCurrentMaps();
+
   std::vector<std::string> matching;
   for (auto &map : maps) {
     if (map.find(argv->at(1)) != std::string::npos) {
@@ -1241,51 +1241,31 @@ std::string playedTimeFmtString(int seconds) {
   return str;
 }
 
-bool LeastPlayed(gentity_t *ent, Arguments argv) {
-  auto mapsToList = 10;
+bool listMapsByPlaytime(gentity_t *ent, Arguments argv) {
+  const bool leastPlayed = ETJump::StringUtil::startsWith(argv->at(0), "!l");
+  int count = 10;
+
   if (argv->size() == 2) {
     try {
-      mapsToList = std::stoi(argv->at(1), nullptr, 10);
+      count = std::stoi(argv->at(1), nullptr, 10);
     } catch (const std::invalid_argument &) {
-      Printer::chat(ent, ETJump::stringFormat(
-                             "^3Error: ^7'%s^7' is not a number", argv->at(1)));
+      Printer::chat(ent, ETJump::stringFormat("^3%s: ^7'%s^7' is not a number.", leastPlayed ? "leastplayed" : "mostlayed", argv->at(1)));
       return false;
     } catch (const std::out_of_range &) {
-      mapsToList = 10;
+      count = 10;
     }
 
-    if (mapsToList <= 0) {
-      Printer::chat(ent, "^3leastplayed: ^7second argument must be over 0");
+    if (count <= 0) {
+      Printer::chat(ent, ETJump::stringFormat("^3%s: ^7second argument must be over 0", leastPlayed ? "leastplayed" : "mostlayed"));
       return false;
     }
 
-    if (mapsToList > 100) {
-      mapsToList = 100;
+    if (count > 100) {
+      count = 100;
     }
   }
 
-  auto leastPlayed = game.mapStatistics->getLeastPlayed();
-  auto listedMaps = 0;
-  std::string buffer = "^zLeast played maps are:\n"
-                       "^gMap                    Played                        "
-                       " Last played       Times played\n";
-  auto green = false;
-  for (auto &map : leastPlayed) {
-    if (listedMaps >= mapsToList) {
-      break;
-    }
-
-    buffer += green ? "^g" : "^7";
-    buffer += ETJump::stringFormat(
-        "%-22s %-30s %-17s     %d\n", map->name,
-        playedTimeFmtString(map->secondsPlayed),
-        Utilities::timestampToString(map->lastPlayed), map->timesPlayed);
-    green = !green;
-
-    ++listedMaps;
-  }
-
-  Printer::console(ClientNum(ent), buffer);
+  game.mapStatisticsV2->listMapsByPlaytime(ent, count, leastPlayed);
   return true;
 }
 
@@ -1353,8 +1333,7 @@ bool ListMaps(gentity_t *ent, Arguments argv) {
   }
 
   std::string buffer = "^zListing all maps on server:\n^7";
-  auto maps = game.mapStatistics->getMaps();
-  std::sort(maps.begin(), maps.end());
+  const auto &maps = game.mapStatisticsV2->getCurrentMaps();
   auto mapsOnCurrentRow = 0;
   for (auto &map : maps) {
     // color every other column grey for readability
@@ -1451,97 +1430,7 @@ bool Map(gentity_t *ent, Arguments argv) {
 }
 
 bool MapInfo(gentity_t *ent, Arguments argv) {
-  auto mi = game.mapStatistics->getMapInformation(
-      argv->size() > 1 ? argv->at(1) : level.rawmapname);
-  auto currentMap = game.mapStatistics->getCurrentMap();
-
-  if (mi == nullptr) {
-    Printer::chat(ent, "^3mapinfo: ^7Could not find the map");
-    return false;
-  }
-
-  int seconds = mi->secondsPlayed;
-  int minutes = seconds / 60;
-  seconds = seconds - minutes * 60;
-  int hours = minutes / 60;
-  minutes = minutes - hours * 60;
-  int days = hours / 24;
-  hours = hours - days * 24;
-
-  std::string message;
-  if (mi == currentMap) {
-    message = "^3mapinfo: ^7" + mi->name +
-              " is the current map on the server. It has been played for a "
-              "total of " +
-              ETJump::getDaysString(days) + " " +
-              ETJump::getHoursString(hours) + " " +
-              ETJump::getMinutesString(minutes) + " " +
-              ETJump::getSecondsString(seconds);
-  } else {
-    if (mi->lastPlayed == 0) {
-      message = ETJump::stringFormat("^3mapinfo: ^7%s has never been played.",
-                                     mi->name);
-    } else {
-      message = "^3mapinfo: ^7" + mi->name + " was last played on " +
-                Utilities::timestampToString(mi->lastPlayed) +
-                ". It has been played for a total of " +
-                ETJump::getDaysString(days) + " " +
-                ETJump::getHoursString(hours) + " " +
-                ETJump::getMinutesString(minutes) + " " +
-                ETJump::getSecondsString(seconds);
-    }
-  }
-
-  Printer::chat(ent, message);
-  return true;
-}
-
-bool MostPlayed(gentity_t *ent, Arguments argv) {
-  auto mapsToList = 10;
-  if (argv->size() == 2) {
-    try {
-      mapsToList = std::stoi(argv->at(1), nullptr, 10);
-    } catch (const std::invalid_argument &) {
-      Printer::chat(ent, ETJump::stringFormat(
-                             "^3Error: ^7'%s^7' is not a number", argv->at(1)));
-      return false;
-    } catch (const std::out_of_range &) {
-      mapsToList = 10;
-    }
-
-    if (mapsToList <= 0) {
-      Printer::chat(ent, "^3mostplayed: ^7second argument must be over 0");
-      return false;
-    }
-
-    if (mapsToList > 100) {
-      mapsToList = 100;
-    }
-  }
-
-  auto mostPlayed = game.mapStatistics->getMostPlayed();
-  auto listedMaps = 0;
-  std::string buffer = "^zMost played maps are:\n"
-                       "^gMap                    Played                        "
-                       " Last played       Times played\n";
-  auto green = false;
-  for (auto &map : mostPlayed) {
-    if (listedMaps >= mapsToList) {
-      break;
-    }
-
-    buffer += green ? "^g" : "^7";
-    buffer += ETJump::stringFormat(
-        "%-22s %-30s %-17s     %d\n", map->name,
-        playedTimeFmtString(map->secondsPlayed),
-        Utilities::timestampToString(map->lastPlayed), map->timesPlayed);
-    green = !green;
-
-    ++listedMaps;
-  }
-
-  Printer::console(ClientNum(ent), buffer);
-
+  game.mapStatisticsV2->printMapInformation(ent, argv->size() > 1 ? argv->at(1) : level.rawmapname);
   return true;
 }
 
@@ -2211,21 +2100,21 @@ bool NewMaps(gentity_t *ent, Arguments argv) {
     }
   }
 
-  auto maps = game.mapStatistics->getMaps();
-  int totalMaps = static_cast<int>(maps.size());
+  const auto maps = game.mapStatisticsV2->getNewestMaps(numMaps);
 
-  // very unlikely but can potentially happen
-  if (numMaps > totalMaps) {
-    numMaps = totalMaps;
+  if (maps.empty()) {
+    Printer::console(ent, "No valid maps on the server.\n");
+    return false;
   }
 
   std::string buffer = "^zLatest ^3" +
                        ETJump::getPluralizedString(numMaps, "^zmap") +
                        " added to server:\n\n";
   int lines = 0;
-  for (int i = numMaps; i > 0; i--) {
+
+  for (size_t i = maps.size(); i > 0; i--) {
     buffer += lines % 2 == 0 ? "^7" : "^z";
-    buffer += ETJump::stringFormat("%s\n", maps.at(totalMaps - i));
+    buffer += ETJump::stringFormat("%s\n", maps[maps.size() - i]);
     lines++;
   }
 
@@ -2542,7 +2431,7 @@ Commands::Commands() {
   adminCommands_["kick"] =
       AdminCommandPair(AdminCommands::Kick, CommandFlags::KICK);
   adminCommands_["leastplayed"] =
-      AdminCommandPair(AdminCommands::LeastPlayed, CommandFlags::BASIC);
+      AdminCommandPair(AdminCommands::listMapsByPlaytime, CommandFlags::BASIC);
   adminCommands_["levelinfo"] =
       AdminCommandPair(AdminCommands::LevelInfo, CommandFlags::EDIT);
   adminCommands_["listbans"] =
@@ -2562,7 +2451,7 @@ Commands::Commands() {
   adminCommands_["mapinfo"] =
       AdminCommandPair(AdminCommands::MapInfo, CommandFlags::BASIC);
   adminCommands_["mostplayed"] =
-      AdminCommandPair(AdminCommands::MostPlayed, CommandFlags::BASIC);
+      AdminCommandPair(AdminCommands::listMapsByPlaytime, CommandFlags::BASIC);
   adminCommands_["mute"] =
       AdminCommandPair(AdminCommands::Mute, CommandFlags::MUTE);
   adminCommands_["noclip"] =

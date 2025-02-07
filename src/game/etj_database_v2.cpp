@@ -28,7 +28,7 @@
 #include "etj_printer.h"
 #include "etj_string_utilities.h"
 
-ETJump::Log logger("databasev2");
+ETJump::Log logger("database-v2");
 
 namespace ETJump {
 DatabaseV2::DatabaseV2(const std::string &name, const std::string &fileName)

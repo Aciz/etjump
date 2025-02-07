@@ -29,7 +29,7 @@
 #include "etj_log.h"
 
 namespace ETJump {
-class MapStatistics;
+class MapStatisticsV2;
 
 class CustomMapVotes {
 public:
@@ -48,7 +48,7 @@ public:
     std::string callvoteText;
   };
 
-  CustomMapVotes(const std::shared_ptr<MapStatistics> &mapStats,
+  CustomMapVotes(const std::shared_ptr<MapStatisticsV2> &mapStats,
                  std::unique_ptr<Log> log);
   ~CustomMapVotes() = default;
 
@@ -77,8 +77,8 @@ public:
 
 private:
   std::vector<MapType> customMapVotes_;
-  const std::vector<std::string> *_currentMapsOnServer{};
-  const std::shared_ptr<MapStatistics> &_mapStats;
+  std::vector<std::string> _currentMapsOnServer{};
+  const std::shared_ptr<MapStatisticsV2> &_mapStats;
   std::unique_ptr<Log> logger;
   std::string errors;
 };

@@ -2089,6 +2089,7 @@ extern vmCvar_t g_voteCooldown;
 extern vmCvar_t mod_version;
 
 extern vmCvar_t g_mapDatabase;
+extern vmCvar_t g_mapDatabase2;
 
 extern vmCvar_t g_disableVoteAfterMapChange;
 
@@ -2865,15 +2866,12 @@ qboolean OnClientCommand(gentity_t *ent);
 qboolean OnConsoleCommand();
 void OnGameInit();
 void OnGameShutdown();
-const char *GetRandomMap();
 const char *GetRandomMapByType(const char *customType);
 std::vector<std::string> getMapsOnList(const std::string &name);
 qboolean AdminCommandCheck(gentity_t *ent);
 // void StartRace(gentity_t *ent);
 const char *CustomMapTypeExists(const char *mapType);
 void ClientNameChanged(gentity_t *ent);
-void G_increaseCallvoteCount(const char *mapName);
-void G_increasePassedCount(const char *mapName);
 void LogServerState();
 
 namespace ETJump {
@@ -2925,9 +2923,8 @@ void TimerunConnectNotify(gentity_t *ent);
 
 void InterruptRun(gentity_t *ent);
 
-void RunFrame(int levelTime);
-const char *G_MatchOneMap(const char *arg);
-std::vector<std::string> G_MatchAllMaps(const char *arg);
+void RunFrame();
+std::vector<std::string> G_MatchAllMaps(const std::string &mapname);
 
 ///////////////////////////////////////////////////////////////////////////////
 // ETJump global systems

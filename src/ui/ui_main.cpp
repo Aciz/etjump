@@ -3343,7 +3343,11 @@ static void UI_LoadDemos() {
   // so we must always send a forward slash here as the extension,
   // instead of platform-specific path separator
   const std::vector<std::string> demoDirs =
+<<<<<<< Updated upstream
       ETJump::FileSystem::getFileList(path, "/", true);
+=======
+      ETJump::FileSystem::getFileList(path, PATH_SEP_STRING, true, false);
+>>>>>>> Stashed changes
   std::vector<FileSystemObjectInfo> directories;
 
   for (const auto &dir : demoDirs) {
@@ -3360,7 +3364,7 @@ static void UI_LoadDemos() {
   }
 
   const std::vector<std::string> demoFiles =
-      ETJump::FileSystem::getFileList(path, ext, true);
+      ETJump::FileSystem::getFileList(path, ext, true, false);
   std::vector<FileSystemObjectInfo> files;
 
   for (const auto &demo : demoFiles) {

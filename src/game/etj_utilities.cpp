@@ -23,6 +23,7 @@
  */
 
 #include <stdexcept>
+#include <ctime>
 
 #include "etj_utilities.h"
 #include "etj_save_system.h"
@@ -135,31 +136,24 @@ bool Utilities::inNoNoclipArea(gentity_t *ent) {
   return false;
 }
 
-std::string Utilities::timestampToString(int timestamp, const char *format,
+std::string Utilities::timestampToString(const uint32_t timestamp, const char *format,
                                          const char *start) {
   char buf[1024];
-  struct tm *lt = NULL;
-  time_t toConvert = timestamp;
-  lt = localtime(&toConvert);
+  const std::tm *lt = nullptr;
+  const std::time_t toConvert = timestamp;
+  lt = std::localtime(&toConvert);
+
   if (timestamp > 0) {
-    strftime(buf, sizeof(buf), format, lt);
+    std::strftime(buf, sizeof(buf), format, lt);
   } else {
     return start;
   }
 
-  return std::string(buf);
+  return buf;
 }
 
 bool Utilities::anyonePlaying() {
-  for (auto i = 0; i < level.numConnectedClients; i++) {
-    auto clientNum = level.sortedClients[i];
-    auto target = g_entities + clientNum;
-
-    if (target->client->sess.sessionTeam != TEAM_SPECTATOR) {
-      return true;
-    }
-  }
-  return false;
+  return level.numPlayingClients;
 }
 
 void Utilities::Log(const std::string &message) {

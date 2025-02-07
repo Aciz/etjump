@@ -90,9 +90,9 @@ void ETJump::TimerunV2::computeRanks() {
         for (const auto &r : records) {
           // we don't want to compute score for maps not on the server,
           // e.g. when a new version of a map is released
-          if (!game.mapStatistics->mapExists(r.map)) {
-            continue;
-          }
+          // if (!game.mapStatistics->mapExists(r.map)) {
+          //   continue;
+          // }
           if (scores.count(r.seasonId) == 0) {
             scores[r.seasonId] = {};
           }

@@ -191,34 +191,6 @@ std::vector<std::string> ETJump::wrapWords(const std::string &input,
   return output;
 }
 
-std::string ETJump::getSecondsString(const int &seconds) {
-  return getPluralizedString(seconds, "second");
-}
-
-std::string ETJump::getMinutesString(const int &minutes) {
-  return getPluralizedString(minutes, "minute");
-}
-
-std::string ETJump::getHoursString(const int &hours) {
-  return getPluralizedString(hours, "hour");
-}
-
-std::string ETJump::getDaysString(const int &days) {
-  return getPluralizedString(days, "day");
-}
-
-std::string ETJump::getWeeksString(const int &weeks) {
-  return getPluralizedString(weeks, "week");
-}
-
-std::string ETJump::getMonthsString(const int &months) {
-  return getPluralizedString(months, "month");
-}
-
-std::string ETJump::getYearsString(const int &years) {
-  return getPluralizedString(years, "year");
-}
-
 std::string ETJump::StringUtil::toLowerCase(const std::string &input) {
   std::string str = input;
   std::transform(str.begin(), str.end(), str.begin(),

@@ -41,6 +41,8 @@
 #include "etj_chat_replay.h"
 #include "etj_filesystem.h"
 #include "etj_printer.h"
+#include "etj_map_statistics_repository.h"
+#include "etj_map_statistics_v2.h"
 
 Game game;
 
@@ -130,8 +132,8 @@ bool checkCheatCvars(gclient_s *client, int flags) {
 }
 } // namespace ETJump
 
-void RunFrame(int levelTime) {
-  game.mapStatistics->runFrame(levelTime);
+void RunFrame() {
+  game.mapStatisticsV2->runFrame();
   game.timerunV2->runFrame();
 
   if (game.rtv->checkAutoRtv()) {
@@ -144,9 +146,20 @@ void RunFrame(int levelTime) {
 void OnGameInit() {
   game.levels = std::make_shared<Levels>();
   game.commands = std::make_shared<Commands>();
-  game.mapStatistics = std::make_shared<ETJump::MapStatistics>();
+
+  game.mapStatisticsV2 = std::make_shared<ETJump::MapStatisticsV2>(
+      level.rawmapname,
+      std::make_unique<ETJump::MapStatisticsRepository>(
+          std::make_unique<ETJump::DatabaseV2>(
+              "mapstatistics-v2",
+              ETJump::FileSystem::Path::getPath(g_mapDatabase2.string)),
+          std::make_unique<ETJump::DatabaseV2>(
+              "mapstatistics-v1",
+              ETJump::FileSystem::Path::getPath(g_mapDatabase.string))),
+      std::make_unique<ETJump::Log>("mapstatistics-v2"), std::make_unique<ETJump::SynchronizationContext>());
+
   game.customMapVotes = std::make_unique<ETJump::CustomMapVotes>(
-      game.mapStatistics, std::make_unique<ETJump::Log>("customvotes"));
+      game.mapStatisticsV2, std::make_unique<ETJump::Log>("customvotes"));
   game.motd =
       std::make_unique<ETJump::Motd>(std::make_unique<ETJump::Log>("MOTD"));
   game.tokens =
@@ -182,16 +195,15 @@ void OnGameInit() {
       level.rawmapname,
       std::make_unique<ETJump::TimerunRepository>(
           std::make_unique<ETJump::DatabaseV2>(
-              "timerunv2",
+              "timerun-v2",
               ETJump::FileSystem::Path::getPath(g_timeruns2Database.string)),
           std::make_unique<ETJump::DatabaseV2>(
-              "timerunv1",
+              "timerun-v1",
               ETJump::FileSystem::Path::getPath(g_timerunsDatabase.string))),
-      std::make_unique<ETJump::Log>("timerunv2"),
+      std::make_unique<ETJump::Log>("timerun-v2"),
       std::make_unique<ETJump::SynchronizationContext>());
 
-  game.mapStatistics->initialize(std::string(g_mapDatabase.string),
-                                 level.rawmapname);
+  game.mapStatisticsV2->initialize();
   game.customMapVotes->loadCustomvotes(true);
   game.motd->initialize();
   game.timerunV2->initialize();
@@ -204,7 +216,8 @@ void OnGameInit() {
     game.tokens->loadTokens(path);
   }
 
-  game.mapStatistics->writeMapsToDisk("maps.json");
+  // FIXME: implement
+  //game.mapStatistics->writeMapsToDisk("maps.json");
 
   ETJump::Log::processMessages();
 }
@@ -216,10 +229,6 @@ void OnGameShutdown() {
   // after engine calls longjmp on errors
   if (ETJump::database != nullptr) {
     ETJump::database->CloseDatabase();
-  }
-
-  if (game.mapStatistics != nullptr) {
-    game.mapStatistics->saveChanges();
   }
 
   if (game.tokens != nullptr) {
@@ -234,11 +243,15 @@ void OnGameShutdown() {
     game.chatReplay->writeChatsToFile();
   }
 
+  if (game.mapStatisticsV2) {
+    game.mapStatisticsV2->shutdown();
+  }
+
   game.levels = nullptr;
   game.commands = nullptr;
   game.customMapVotes = nullptr;
   game.motd = nullptr;
-  game.mapStatistics = nullptr;
+  game.mapStatisticsV2= nullptr;
   game.tokens = nullptr;
   game.timerunV2 = nullptr;
   game.rtv = nullptr;
@@ -327,47 +340,22 @@ qboolean OnConsoleCommand() {
   return qfalse;
 }
 
-const char *GetRandomMap() { return game.mapStatistics->randomMap(); }
-
 std::vector<std::string> getMapsOnList(const std::string &name) {
   return game.customMapVotes->getMapsOnList(name);
 }
 
-const char *G_MatchOneMap(const char *arg) {
-  auto currentMaps = game.mapStatistics->getCurrentMaps();
+std::vector<std::string> G_MatchAllMaps(const std::string &mapname) {
+  if (mapname.empty()) {
+    return {};
+  }
+
+  const auto currentMaps = game.mapStatisticsV2->getCurrentMaps();
   std::vector<std::string> matchingMaps;
-  std::string mapName = arg ? ETJump::StringUtil::toLowerCase(arg) : "";
+  matchingMaps.reserve(currentMaps.size());
+  const std::string name = ETJump::StringUtil::toLowerCase(mapname);
 
-  for (auto &map : *(currentMaps)) {
-    if (map.find(mapName) != std::string::npos) {
-      matchingMaps.push_back(map);
-    }
-  }
-
-  static char matchingMap[MAX_STRING_TOKENS] = "\0";
-  if (matchingMaps.size() == 1) {
-    Q_strncpyz(matchingMap, matchingMaps[0].c_str(), sizeof(matchingMap));
-    return matchingMap;
-  }
-
-  if (matchingMaps.size() > 1) {
-    auto match = std::find(matchingMaps.begin(), matchingMaps.end(), mapName);
-    if (match != matchingMaps.end()) {
-      Q_strncpyz(matchingMap, match->c_str(), sizeof(matchingMap));
-      return matchingMap;
-    }
-  }
-
-  return NULL;
-}
-
-std::vector<std::string> G_MatchAllMaps(const char *arg) {
-  auto currentMaps = game.mapStatistics->getCurrentMaps();
-  std::vector<std::string> matchingMaps;
-  std::string mapName = arg ? ETJump::StringUtil::toLowerCase(arg) : "";
-
-  for (auto &map : *(currentMaps)) {
-    if (map.find(mapName) != std::string::npos) {
+  for (const auto &map : currentMaps) {
+    if (map.find(name) != std::string::npos) {
       matchingMaps.push_back(map);
     }
   }
@@ -450,14 +438,6 @@ void InterruptRun(gentity_t *ent) {
   }
 
   game.timerunV2->interrupt(ClientNum(ent));
-}
-
-void G_increaseCallvoteCount(const char *mapName) {
-  game.mapStatistics->increaseCallvoteCount(mapName);
-}
-
-void G_increasePassedCount(const char *mapName) {
-  game.mapStatistics->increasePassedCount(mapName);
 }
 
 namespace ETJump {

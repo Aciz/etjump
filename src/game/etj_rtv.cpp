@@ -28,6 +28,8 @@
 #include "etj_string_utilities.h"
 #include "etj_utilities.h"
 #include "etj_printer.h"
+#include "etj_local.h"
+#include "etj_map_statistics_v2.h"
 
 namespace ETJump {
 
@@ -41,14 +43,14 @@ RockTheVote::RockTheVote() {
 std::vector<std::string> RockTheVote::getMostVotedMaps() {
   std::vector<std::string> mostVotedMaps{};
   int previousVoteCount = 0;
-  int voteCount;
 
   for (const auto &map : rtvMaps) {
     if (map.second == 0) {
       continue;
     }
 
-    voteCount = map.second;
+    const int voteCount = map.second;
+    game.mapStatisticsV2->updateVoteStats(MapStatisticsV2::VoteUpdateType::RtvVote, map.first, voteCount);
 
     if (voteCount > previousVoteCount) {
       mostVotedMaps.clear();
@@ -71,7 +73,7 @@ void RockTheVote::setRtvWinner() {
 
     std::shuffle(maps.begin(), maps.end(), gen);
   } else {
-    G_increasePassedCount(maps[0].c_str());
+    game.mapStatisticsV2->updateVoteStats(MapStatisticsV2::VoteUpdateType::VotePassed, maps[0]);
   }
 
   Q_strncpyz(level.voteInfo.vote_value, maps[0].c_str(),

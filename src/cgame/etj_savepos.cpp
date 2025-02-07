@@ -56,8 +56,7 @@ SavePos::SavePos(const std::shared_ptr<Timerun> &p) {
 }
 
 void SavePos::parseExistingPositions(const bool manual) {
-  const std::vector<std::string> files =
-      FileSystem::getFileList("savepos", ".dat", false);
+  const std::vector<std::string> files = FileSystem::getFileList("savepos", ".dat", false, false);
 
   savePositions.clear();
 

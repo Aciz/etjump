@@ -9,6 +9,8 @@
 #include "etj_numeric_utilities.h"
 #include "etj_rtv.h"
 #include "etj_custom_map_votes.h"
+#include "etj_map_statistics_v2.h"
+
 #include <set>
 
 #define T_FFA 0x01
@@ -346,7 +348,7 @@ bool matchRandomMap(const char *arg, std::string &map) {
 
     map = GetRandomMapByType(arg);
   } else {
-    map = GetRandomMap();
+    map = game.mapStatisticsV2->getRandomMap();
   }
 
   if (map.empty()) {
@@ -433,13 +435,13 @@ int G_Map_v(gentity_t *ent, unsigned int dwVoteIndex, char *arg, char *arg2,
     // array size is set in Cmd_CallVote_f
     Q_strncpyz(arg2, map.c_str(), MAX_STRING_TOKENS);
     Com_sprintf(level.voteInfo.vote_value, VOTE_MAXSTRING, "%s", arg2);
-    G_increaseCallvoteCount(arg2);
+    game.mapStatisticsV2->updateVoteStats(ETJump::MapStatisticsV2::VoteUpdateType::Callvote, arg2);
 
     // Vote action (vote has passed)
   } else {
     char s[MAX_STRING_CHARS];
 
-    G_increasePassedCount(level.voteInfo.vote_value);
+    game.mapStatisticsV2->updateVoteStats(ETJump::MapStatisticsV2::VoteUpdateType::VotePassed, level.voteInfo.vote_value);
 
     Svcmd_ResetMatch_f(qfalse);
     trap_Cvar_VariableStringBuffer("nextmap", s, sizeof(s));
@@ -524,7 +526,7 @@ int G_RockTheVote_v(gentity_t *ent, unsigned dwVoteIndex, char *arg,
         }
       }
     } else {
-      maps = (*game.mapStatistics->getCurrentMaps());
+      maps = game.mapStatisticsV2->getCurrentMaps();
       // -1 to exclude current map
       numMaps = static_cast<int>(maps.size() - 1);
     }
@@ -548,7 +550,7 @@ int G_RockTheVote_v(gentity_t *ent, unsigned dwVoteIndex, char *arg,
     const size_t maxMaps =
         Numeric::clamp(g_rtvMapCount.integer, 2, std::min(numMaps, 9));
     std::set<std::string> uniqueMaps;
-    auto rtvMaps = game.rtv->getRtvMaps();
+    const auto rtvMaps = game.rtv->getRtvMaps();
 
     game.rtv->clearRtvMaps();
 
@@ -560,7 +562,7 @@ int G_RockTheVote_v(gentity_t *ent, unsigned dwVoteIndex, char *arg,
     } else {
       while (uniqueMaps.size() <= maxMaps) {
         // neither of these functions ever return the current map
-        const char *map = arg2[0] ? GetRandomMapByType(arg2) : GetRandomMap();
+        const std::string map = arg2[0] ? GetRandomMapByType(arg2) : game.mapStatisticsV2->getRandomMap();
         uniqueMaps.insert(map);
       }
     }
