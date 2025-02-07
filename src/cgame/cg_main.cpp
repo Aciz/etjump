@@ -675,6 +675,8 @@ vmCvar_t etj_recordingStatusY;
 vmCvar_t etj_smoothAngles;
 vmCvar_t etj_autoSprint;
 
+vmCvar_t etj_demoQueueCurrent;
+
 typedef struct {
   vmCvar_t *vmCvar;
   const char *cvarName;
@@ -1266,6 +1268,8 @@ cvarTable_t cvarTable[] = {
 
     {&etj_smoothAngles, "etj_smoothAngles", "1", CVAR_ARCHIVE},
     {&etj_autoSprint, "etj_autoSprint", "0", CVAR_ARCHIVE},
+
+    {&etj_demoQueueCurrent, "etj_demoQueueCurrent", "", CVAR_ARCHIVE | CVAR_ROM},
 };
 
 int cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);
@@ -4093,6 +4097,10 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum,
 
     // notify UI that we're in demo playback
     trap_SendConsoleCommand("uiDemoPlaybackEnabled");
+
+    if (etj_demoQueueCurrent.string[0] != '\0') {
+      cg.demoQueuePlaying = true;
+    }
   }
 }
 
@@ -4116,6 +4124,11 @@ void CG_Shutdown(void) {
   trap_R_LoadDynamicShader(nullptr, nullptr);
 
   Shutdown_Display();
+
+  if (cg.demoPlayback && cg.demoQueuePlaying) {
+    // UI will handle things if this is the last demo of the queue
+    trap_SendConsoleCommand("demoQueueNext");
+  }
 }
 
 qboolean CG_CheckExecKey(int key) {

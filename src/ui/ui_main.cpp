@@ -13,6 +13,7 @@ USER INTERFACE MAIN
 
 #include "ui_local.h"
 #include "etj_colorpicker.h"
+#include "etj_demo_queue.h"
 
 #include "../cgame/etj_cvar_parser.h"
 #include "../game/etj_string_utilities.h"
@@ -296,7 +297,7 @@ extern "C" FN_PUBLIC intptr_t vmMain(int command, intptr_t arg0, intptr_t arg1,
       return UI_ConsoleCommand(arg0);
 
     case UI_DRAW_CONNECT_SCREEN:
-      UI_DrawConnectScreen(arg0 ? qtrue : qfalse);
+      UI_DrawConnectScreen(arg0 ? true : false);
       return 0;
     case UI_HASUNIQUECDKEY: // mod authors need to observe this
       return qtrue;
@@ -814,6 +815,7 @@ void UI_ShowPostGame(qboolean newHigh) {
 namespace ETJump {
 std::unique_ptr<ColorPicker> colorPicker;
 std::unique_ptr<SyscallExt> syscallExt;
+std::unique_ptr<DemoQueue> demoQueue;
 
 static void initColorPicker() {
   colorPicker = std::make_unique<ColorPicker>();
@@ -989,6 +991,10 @@ fitChangelogLinesToWidth(std::vector<std::string> &lines, const int maxW,
 
   return fmtLines;
 }
+
+static void initDemoQueueHandler() {
+  demoQueue = std::make_unique<DemoQueue>();
+}
 } // namespace ETJump
 
 /*
@@ -1083,6 +1089,7 @@ void _UI_Shutdown(void) {
 
   ETJump::colorPicker = nullptr;
   ETJump::syscallExt = nullptr;
+  ETJump::demoQueue = nullptr;
 
   Shutdown_Display();
 }
@@ -7099,6 +7106,14 @@ static void detectClientEngine(int legacyClient, int clientVersion) {
 }
 } // namespace ETJump
 
+static void UI_RegisterConsoleCommands() {
+  trap_AddCommand("ui_report");
+
+  trap_AddCommand("startDemoQueue");
+  trap_AddCommand("stopDemoQueue");
+  trap_AddCommand("restartDemoQueue");
+}
+
 /*
 =================
 UI_Init
@@ -7226,6 +7241,7 @@ void _UI_Init(int legacyClient, int clientVersion) {
   ETJump::initColorPicker();
   ETJump::initExtensionSystem();
   ETJump::parseChangelogs();
+  ETJump::initDemoQueueHandler();
 
   Init_Display(&uiInfo.uiDC);
 
@@ -7309,7 +7325,7 @@ void _UI_Init(int legacyClient, int clientVersion) {
              sizeof(translated_yes));
   Q_strncpyz(translated_no, DC->translateString("NO"), sizeof(translated_no));
 
-  trap_AddCommand("ui_report");
+  UI_RegisterConsoleCommands();
 
   Com_Printf(S_COLOR_LTGREY GAME_NAME " " S_COLOR_GREEN GAME_VERSION
                                       " " S_COLOR_LTGREY GAME_BINARY_NAME
@@ -7885,114 +7901,6 @@ void Text_PaintCenter(float x, float y, float scale, vec4_t color,
   Text_Paint(x - len / 2, y, scale, color, text, 0, 0, ITEM_TEXTSTYLE_SHADOWED);
 }
 
-#if 0 // rain - unused
-  #define ESTIMATES 80
-static void UI_DisplayDownloadInfo(const char *downloadName, float centerPoint, float yStart, float scale)
-{
-	static char dlText[]                = "Downloading:";
-	static char etaText[]               = "Estimated time left:";
-	static char xferText[]              = "Transfer rate:";
-	static int  tleEstimates[ESTIMATES] = { 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60,
-		                                    60,  60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60,
-		                                    60,  60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60,
-		                                    60,  60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60 };
-	static int  tleIndex = 0;
-
-	int        downloadSize, downloadCount, downloadTime;
-	char       dlSizeBuf[64], totalSizeBuf[64], xferRateBuf[64], dlTimeBuf[64];
-	int        xferRate;
-	const char *s;
-
-	vec4_t bg_color = { 0.3f, 0.3f, 0.3f, 0.8f };
-
-	downloadSize  = trap_Cvar_VariableValue("cl_downloadSize");
-	downloadCount = trap_Cvar_VariableValue("cl_downloadCount");
-	downloadTime  = trap_Cvar_VariableValue("cl_downloadTime");
-
-	// Background
-	UI_FillRect(0, yStart + 185, 640, 83, bg_color);
-
-	UI_SetColor(colorYellow);
-	Text_Paint(92, yStart + 210, scale, colorYellow, dlText, 0, 64, ITEM_TEXTSTYLE_SHADOWEDMORE);
-	Text_Paint(35, yStart + 235, scale, colorYellow, etaText, 0, 64, ITEM_TEXTSTYLE_SHADOWEDMORE);
-	Text_Paint(86, yStart + 260, scale, colorYellow, xferText, 0, 64, ITEM_TEXTSTYLE_SHADOWEDMORE);
-
-	if (downloadSize > 0)
-	{
-		s = va("%s (%d%%)", downloadName, downloadCount * 100 / downloadSize);
-	}
-	else
-	{
-		s = downloadName;
-	}
-
-	Text_Paint(260, yStart + 210, scale, colorYellow, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
-
-	UI_ReadableSize(dlSizeBuf, sizeof dlSizeBuf, downloadCount);
-	UI_ReadableSize(totalSizeBuf, sizeof totalSizeBuf, downloadSize);
-
-	if (downloadCount < 4096 || !downloadTime)
-	{
-		Text_PaintCenter(centerPoint, yStart + 235, scale, colorYellow, "estimating", 0);
-		Text_PaintCenter(centerPoint, yStart + 340, scale, colorYellow, va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), 0);
-	}
-	else
-	{
-		if ((uiInfo.uiDC.realTime - downloadTime) / 1000)
-		{
-			xferRate = downloadCount / ((uiInfo.uiDC.realTime - downloadTime) / 1000);
-		}
-		else
-		{
-			xferRate = 0;
-		}
-		UI_ReadableSize(xferRateBuf, sizeof xferRateBuf, xferRate);
-
-		// Extrapolate estimated completion time
-		if (downloadSize && xferRate)
-		{
-			int n        = downloadSize / xferRate; // estimated time for entire d/l in secs
-			int timeleft = 0, i;
-
-			// We do it in K (/1024) because we'd overflow around 4MB
-			tleEstimates[tleIndex] = (n - (((downloadCount / 1024) * n) / (downloadSize / 1024)));
-			tleIndex++;
-			if (tleIndex >= ESTIMATES)
-			{
-				tleIndex = 0;
-			}
-
-			for (i = 0; i < ESTIMATES; i++)
-				timeleft += tleEstimates[i];
-
-			timeleft /= ESTIMATES;
-
-			UI_PrintTime(dlTimeBuf, sizeof dlTimeBuf, timeleft);
-
-			Text_Paint(260, yStart + 235, scale, colorYellow, dlTimeBuf, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
-			Text_PaintCenter(centerPoint, yStart + 340, scale, colorYellow, va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), 0);
-		}
-		else
-		{
-			Text_PaintCenter(centerPoint, yStart + 235, scale, colorYellow, "estimating", 0);
-			if (downloadSize)
-			{
-				Text_PaintCenter(centerPoint, yStart + 340, scale, colorYellow, va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), 0);
-			}
-			else
-			{
-				Text_PaintCenter(centerPoint, yStart + 340, scale, colorYellow, va("(%s copied)", dlSizeBuf), 0);
-			}
-		}
-
-		if (xferRate)
-		{
-			Text_Paint(260, yStart + 260, scale, colorYellow, va("%s/Sec", xferRateBuf), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
-		}
-	}
-}
-#endif
-
 /*
 ========================
 UI_DrawConnectScreen
@@ -8001,153 +7909,20 @@ This will also be overlaid on the cgame info screen during loading
 to prevent it from blinking away too rapidly on local or lan games.
 ========================
 */
-#define CP_LINEWIDTH 50
 
-void UI_DrawConnectScreen(qboolean overlay) {
-  //	static qboolean playingMusic = qfalse;
+void UI_DrawConnectScreen(const bool overlay) {
+  // I'm not sure if this can be null at this point so let's make sure
+  if (ETJump::demoQueue) {
+    uiClientState_t cstate;
+    trap_GetClientState(&cstate);
+
+    // when loading a demo, servername is set to the demo name
+    trap_Cvar_Set("etj_demoQueueCurrent", cstate.servername);
+  }
 
   if (!overlay) {
     UI_DrawLoadPanel(qfalse, qfalse, qfalse);
-  } else {
-    //		if( !playingMusic ) {
-    //			trap_S_StartBackgroundTrack(
-    //"sound/music/level_load.wav",
-    //"", 1000
-    //); 			playingMusic = qtrue;
-    //		}
   }
-
-  /*	if( !overlay ) {
-          BG_DrawConnectScreen( qfalse );
-      }*/
-  /*
-      char			*s;
-      uiClientState_t	cstate;
-      char			info[MAX_INFO_VALUE];
-      char text[256];
-      float centerPoint, yStart, scale;
-      vec4_t color = { 0.3f, 0.3f, 0.3f, 0.8f };
-  //	static qboolean playingMusic = qfalse;
-
-      char downloadName[MAX_INFO_VALUE];
-
-      menuDef_t *menu = Menus_FindByName("Connect");
-
-      if ( !overlay && menu ) {
-          Menu_Paint(menu, qtrue);
-      }
-
-      if (!overlay) {
-          centerPoint = 320;
-          yStart = 130;
-          scale = 0.4f;
-      } else {
-          centerPoint = 320;
-          yStart = 32;
-          scale = 0.6f;
-
-          // see what information we should display
-          trap_GetClientState( &cstate );
-
-
-          return;
-      }
-
-  //	playingMusic = qfalse;
-
-      // see what information we should display
-      trap_GetClientState( &cstate );
-
-      info[0] = '\0';
-
-      if (!Q_stricmp(cstate.servername,"localhost")) {
-          Text_PaintCenter(centerPoint, yStart + 48, scale,
-  colorWhite,va( "Enemy Territory - Version: %s", Q3_VERSION ),
-  ITEM_TEXTSTYLE_SHADOWEDMORE); } else { strcpy(text, va(
-  trap_TranslateString( "Connecting to %s" ), cstate.servername));
-  Text_PaintCenter(centerPoint, yStart + 48, scale, colorWhite,text ,
-  ITEM_TEXTSTYLE_SHADOWEDMORE);
-      }
-
-      // display global MOTD at bottom (don't draw during download, the
-  space is already used)
-      // moved downloadName query up, this is used in CA_CONNECTED
-      trap_Cvar_VariableStringBuffer( "cl_downloadName", downloadName,
-  sizeof(downloadName) );
-
-      if (!*downloadName) {
-          Text_PaintCenter(centerPoint, 475, scale, colorWhite,
-  Info_ValueForKey( cstate.updateInfoString, "motd" ), 0);
-      }
-
-      // print any server info (server full, bad version, etc)
-      // DHM - Nerve :: This now accepts strings up to 256 chars long,
-  and will break them up into multiple lines.
-      //					They are also now printed
-  in Yellow for readability. if ( cstate.connState < CA_CONNECTED ) {
-  char	*s; char ps[60]; int		i, len, index = 0, yPrint =
-  yStart + 210; qboolean neednewline = qfalse;
-
-          s = trap_TranslateString( cstate.messageString );
-          len = strlen( s );
-
-          for ( i = 0; i < len; i++, index++ ) {
-
-              // copy to temp buffer
-              ps[index] = s[i];
-
-              if ( index > (CP_LINEWIDTH - 10) && i > 0 )
-                  neednewline = qtrue;
-
-              // if out of temp buffer room OR end of string OR it is
-  time to linebreak & we've found a space if ( (index >= 58) || (i ==
-  (len-1)) || (neednewline && s[i] == ' ') ) { ps[index+1] = '\0';
-
-                  DC->fillRect(0, yPrint - 17, 640, 22, color);
-                  Text_PaintCenter(centerPoint, yPrint, scale,
-  colorYellow, ps, 0);
-
-                  neednewline = qfalse;
-                  yPrint += 22;		// next line
-                  index = -1;			// sigh, for loop will
-  increment to 0
-              }
-          }
-
-      }
-
-      if ( lastConnState > cstate.connState ) {
-          lastLoadingText[0] = '\0';
-      }
-      lastConnState = cstate.connState;
-
-      switch ( cstate.connState ) {
-      case CA_CONNECTING:
-          s = va( trap_TranslateString( "Awaiting connection...%i" ),
-  cstate.connectPacketCount); break; case CA_CHALLENGING: s = va(
-  trap_TranslateString( "Awaiting challenge...%i" ),
-  cstate.connectPacketCount); break; case CA_CONNECTED: if
-  (*downloadName) { UI_DisplayDownloadInfo( downloadName, centerPoint,
-  yStart, scale ); return;
-              }
-          s = trap_TranslateString( "Awaiting gamestate..." );
-          break;
-      case CA_LOADING:
-          return;
-      case CA_PRIMED:
-          return;
-      default:
-          return;
-      }
-
-
-      if (Q_stricmp(cstate.servername,"localhost")) {
-          Text_PaintCenter(centerPoint, yStart + 80, scale, colorWhite,
-  s, 0);
-      }
-
-      // password required / connection rejected information goes here
-  */
 }
 
 /*
@@ -8308,6 +8083,10 @@ vmCvar_t ui_voteCustomRTV;
 vmCvar_t etj_menuSensitivity;
 
 vmCvar_t ui_currentChangelog;
+
+vmCvar_t etj_currentDemoName;
+vmCvar_t etj_demoQueueDir;
+vmCvar_t etj_demoQueueNext;
 
 cvarTable_t cvarTable[] = {
 
@@ -8543,6 +8322,10 @@ cvarTable_t cvarTable[] = {
     {&etj_menuSensitivity, "etj_menuSensitivity", "1.0", CVAR_ARCHIVE},
 
     {&ui_currentChangelog, "ui_currentChangelog", "", CVAR_TEMP | CVAR_ROM},
+
+{&etj_currentDemoName, "etj_currentDemoName", "", CVAR_ARCHIVE | CVAR_ROM},
+{&etj_demoQueueDir, "etj_demoQueueDir", "demoqueue", CVAR_ARCHIVE},
+{&etj_demoQueueNext, "etj_demoQueueNext", "", CVAR_ARCHIVE | CVAR_ROM},
 };
 
 int cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);

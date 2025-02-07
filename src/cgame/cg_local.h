@@ -1288,6 +1288,8 @@ typedef struct {
   bool showRtvMenu;
 
   bool jumpDelayBug;
+
+  bool demoQueuePlaying;
 } cg_t;
 
 #define NUM_FUNNEL_SPRITES 21
@@ -2789,6 +2791,8 @@ extern vmCvar_t etj_recordingStatusY;
 
 extern vmCvar_t etj_smoothAngles;
 extern vmCvar_t etj_autoSprint;
+
+extern vmCvar_t etj_demoQueueCurrent;
 
 //
 // cg_main.c

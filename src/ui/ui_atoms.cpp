@@ -5,6 +5,7 @@
 
     User interface building blocks and support functions.
 **********************************************************************/
+#include "etj_demo_queue.h"
 #include "ui_local.h"
 
 uiStatic_t uis;
@@ -210,6 +211,26 @@ qboolean UI_ConsoleCommand(const int realTime) {
 
   if (!Q_stricmp(cmd, "uiResetCustomvotes")) {
     ETJump::resetCustomvotes();
+    return qtrue;
+  }
+
+  if (!Q_stricmp(cmd, "startDemoQueue")) {
+    ETJump::demoQueue->start();
+    return qtrue;
+  }
+
+  if (!Q_stricmp(cmd, "stopDemoQueue")) {
+    ETJump::DemoQueue::stop();
+    return qtrue;
+  }
+
+  if (!Q_stricmp(cmd, "restartDemoQueue")) {
+    ETJump::demoQueue->restart();
+    return qtrue;
+  }
+
+  if (!Q_stricmp(cmd, "demoQueueNext")) {
+    ETJump::demoQueue->next();
     return qtrue;
   }
 

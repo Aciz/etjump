@@ -127,6 +127,11 @@ extern vmCvar_t etj_menuSensitivity;
 
 extern vmCvar_t ui_currentChangelog;
 
+extern vmCvar_t etj_currentDemoName;
+extern vmCvar_t etj_demoQueueDir;
+extern vmCvar_t etj_demoQueueProgress;
+extern vmCvar_t etj_demoQueueNext;
+
 //
 // ui_qmenu.c
 //
@@ -415,7 +420,7 @@ extern void TeamMain_Cache(void);
 //
 // ui_connect.c
 //
-extern void UI_DrawConnectScreen(qboolean overlay);
+extern void UI_DrawConnectScreen(bool overlay);
 
 //
 // ui_controls2.c
@@ -1132,5 +1137,12 @@ void parseCustomvote();
 void resetCustomvotes();
 
 void toggleSettingsMenu();
+
+class DemoQueue;
+extern std::unique_ptr<DemoQueue> demoQueue;
+
+void parseDemoQueue();
+void startDemoQueue();
+void stopDemoQueue();
 } // namespace ETJump
 #endif
