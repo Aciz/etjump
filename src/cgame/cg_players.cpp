@@ -1396,7 +1396,7 @@ static void CG_PlayerFloatSprite(centity_t *cent, qhandle_t shader,
       ent.origin[2] -= 18;
     }
   } else {
-    if (static_cast<qboolean>(cent->currentState.animMovetype)) {
+    if (cent->currentState.animMovetype) {
       ent.origin[2] -= 18;
     }
   }

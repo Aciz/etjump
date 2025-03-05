@@ -6,6 +6,8 @@
 
 // #define PRE_RELEASE_DEMO
 
+#include "etj_net_int.h"
+
 #ifndef PRE_RELEASE_DEMO
   #define Q3_VERSION "ET 2.60"
 #else
@@ -1284,53 +1286,54 @@ typedef enum {
 // aiState[0-4]             2
 
 typedef struct playerState_s {
-  int commandTime; // cmd->serverTime of last executed command
-  int pm_type;
-  int bobCycle; // for view bobbing and footstep generation
-  int pm_flags; // ducked, jump_held, etc
-  int pm_time;
+  int32_t commandTime; // cmd->serverTime of last executed command
+  net_uint_t<8> pm_type;
+  net_uint_t<8> bobCycle; // for view bobbing and footstep generation
+  net_uint_t<16> pm_flags; // ducked, jump_held, etc
+  net_int_t<16> pm_time;
 
   vec3_t origin;
   vec3_t velocity;
-  int weaponTime;
-  int weaponDelay;     // for weapons that don't fire immediately when
+  net_int_t<16> weaponTime;
+  net_int_t<16> weaponDelay;     // for weapons that don't fire immediately when
                        // 'fire' is hit (grenades, venom, ...)
-  int grenadeTimeLeft; // for delayed grenade throwing.  this is set to
+  net_int_t<16> grenadeTimeLeft; // for delayed grenade throwing.  this is set to
                        // a #define for grenade lifetime when the attack
                        // button goes down, then when attack is released
                        // this is the amount of time left before the
                        // grenade goes off (or if it gets to 0 while in
                        // players hand, it explodes)
 
-  int gravity;
+  net_uint_t<16> gravity;
   float leanf; // amount of 'lean' when player is looking around corner
                // //----(SA)	added
 
-  int speed;
-  int delta_angles[3]; // add to command angles to get view direction
+  net_uint_t<16> speed;
+  net_uint_t<16> delta_angles[3]; // add to command angles to get view direction
                        // changed by spawns, rotating objects, and
                        // teleporters
 
-  int groundEntityNum; // ENTITYNUM_NONE = in air
+  net_uint_t<10> groundEntityNum; // ENTITYNUM_NONE = in air
 
-  int legsTimer; // don't change low priority animations until this runs
+  net_uint_t<16> legsTimer; // don't change low priority animations until this runs
                  // out
-  int legsAnim;  // mask off ANIM_TOGGLEBIT
+  net_uint_t<10> legsAnim;  // mask off ANIM_TOGGLEBIT
 
-  int torsoTimer; // don't change low priority animations until this
+  net_uint_t<16> torsoTimer; // don't change low priority animations until this
                   // runs out
-  int torsoAnim;  // mask off ANIM_TOGGLEBIT
+  net_uint_t<10> torsoAnim;  // mask off ANIM_TOGGLEBIT
 
-  int movementDir; // a number 0 to 7 that represents the reletive angle
+  net_uint_t<8> movementDir; // a number 0 to 7 that represents the reletive angle
                    // of movement to the view angle (axial and
                    // diagonals) when at rest, the value will remain
                    // unchanged used to twist the legs during strafing
 
-  int eFlags; // copied to entityState_t->eFlags
+  // note: only 24-bits are transmitted, treat as unsigned!
+  int32_t eFlags; // copied to entityState_t->eFlags
 
-  int eventSequence; // pmove generated events
-  int events[MAX_EVENTS];
-  int eventParms[MAX_EVENTS];
+  net_uint_t<8> eventSequence; // pmove generated events
+  net_uint_t<8> events[MAX_EVENTS];
+  net_uint_t<8> eventParms[MAX_EVENTS];
   int oldEventSequence; // so we can see which events have been added
                         // since we last converted to entityState_t
 
@@ -1338,32 +1341,32 @@ typedef struct playerState_s {
   int externalEventParm;
   int externalEventTime;
 
-  int clientNum; // ranges from 0 to MAX_CLIENTS-1
+  net_uint_t<8> clientNum; // ranges from 0 to MAX_CLIENTS-1
 
   // weapon info
-  int weapon; // copied to entityState_t->weapon
-  int weaponstate;
+  net_uint_t<7> weapon; // copied to entityState_t->weapon
+  net_uint_t<4> weaponstate;
 
   // item info
   int item;
 
   vec3_t viewangles; // for fixed views
-  int viewheight;
+  net_int_t<8> viewheight;
 
   // damage feedback
-  int damageEvent; // when it changes, latch the other parms
-  int damageYaw;
-  int damagePitch;
-  int damageCount;
+  net_uint_t<8> damageEvent; // when it changes, latch the other parms
+  net_uint_t<8> damageYaw;
+  net_uint_t<8> damagePitch;
+  net_uint_t<8> damageCount;
 
-  int stats[MAX_STATS];
-  int persistant[MAX_PERSISTANT]; // stats that aren't cleared on death
-  int powerups[MAX_POWERUPS];     // level.time that the powerup runs out
-  int ammo[MAX_WEAPONS];          // total amount of ammo
-  int ammoclip[MAX_WEAPONS];      // ammo in clip
-  int holdable[16];
+  net_uint_t<16> stats[MAX_STATS];
+  net_uint_t<16> persistant[MAX_PERSISTANT]; // stats that aren't cleared on death
+  int32_t powerups[MAX_POWERUPS];     // level.time that the powerup runs out
+  net_uint_t<16> ammo[MAX_WEAPONS];          // total amount of ammo
+  net_uint_t<16> ammoclip[MAX_WEAPONS];      // ammo in clip
+  net_uint_t<16> holdable[16];
   int holding; // the current item in holdable[] that is selected (held)
-  int weapons[MAX_WEAPONS / (sizeof(int) * 8)]; // 64 bits for weapons held
+  int32_t weapons[MAX_WEAPONS / (sizeof(int) * 8)]; // 64 bits for weapons held
 
   // Ridah, allow for individual bounding boxes
   vec3_t mins, maxs;
@@ -1374,23 +1377,23 @@ typedef struct playerState_s {
   // done.
 
   // Ridah, view locking for mg42
-  int viewlocked;
-  int viewlocked_entNum;
+  net_uint_t<8> viewlocked;
+  net_uint_t<16> viewlocked_entNum;
 
   float friction;
 
-  int nextWeapon;
-  int teamNum; // Arnout: doesn't seem to be communicated over the net
+  net_uint_t<8> nextWeapon;
+  net_uint_t<8> teamNum; // Arnout: doesn't seem to be communicated over the net
 
   // Rafael
   // int			gunfx;
 
   // RF, burning effect is required for view blending effect
-  int onFireStart;
+  int32_t onFireStart;
 
-  int serverCursorHint;    // what type of cursor hint the server is
+  net_uint_t<8> serverCursorHint;    // what type of cursor hint the server is
                            // dictating
-  int serverCursorHintVal; // a value (0-255) associated with the above
+  net_uint_t<8> serverCursorHintVal; // a value (0-255) associated with the above
 
   trace_t serverCursorHintTrace; // not communicated over net, but used
                                  // to store the current server-side
@@ -1415,11 +1418,11 @@ typedef struct playerState_s {
   // JPW NERVE -- value for all multiplayer classes with regenerating
   // "class weapons" -- ie LT artillery, medic medpack, engineer build
   // points, etc
-  int classWeaponTime; // Arnout : DOES get send over the network
+  int32_t classWeaponTime; // Arnout : DOES get send over the network
   int jumpTime;        // used in MP to prevent jump accel
   // jpw
 
-  int weapAnim; // mask off ANIM_TOGGLEBIT
+  net_uint_t<10> weapAnim; // mask off ANIM_TOGGLEBIT
                 // //----(SA)	added		// Arnout : DOES get
                 // send over the network
 
@@ -1428,7 +1431,7 @@ typedef struct playerState_s {
   float aimSpreadScaleFloat; // (SA) the server-side aimspreadscale that
                              // lets it track finer changes but still
                              // only transmit the 8bit int to the client
-  int aimSpreadScale;        // 0 - 255 increases with angular movement
+  net_uint_t<8> aimSpreadScale;        // 0 - 255 increases with angular movement
                              // // Arnout : DOES get send over the network
   int lastFireTime;          // used by server to hold last firing frame briefly
                              // when randomly releasing trigger (AI)
@@ -1450,11 +1453,11 @@ typedef struct playerState_s {
   int weapHeat[MAX_WEAPONS]; // some weapons can overheat.  this tracks
                              // (server-side) how hot each weapon
                              // currently is.
-  int curWeapHeat;           // value for the currently selected weapon (for
+  net_uint_t<8> curWeapHeat;           // value for the currently selected weapon (for
                              // transmission to client)		// Arnout : DOES
                              // get send over the network
-  int identifyClient;        // NERVE - SMF
-  int identifyClientHealth;
+  net_uint_t<8> identifyClient;        // NERVE - SMF
+  net_uint_t<8> identifyClientHealth;
 
   aistateEnum_t aiState; // xkan, 1/10/2003
 } playerState_t;
@@ -1823,16 +1826,18 @@ static_assert(sizeof(entityTypeNames) / sizeof(entityTypeNames[0]) ==
 // animMovetype            4
 
 typedef struct entityState_s {
-  int number; // entity index
-  int eType;  // changed from entityType_t to int to allow ET_EVENTS +
+  net_uint_t<10> number; // entity index
+  net_uint_t<8> eType;  // changed from entityType_t to int to allow ET_EVENTS +
               // eventNum
-  int eFlags;
+
+  // note: only first 24-bits are communicated, so treat this as unsigned!
+  int32_t eFlags;
 
   trajectory_t pos;  // for calculating position
   trajectory_t apos; // for calculating angles
 
-  int time;
-  int time2;
+  int32_t time;
+  int32_t time2;
 
   vec3_t origin;
   vec3_t origin2;
@@ -1840,61 +1845,61 @@ typedef struct entityState_s {
   vec3_t angles;
   vec3_t angles2;
 
-  int otherEntityNum; // shotgun sources, etc
-  int otherEntityNum2;
+  net_uint_t<10> otherEntityNum; // shotgun sources, etc
+  net_uint_t<10> otherEntityNum2;
 
-  int groundEntityNum; // -1 = in air
+  net_uint_t<10> groundEntityNum; // -1 = in air
 
-  int constantLight; // r + (g<<8) + (b<<16) + (intensity<<24)
-  int dl_intensity;  // used for coronas
-  int loopSound;     // constantly loop this sound
+  int32_t constantLight; // r + (g<<8) + (b<<16) + (intensity<<24)
+  int32_t dl_intensity;  // used for coronas
+  net_uint_t<8> loopSound;     // constantly loop this sound
 
-  int modelindex;
-  int modelindex2;
-  int clientNum; // 0 to (MAX_CLIENTS - 1), for players and corpses
-  int frame;
+  net_uint_t<9> modelindex;
+  net_uint_t<9> modelindex2;
 
-  int solid; // for client side prediction, trap_linkentity sets this
-             // properly
+  net_uint_t<8> clientNum; // 0 to (MAX_CLIENTS - 1), for players and corpses
+  net_uint_t<16> frame;
+
+  net_uint_t<24> solid; // for client side prediction, trap_linkentity sets this properly
 
   // old style events, in for compatibility only
-  int event;
-  int eventParm;
+  net_uint_t<10> event;
+  net_uint_t<8> eventParm;
 
-  int eventSequence; // pmove generated events
-  int events[MAX_EVENTS];
-  int eventParms[MAX_EVENTS];
+  net_uint_t<8> eventSequence; // pmove generated events
+  net_uint_t<8> events[MAX_EVENTS];
+  net_uint_t<8> eventParms[MAX_EVENTS];
 
   // for players
-  int powerups;  // bit flags	// Arnout: used to store entState_t for
+  net_uint_t<16> powerups;  // bit flags	// Arnout: used to store entState_t for
                  // non-player entities (so we know to draw them
                  // translucent clientsided)
-  int weapon;    // determines weapon and flash model, etc
-  int legsAnim;  // mask off ANIM_TOGGLEBIT
-  int torsoAnim; // mask off ANIM_TOGGLEBIT
+  net_uint_t<8> weapon;    // determines weapon and flash model, etc
+  net_uint_t<10> legsAnim;  // mask off ANIM_TOGGLEBIT
+  net_uint_t<10> torsoAnim; // mask off ANIM_TOGGLEBIT
                  //	int		weapAnim;		// mask
                  // off
                  // ANIM_TOGGLEBIT	//----(SA) removed (weap anims
                  // will be client-side only)
 
   // for particle effects, PlayerDensityFlags for players in entityState
-  int density;
+  net_uint_t<10> density;
 
-  int dmgFlags; // to pass along additional information for damage
+  int32_t dmgFlags; // to pass along additional information for damage
                 // effects for players/ Also used for cursorhints for
                 // non-player entities
 
   // Ridah
-  int onFireStart, onFireEnd;
+  int32_t onFireStart, onFireEnd;
 
-  int nextWeapon;
-  int teamNum;
+  net_uint_t<8> nextWeapon;
+  net_uint_t<8> teamNum;
 
-  int effect1Time, effect2Time, effect3Time;
+  int32_t effect1Time, effect2Time, effect3Time;
 
   aistateEnum_t aiState; // xkan, 1/10/2003
-  int animMovetype;      // clients can't derive movetype of other clients
-                         // for anim scripting system
+  net_uint_t<4> animMovetype;      // clients can't derive movetype of other clients
+  // for anim scripting system
 } entityState_t;
 
 typedef enum {

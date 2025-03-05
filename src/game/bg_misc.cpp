@@ -3831,7 +3831,7 @@ void BG_AddPredictableEventToPlayerstate(int newEvent, int eventParm,
 
 void BG_SetupMountedGunStatus(playerState_t *ps) {
   switch (
-      static_cast<ETJump::HeavyWeaponState>(ps->persistant[PERS_HWEAPON_USE])) {
+      static_cast<ETJump::HeavyWeaponState>(ps->persistant[PERS_HWEAPON_USE].toEnum<persEnum_t>())) {
     case ETJump::HeavyWeaponState::MountedMG:
       ps->eFlags |= EF_MG42_ACTIVE;
       ps->eFlags &= ~EF_AAGUN_ACTIVE;
@@ -3947,7 +3947,7 @@ void BG_PlayerStateToEntityState(playerState_t *ps, entityState_t *s,
         ps->events[i & (MAX_EVENTS - 1)];
     s->eventParms[s->eventSequence & (MAX_EVENTS - 1)] =
         ps->eventParms[i & (MAX_EVENTS - 1)];
-    s->eventSequence++;
+    s->eventSequence.wrap(s->eventSequence++);
   }
 
   ps->oldEventSequence = ps->eventSequence;
@@ -4055,7 +4055,7 @@ void BG_PlayerStateToEntityStateExtraPolate(playerState_t *ps, entityState_t *s,
         ps->events[i & (MAX_EVENTS - 1)];
     s->eventParms[s->eventSequence & (MAX_EVENTS - 1)] =
         ps->eventParms[i & (MAX_EVENTS - 1)];
-    s->eventSequence++;
+    s->eventSequence.wrap(s->eventSequence++);
   }
   ps->oldEventSequence = ps->eventSequence;
 

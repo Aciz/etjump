@@ -1249,7 +1249,7 @@ team_t G_GetTeamFromEntity(gentity_t *ent) {
         case MOD_AIRSTRIKE:
         case MOD_MORTAR:
         case MOD_SMOKEGRENADE:
-          return static_cast<team_t>(ent->s.teamNum);
+          return ent->s.teamNum.toEnum<team_t>();
         case MOD_SATCHEL:
         case MOD_DYNAMITE:
         case MOD_LANDMINE:
@@ -1258,12 +1258,11 @@ team_t G_GetTeamFromEntity(gentity_t *ent) {
       break;
     case ET_MOVER:
       if (!Q_stricmp(ent->classname, "script_mover")) {
-        return static_cast<team_t>(ent->s.teamNum);
+        return ent->s.teamNum.toEnum<team_t>();
       }
       break;
     case ET_CONSTRUCTIBLE:
-      return static_cast<team_t>(ent->s.teamNum);
-      break;
+      return ent->s.teamNum.toEnum<team_t>();
     case ET_MG42_BARREL: // zinx - fix for #470
       return G_GetTeamFromEntity(&g_entities[ent->r.ownerNum]);
 

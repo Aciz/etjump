@@ -1460,11 +1460,14 @@ typedef struct {
 #define G_SpawnFloat(key, def, out)                                            \
   G_SpawnFloatExt(key, def, out, __FILE__, __LINE__)
 #define G_SpawnInt(key, def, out)                                              \
-  G_SpawnIntExt(key, def, out, __FILE__, __LINE__)
+G_SpawnIntExt(key, def, out, __FILE__, __LINE__)
 #define G_SpawnVector(key, def, out)                                           \
   G_SpawnVectorExt(key, def, out, __FILE__, __LINE__)
 #define G_SpawnVector2D(key, def, out)                                         \
-  G_SpawnVector2DExt(key, def, out, __FILE__, __LINE__)
+G_SpawnVector2DExt(key, def, out, __FILE__, __LINE__)
+// for networked integers in entityState_t & playerState_t
+#define G_SpawnNetInt(key, def, out)                                              \
+G_SpawnNetIntExt(key, def, out, __FILE__, __LINE__)
 
 qboolean
 G_SpawnStringExt(const char *key, const char *defaultString, char **out,
@@ -1474,11 +1477,20 @@ G_SpawnStringExt(const char *key, const char *defaultString, char **out,
 qboolean G_SpawnFloatExt(const char *key, const char *defaultString, float *out,
                          const char *file, int line);
 qboolean G_SpawnIntExt(const char *key, const char *defaultString, int *out,
-                       const char *file, int line);
+const char *file, int line);
 qboolean G_SpawnVectorExt(const char *key, const char *defaultString,
                           float *out, const char *file, int line);
 qboolean G_SpawnVector2DExt(const char *key, const char *defaultString,
                             float *out, const char *file, int line);
+
+template<typename T>
+bool G_SpawnNetIntExt(const char *key, const char *defaultString, T *out, const char *file, const int line) {
+  char *s;
+
+  const bool present = G_SpawnStringExt(key, defaultString, &s, file, line);
+  *out = Q_atoi(s);
+  return present;
+}
 
 void G_SpawnEntitiesFromString(void);
 char *G_NewString(const char *string);

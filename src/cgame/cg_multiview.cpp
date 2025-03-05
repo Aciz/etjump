@@ -388,9 +388,8 @@ void CG_mvTransitionPlayerState(playerState_t *ps) {
   ps->grenadeTimeLeft = ci->grenadeTimeLeft;
 
   // Safe as we've already pull data before clobbering
-  ps->ammo[BG_FindAmmoForWeapon(static_cast<weapon_t>(ps->weapon))] = ci->ammo;
-  ps->ammoclip[BG_FindClipForWeapon(static_cast<weapon_t>(ps->weapon))] =
-      ci->ammoclip;
+  ps->ammo[BG_FindAmmoForWeapon(ps->weapon.toEnum<weapon_t>())] = ci->ammo;
+  ps->ammoclip[BG_FindClipForWeapon(ps->weapon.toEnum<weapon_t>())] = ci->ammoclip;
 
   ps->persistant[PERS_SCORE] = ci->score;
   ps->persistant[PERS_TEAM] = ci->team;

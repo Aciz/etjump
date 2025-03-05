@@ -43,14 +43,14 @@ void P_DamageFeedback(gentity_t *player) {
   // world damage (falling, slime, etc) uses a special code
   // to make the blend blob centered instead of positional
   if (client->damage_fromWorld) {
-    client->ps.damagePitch = 255;
-    client->ps.damageYaw = 255;
+    client->ps.damagePitch = client->ps.damagePitch.getMax();
+    client->ps.damageYaw = client->ps.damageYaw.getMax();
 
     client->damage_fromWorld = qfalse;
   } else {
     vectoangles(client->damage_from, angles);
-    client->ps.damagePitch = angles[PITCH] / 360.0 * 256;
-    client->ps.damageYaw = angles[YAW] / 360.0 * 256;
+    client->ps.damagePitch.wrap(angles[PITCH] / 360.0 * 256);
+    client->ps.damageYaw.wrap(angles[YAW] / 360.0 * 256);
   }
 
   // play an apropriate pain sound

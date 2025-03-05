@@ -318,7 +318,7 @@ void SP_trigger_push(gentity_t *self) {
     self->s.eType = ET_PUSH_TRIGGER;
   }
 
-  G_SpawnInt("wait", "100", &self->s.frame);
+  G_SpawnNetInt("wait", "100", &self->s.frame);
 
   self->s.constantLight |= (self->spawnflags << 8) & 0xffff;
   self->touch = trigger_push_touch;

@@ -862,7 +862,7 @@ typeef enum {
 // NOTE: we can only use up to 15 in the client-server stream
 // SA NOTE: should be 31 now (I added 1 bit in msg.c)
 // RF NOTE: if this changes, please update etmain\botfiles\inv.h
-enum weapon_t : char {
+enum weapon_t : int8_t {
   WP_NONE,             // 0
   WP_KNIFE,            // 1
   WP_LUGER,            // 2
@@ -1589,7 +1589,7 @@ typedef struct headAnimation_s {
 #define ANIM_TOGGLEBIT (1 << (ANIM_BITS - 1))
 
 // Gordon: renamed these to team_axis/allies, it really was awful....
-enum team_t : char {
+enum team_t : int8_t {
   TEAM_FREE,
   TEAM_AXIS,
   TEAM_ALLIES,

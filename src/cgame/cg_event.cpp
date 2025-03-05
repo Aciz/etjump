@@ -15,7 +15,7 @@ extern void CG_Tracer(vec3_t source, vec3_t dest, int sparks);
 extern int CG_WeaponIndex(int weapnum, int *bank, int *cycle);
 
 static bool CG_IsPrimaryWeapon(int weapon, const playerState_t *ps) {
-  const auto team = static_cast<team_t>(ps->persistant[PERS_TEAM]);
+  const auto team = ps->persistant[PERS_TEAM].toEnum<team_t>();
 
   if (team == TEAM_AXIS) {
     if (weapon == WP_THOMPSON) {

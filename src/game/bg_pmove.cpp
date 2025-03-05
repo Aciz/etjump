@@ -733,7 +733,7 @@ static void PM_SetMovementDir(void) {
       }
     }
 
-    pm->ps->movementDir = (signed char)moveyaw;
+    pm->ps->movementDir.wrap(moveyaw);
   } else {
     pm->ps->movementDir = 0;
   }
@@ -2299,7 +2299,6 @@ PM_Footsteps
 */
 static void PM_Footsteps() {
   float bobmove;
-  float old;
   qboolean footstep;
   int animResult = -1;
 
@@ -2509,15 +2508,11 @@ static void PM_Footsteps() {
   }
 
   // check for footstep / splash sounds
-  old =
+  const auto old =
       static_cast<float>(pm->ps->bobCycle + std::fmod(pm->pmext->bobCycle, 1));
-  pm->pmext->bobCycle = static_cast<float>(old + bobmove * pml.msec);
-  pm->ps->bobCycle = static_cast<int>(pm->pmext->bobCycle);
-
-  if (pm->ps->bobCycle > 255) {
-    pm->ps->bobCycle = pm->ps->bobCycle & 255;
-    pm->pmext->bobCycle = static_cast<float>(pm->ps->bobCycle & 255);
-  }
+  pm->pmext->bobCycle = old + bobmove * static_cast<float>(pml.msec);
+  pm->ps->bobCycle.wrap(static_cast<int>(pm->pmext->bobCycle));
+  pm->pmext->bobCycle = static_cast<float>(pm->ps->bobCycle);
 
   // if we just crossed a cycle boundary, play an appropriate footstep event
   if (((static_cast<int>(old) + 64) ^ (pm->ps->bobCycle + 64)) & 128) {
@@ -3257,15 +3252,14 @@ static void PM_SwitchIfEmpty(void) {
     return;
   }
 
-  if (pm->ps->ammoclip[BG_FindClipForWeapon(
-          static_cast<weapon_t>(pm->ps->weapon))]) // still got ammo in clip
-  {
+  // still got ammo in clip
+  if (pm->ps
+          ->ammoclip[BG_FindClipForWeapon(pm->ps->weapon.toEnum<weapon_t>())]) {
     return;
   }
 
-  if (pm->ps->ammo[BG_FindAmmoForWeapon(
-          static_cast<weapon_t>(pm->ps->weapon))]) // still got ammo in reserve
-  {
+  // still got ammo in reserve
+  if (pm->ps->ammo[BG_FindAmmoForWeapon(pm->ps->weapon.toEnum<weapon_t>())]) {
     return;
   }
 
@@ -3412,7 +3406,8 @@ void PM_CoolWeapons() {
   }
 
   // sanity check, cap weapon heat for 8-bit transmission to prevent wrap
-  Numeric::clamp(pm->ps->curWeapHeat, 0, 255);
+  Numeric::clamp(static_cast<int>(pm->ps->curWeapHeat), 0,
+                 pm->ps->curWeapHeat.getMax());
 }
 
 /*
@@ -3601,7 +3596,7 @@ static void handleRecoil() {
 
   // set the delta angle
   for (int i = 0; i < 3; i++) {
-    pm->ps->delta_angles[i] = ANGLE2SHORT(muzzlebounce[i]) - pm->cmd.angles[i];
+    pm->ps->delta_angles[i].wrap(ANGLE2SHORT(muzzlebounce[i]) - pm->cmd.angles[i]);
   }
 
   VectorCopy(muzzlebounce, pm->ps->viewangles);
@@ -3793,8 +3788,8 @@ static void PM_Weapon(void) {
   if (BG_IsAkimboWeapon(pm->ps->weapon)) {
     akimboFire = BG_AkimboFireSequence(
         pm->ps->weapon,
-        pm->ps->ammoclip[BG_FindClipForWeapon(
-            static_cast<weapon_t>(pm->ps->weapon))],
+        pm->ps
+            ->ammoclip[BG_FindClipForWeapon(pm->ps->weapon.toEnum<weapon_t>())],
         pm->ps->ammoclip[BG_FindClipForWeapon(
             static_cast<weapon_t>(BG_AkimboSidearm(pm->ps->weapon)))]);
   } else {
@@ -4483,7 +4478,7 @@ static void PM_Weapon(void) {
       // you have ammo for this, just not in the clip
       reloading =
           (qboolean)(ammoNeeded <= pm->ps->ammo[BG_FindAmmoForWeapon(
-                                       static_cast<weapon_t>(pm->ps->weapon))]);
+                                       pm->ps->weapon.toEnum<weapon_t>())]);
 
       // if not in auto-reload mode, and reload was not
       // explicitely requested, just play the 'out of
@@ -4681,8 +4676,7 @@ static void PM_Weapon(void) {
   // WP_M7 and WP_GPG40 run out of ammo immediately after firing their
   // last grenade
   if ((pm->ps->weapon == WP_M7 || pm->ps->weapon == WP_GPG40) &&
-      !pm->ps->ammo[BG_FindAmmoForWeapon(
-          static_cast<weapon_t>(pm->ps->weapon))]) {
+      !pm->ps->ammo[BG_FindAmmoForWeapon(pm->ps->weapon.toEnum<weapon_t>())]) {
     PM_AddEvent(EV_NOAMMO);
   }
 
@@ -4759,7 +4753,7 @@ static void PM_Weapon(void) {
       // added check for last shot in both guns so
       // there's no delay for the last shot
       if (!pm->ps->ammoclip[BG_FindClipForWeapon(
-              static_cast<weapon_t>(pm->ps->weapon))]) {
+              pm->ps->weapon.toEnum<weapon_t>())]) {
         if (!akimboFire) {
           addTime = 2 * GetAmmoTableData(pm->ps->weapon)->nextShotTime;
         }
@@ -4784,7 +4778,7 @@ static void PM_Weapon(void) {
       // vs. the colt so that the last shot isn't
       // delayed
       if (!pm->ps->ammoclip[BG_FindClipForWeapon(
-              static_cast<weapon_t>(pm->ps->weapon))]) {
+              pm->ps->weapon.toEnum<weapon_t>())]) {
         if (!akimboFire) {
           addTime = 2 * GetAmmoTableData(pm->ps->weapon)->nextShotTime;
         }
@@ -5001,17 +4995,13 @@ static void PM_DropTimers(void) {
 
   // drop animation counter
   if (pm->ps->legsTimer > 0) {
-    pm->ps->legsTimer -= pml.msec;
-    if (pm->ps->legsTimer < 0) {
-      pm->ps->legsTimer = 0;
-    }
+    pm->ps->legsTimer =
+        pm->ps->legsTimer - pml.msec < 0 ? 0 : pm->ps->legsTimer -= pml.msec;
   }
 
   if (pm->ps->torsoTimer > 0) {
-    pm->ps->torsoTimer -= pml.msec;
-    if (pm->ps->torsoTimer < 0) {
-      pm->ps->torsoTimer = 0;
-    }
+    pm->ps->torsoTimer =
+        pm->ps->torsoTimer - pml.msec < 0 ? 0 : pm->ps->torsoTimer -= pml.msec;
   }
 
   // first person weapon counter
@@ -5186,6 +5176,10 @@ void PM_UpdateViewAngles(playerState_t *ps, pmoveExt_t *pmext, usercmd_t *cmd,
 
   VectorCopy(ps->viewangles, oldViewAngles);
 
+  net_uint_t<8> foo;
+  foo = -100;
+  return foo < 0 ? true : false;
+
   // circularly clamp the angles with deltas
   // for (i = 0 ; i < 3 ; i++)		// Disable ROLL adjustment by
   // client
@@ -5195,10 +5189,10 @@ void PM_UpdateViewAngles(playerState_t *ps, pmoveExt_t *pmext, usercmd_t *cmd,
       // don't let the player look up or down more than
       // 90 degrees
       if (temp > 16000) {
-        ps->delta_angles[i] = 16000 - cmd->angles[i];
+        ps->delta_angles[i].wrap(16000 - cmd->angles[i]);
         temp = 16000;
       } else if (temp < -16000) {
-        ps->delta_angles[i] = -16000 - cmd->angles[i];
+        ps->delta_angles[i].wrap(-16000 - cmd->angles[i]);
         temp = -16000;
       }
     }

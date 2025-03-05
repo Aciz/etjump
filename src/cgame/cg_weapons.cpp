@@ -483,7 +483,7 @@ void CG_PyroSmokeTrail(centity_t *ent, const weaponInfo_t *wi) {
       team = TEAM_ALLIES;
     }
   } else {
-    team = (team_t)ent->currentState.teamNum;
+    team = ent->currentState.teamNum.toEnum<team_t>();
   }
 
   step = 30;
@@ -2235,7 +2235,7 @@ void CG_AddPlayerWeapon(refEntity_t *parent, playerState_t *ps,
   // (SA) might as well have this check consistant throughout the routine
   isPlayer = static_cast<qboolean>(cent->currentState.clientNum ==
                                    cg.snap->ps.clientNum);
-  weaponNum = static_cast<weapon_t>(cent->currentState.weapon);
+  weaponNum = cent->currentState.weapon.toEnum<weapon_t>();
 
   if (ps && cg.cameraMode) {
     return;
@@ -2325,8 +2325,7 @@ void CG_AddPlayerWeapon(refEntity_t *parent, playerState_t *ps,
   gun.renderfx = parent->renderfx;
   ETJump_SetEntityRGBA(&gun, 1.0, 1.0, 1.0, 1.0);
 
-  team_t team = ps ? static_cast<team_t>(ps->persistant[PERS_TEAM])
-                   : cgs.clientinfo[cent->currentState.clientNum].team;
+  team_t team = ps ? ps->persistant[PERS_TEAM].toEnum<team_t>() : cgs.clientinfo[cent->currentState.clientNum].team;
   const modelViewType_t modelViewType = ps ? W_FP_MODEL : W_TP_MODEL;
 
   if (ps) {

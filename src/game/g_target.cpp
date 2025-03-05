@@ -536,7 +536,7 @@ void SP_misc_beam(gentity_t *self) {
     self->s.modelindex2 = G_ShaderIndex(str);
   }
 
-  G_SpawnInt("scale", "1", &self->s.torsoAnim);
+  G_SpawnNetInt("scale", "1", &self->s.torsoAnim);
   G_SpawnVector("color", "1 1 1", self->s.angles2);
 
   // let everything else get spawned before we start firing

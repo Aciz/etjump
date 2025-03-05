@@ -4972,10 +4972,7 @@ void FireWeapon(gentity_t *ent) {
 #ifndef DEBUG_STATS
   if (g_gamestate.integer == GS_PLAYING)
 #endif
-    ent->client->sess
-        .aWeaponStats[BG_WeapStatForWeapon(
-            static_cast<weapon_t>(ent->s.weapon))]
-        .atts += shots;
+    ent->client->sess.aWeaponStats[BG_WeapStatForWeapon(ent->s.weapon.toEnum<weapon_t>())].atts += shots;
 }
 
 //

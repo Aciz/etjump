@@ -1265,7 +1265,7 @@ void G_SpawnItem(gentity_t *ent, gitem_t *item) {
   }
 
   if (item->giType == IT_TEAM) {
-    G_SpawnInt("count", "1", &ent->s.density);
+    G_SpawnNetInt("count", "1", &ent->s.density);
     G_SpawnInt("speedscale", "100", &ent->splashDamage);
     if (!ent->splashDamage) {
       ent->splashDamage = 100;
