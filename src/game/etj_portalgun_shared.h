@@ -24,6 +24,10 @@
 
 #pragma once
 
+#ifdef CGAMEDLL
+  #include <vector>
+#endif
+
 #include "q_shared.h"
 
 namespace ETJump {
@@ -37,6 +41,18 @@ inline constexpr vec3_t portalYellowTrail = {1.0f, 1.0f, 0.0f};
 inline constexpr int PORTAL_TEAM_NONE = 0;
 inline constexpr int PORTAL_TEAM_FT = 1;
 inline constexpr int PORTAL_TEAM_ALL = 2;
+
+#ifdef CGAMEDLL
+// TODO: relocate? this isn't exactly "shared"
+struct ClientPortal {
+  const entityState_t *s;
+  vec3_t mins;
+  vec3_t maxs;
+};
+
+// portal entity data for client since trace doesn't contain them
+inline std::vector<ClientPortal> clientPortals;
+#endif
 
 // cooldown between portal touch events (ms)
 inline constexpr int PORTAL_TOUCH_COOLDOWN = 100;

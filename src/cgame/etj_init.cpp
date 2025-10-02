@@ -65,6 +65,8 @@
 #include "etj_player_bbox.h"
 #include "etj_pmove_utils.h"
 #include "etj_savepos.h"
+#include "etj_portal_crosshair.h"
+
 #include "../game/etj_syscall_ext_shared.h"
 
 namespace ETJump {
@@ -284,6 +286,7 @@ void init() {
   ETJump::autoDemoRecorder = std::make_shared<ETJump::AutoDemoRecorder>();
 
   ETJump::renderables.push_back(std::make_shared<Crosshair>());
+  ETJump::renderables.push_back(std::make_shared<PortalCrosshair>());
 
   const std::vector<std::pair<const vmCvar_t *, const std::string>> cvars{
       {&etj_drawFoliage, "r_drawfoliage"},

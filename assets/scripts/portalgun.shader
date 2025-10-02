@@ -205,3 +205,27 @@ gfx/misc/portal_yellow
 		tcMod stretch sin 1 0.05 1 0.7
 	}
 }
+
+gfx/misc/portal_crosshair_blue
+{
+	nopicmip
+	nomipmaps
+	nocompress
+	{
+		clampMap gfx/misc/portal_crosshair_blue.tga
+		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		rgbGen vertex
+	}
+}
+
+gfx/misc/portal_crosshair_red
+{
+	nopicmip
+	nomipmaps
+	nocompress
+	{
+		clampMap gfx/misc/portal_crosshair_red.tga
+		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		rgbGen vertex
+	}
+}

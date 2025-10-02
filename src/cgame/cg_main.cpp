@@ -656,6 +656,13 @@ vmCvar_t etj_menuSensitivity;
 vmCvar_t etj_crosshairThickness;
 vmCvar_t etj_crosshairOutline;
 
+vmCvar_t etj_drawPortalCrosshair;
+vmCvar_t etj_portalCrosshairSize;
+vmCvar_t etj_portalCrosshairOffset;
+vmCvar_t etj_portalCrosshairAngle;
+vmCvar_t etj_portalCrosshairAlpha;
+vmCvar_t etj_portalCrosshairAlphaAlt;
+
 vmCvar_t etj_ftSavelimit;
 
 vmCvar_t etj_noPanzerAutoswitch;
@@ -1260,6 +1267,16 @@ cvarTable_t cvarTable[] = {
 
     {&etj_crosshairThickness, "etj_crosshairThickness", "1.0", CVAR_ARCHIVE},
     {&etj_crosshairOutline, "etj_crosshairOutline", "1", CVAR_ARCHIVE},
+
+    {&etj_drawPortalCrosshair, "etj_drawPortalCrosshair", "1", CVAR_ARCHIVE},
+    {&etj_portalCrosshairSize, "etj_portalCrosshairSize", "16", CVAR_ARCHIVE},
+    {&etj_portalCrosshairOffset, "etj_portalCrosshairOffset", "0",
+     CVAR_ARCHIVE},
+    {&etj_portalCrosshairAngle, "etj_portalCrosshairAngle", "0", CVAR_ARCHIVE},
+    {&etj_portalCrosshairAlpha, "etj_portalCrosshairAlpha", "0.75",
+     CVAR_ARCHIVE},
+    {&etj_portalCrosshairAlphaAlt, "etj_portalCrosshairAlphaAlt", "0.25",
+     CVAR_ARCHIVE},
 
     // fireteam savelimit - added here to retain value it's set to
     // upon re-opening the fireteam savelimit menu
@@ -3126,6 +3143,11 @@ static void CG_RegisterGraphics(void) {
   cgs.media.portalGreenShader = trap_R_RegisterShader("gfx/misc/portal_green");
   cgs.media.portalYellowShader =
       trap_R_RegisterShader("gfx/misc/portal_yellow");
+
+  cgs.media.portalCrosshairBlueShader =
+      trap_R_RegisterShader("gfx/misc/portal_crosshair_blue");
+  cgs.media.portalCrosshairRedShader =
+      trap_R_RegisterShader("gfx/misc/portal_crosshair_red");
 
   cgs.media.simplePlayersShader = trap_R_RegisterShader("etjump/simple_player");
   cgs.media.saveIcon = trap_R_RegisterShader("gfx/2d/save_on");

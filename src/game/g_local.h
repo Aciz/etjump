@@ -1462,7 +1462,7 @@ typedef struct {
   int32_t bodyOverbounce;
 
   int portalEnabled; // Feen: PGM - Enabled/Disabled by map key
-  qboolean portalSurfaces;
+  bool portalSurfaces;
 
   ipMute_t ipMutes[MAX_IP_MUTES]; // I don't think we need more than 16
 

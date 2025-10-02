@@ -1844,6 +1844,8 @@ typedef struct {
   qhandle_t portalRedShader;    // Portal 2
   qhandle_t portalGreenShader;  // Portal 1 equivalent for other players
   qhandle_t portalYellowShader; // Portal 2 equivalent for other players
+  qhandle_t portalCrosshairBlueShader;
+  qhandle_t portalCrosshairRedShader;
 
   qhandle_t simplePlayersShader;
   qhandle_t saveIcon;
@@ -2757,6 +2759,13 @@ extern vmCvar_t etj_menuSensitivity;
 extern vmCvar_t etj_crosshairThickness;
 extern vmCvar_t etj_crosshairOutline;
 
+extern vmCvar_t etj_drawPortalCrosshair;
+extern vmCvar_t etj_portalCrosshairSize;
+extern vmCvar_t etj_portalCrosshairOffset;
+extern vmCvar_t etj_portalCrosshairAngle;
+extern vmCvar_t etj_portalCrosshairAlpha;
+extern vmCvar_t etj_portalCrosshairAlphaAlt;
+
 extern vmCvar_t etj_noPanzerAutoswitch;
 
 extern vmCvar_t etj_autoPortalBinds;
@@ -2929,6 +2938,10 @@ void DrawBigString(int x, int y, const char *s, float alpha);
 void drawPic(float x, float y, float sizex, float sizey, qhandle_t hShader,
              const vec4_t mainColor = nullptr,
              const vec4_t shadowColor = nullptr);
+void drawRotatedPic(float x, float y, float sizex, float sizey,
+                    qhandle_t hShader, float angle,
+                    const vec4_t mainColor = nullptr,
+                    const vec4_t shadowColor = nullptr);
 } // namespace ETJump
 
 float *CG_FadeColor(int startMsec, int totalMsec);

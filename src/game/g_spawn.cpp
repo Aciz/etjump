@@ -1283,10 +1283,13 @@ void SP_worldspawn(void) {
   }
 
   G_SpawnString("portalsurfaces", "1", &s);
+  shared.integer &= ~BG_LEVEL_PORTAL_SURFACES;
+
   if (Q_atoi(s)) {
-    level.portalSurfaces = qtrue;
+    level.portalSurfaces = true;
+    shared.integer |= BG_LEVEL_PORTAL_SURFACES;
   } else {
-    level.portalSurfaces = qfalse;
+    level.portalSurfaces = false;
   }
   G_Printf("Surfaces are %s by default for portals.\n",
            level.portalSurfaces ? "enabled" : "disabled");

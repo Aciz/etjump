@@ -542,6 +542,8 @@ static void CG_TouchTriggerPrediction() {
 
   cg.teleportBitFlipped = false;
 
+  ETJump::clientPortals.clear();
+
   for (i = 0; i < cg_numTriggerEntities; i++) {
     cent = cg_triggerEntities[i];
     ent = &cent->currentState;
@@ -595,6 +597,18 @@ static void CG_TouchTriggerPrediction() {
 
         VectorAdd(cent->lerpOrigin, mins, mins);
         VectorAdd(cent->lerpOrigin, maxs, maxs);
+
+        // store for portal crosshair so it can determine if we're aiming at a
+        // portal, since trace doesn't find these entities as they have no bbox
+        if (etj_drawPortalCrosshair.integer) {
+          ETJump::ClientPortal clientPortal{};
+
+          VectorCopy(mins, clientPortal.mins);
+          VectorCopy(maxs, clientPortal.maxs);
+          clientPortal.s = &cg_entities[ent->number].currentState;
+
+          ETJump::clientPortals.emplace_back(clientPortal);
+        }
 
         // TODO: this is kinda annoying as railtrails fade as they approach
         //  the end of their lifetime, we should probably add a version

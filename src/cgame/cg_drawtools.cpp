@@ -602,10 +602,24 @@ void CG_DrawPic(float x, float y, float width, float height,
 CG_DrawRotatedPic
 
 Coordinates are 640*480 virtual values
+NOTE: this expects an angle normalized to [0..1] range
 =================
 */
 void CG_DrawRotatedPic(float x, float y, float width, float height,
                        qhandle_t hShader, float angle) {
+// TODO: should we assert this?
+#ifdef _DEBUG
+  static int32_t nextPrint = 0;
+
+  if (width != height && cg.time >= 1000 + nextPrint) {
+    CG_Printf(S_COLOR_YELLOW
+              "%s expects width (%f) and height (%f) to be equal, "
+              "non-square images will be drawn as square!\n",
+              __func__, width, height);
+
+    nextPrint = cg.time;
+  }
+#endif
 
   CG_AdjustFrom640(&x, &y, &width, &height);
 
@@ -1746,6 +1760,23 @@ void drawPic(float x, float y, float sizex, float sizey, qhandle_t hShader,
   }
 
   CG_DrawPic(x, y, sizex, sizey, hShader);
+  trap_R_SetColor(nullptr);
+}
+
+void drawRotatedPic(const float x, const float y, const float sizex,
+                    const float sizey, const qhandle_t hShader,
+                    const float angle, const vec4_t mainColor,
+                    const vec4_t shadowColor) {
+  if (shadowColor) {
+    trap_R_SetColor(shadowColor);
+    CG_DrawRotatedPic(x, y, sizex, sizey, hShader, angle);
+  }
+
+  if (mainColor) {
+    trap_R_SetColor(mainColor);
+  }
+
+  CG_DrawRotatedPic(x, y, sizex, sizey, hShader, angle);
   trap_R_SetColor(nullptr);
 }
 } // namespace ETJump
