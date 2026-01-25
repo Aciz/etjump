@@ -50,6 +50,7 @@ add_library(cgame MODULE
 	"etj_client_authentication.cpp"
 	"etj_client_commands_handler.cpp"
 	"etj_client_rtv_handler.cpp"
+	"etj_client_shader_state_handler.cpp"
 	"etj_console_alpha.cpp"
 	"etj_consolecommands.cpp"
 	"etj_crosshair.cpp"

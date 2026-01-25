@@ -66,6 +66,8 @@
 #include "etj_player_bbox.h"
 #include "etj_pmove_utils.h"
 #include "etj_savepos.h"
+#include "etj_client_shader_state_handler.h"
+
 #include "etj_servercommands.h"
 #include "etj_consolecommands.h"
 
@@ -98,6 +100,7 @@ std::shared_ptr<PlayerBBox> playerBBox;
 std::unique_ptr<SavePos> savePos;
 std::unique_ptr<SyscallExt> syscallExt;
 std::unique_ptr<PmoveUtils> pmoveUtils;
+std::unique_ptr<ClientShaderStateHandler> clientShaderStateHandler;
 
 void delayedInit() {
   // force original cvars to match the shadow values, as ETe and ETL
@@ -149,6 +152,11 @@ void delayedInit() {
     trap_SendClientCommand(
         va("requestcustomvoteinfo %i", cg.numCustomvoteInfosRequested));
     cg.numCustomvoteInfosRequested++;
+  }
+
+  if (!cg.clientShaderStatesRequested) {
+    trap_SendClientCommand("getClientShaderStates");
+    cg.clientShaderStatesRequested = true;
   }
 }
 
@@ -352,6 +360,8 @@ void init() {
 
   assert(timerun != nullptr);
   savePos = std::make_unique<SavePos>(timerun);
+
+  clientShaderStateHandler = std::make_unique<ClientShaderStateHandler>(serverCommandsHandler);
 
   std::fill_n(tempTraceIgnoredClients.begin(), MAX_CLIENTS, false);
 

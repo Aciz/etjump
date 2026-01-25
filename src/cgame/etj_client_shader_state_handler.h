@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2026 ETJump team <zero@etjump.com>
+ * Copyright (c) 2025 ETJump team <zero@etjump.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,39 +24,33 @@
 
 #pragma once
 
-#include "g_local.h"
-#include <unordered_map>
+#include "cg_local.h"
 
 namespace ETJump {
-
-// 128 in VET for 32 shaders, upped to 2048 for our extended 512 shaders
-inline constexpr int32_t MAX_SHADER_REMAPS = 2048;
-
-class RemapShaderHandler {
+class ClientShaderStateHandler {
 public:
-  void addRemap(std::string_view oldShader, std::string_view newShader);
-  void updateShaderState();
-  void updateShaderStateForClient(int32_t clientNum);
+  explicit ClientShaderStateHandler(
+      const std::shared_ptr<ClientCommandsHandler> &serverCommandsHandler);
+  ~ClientShaderStateHandler();
 
-  // so clients get the state of extended shaders on init
-  void sendCurrentShaderStateExt();
-  void sendClientShaderState(int32_t clientNum);
+  void runFrame();
+
+  void updateShaderState(int32_t clientNum, int32_t index,
+                         const std::string &state);
+  void getShaderState(int32_t clientNum);
+
+  void invalidateShaderState(int32_t clientNum);
 
 private:
-  struct ShaderRemap {
-    std::string oldShader;
-    std::string newShader;
-    float timeOffset{};
+  struct ShaderState {
+    std::string state;
+    bool valid{};
   };
 
-  std::array<ShaderRemap, MAX_SHADER_REMAPS> shaderRemaps{};
-  std::array<std::string, EXT_SHADER_SET_COUNT> extShaderStates{};
-  int32_t remapCount{};
+  void registerCommands();
 
-  // holds the state of each client's individual shader state
-  std::unordered_map<int32_t, std::array<std::string, MAX_SHADER_STATES>> clientShaderStates;
-
-  std::string buildShaderStateConfig(int32_t index);
-  void sendExtShaderState(int32_t index);
+  std::unordered_map<int32_t, std::array<ShaderState, MAX_SHADER_STATES>>
+      shaderStates;
+  std::shared_ptr<ClientCommandsHandler> serverCommandsHandler;
 };
 } // namespace ETJump

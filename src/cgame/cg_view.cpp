@@ -8,6 +8,7 @@
 #include "etj_pmove_utils.h"
 #include "etj_event_loop.h"
 #include "etj_trickjump_lines.h"
+#include "etj_client_shader_state_handler.h"
 #include "etj_utilities.h"
 
 /*
@@ -1877,6 +1878,7 @@ static void runFrameEnd() {
   awaitedCommandHandler->runFrame();
   eventLoop->run();
   trickjumpLines->runFrame();
+  clientShaderStateHandler->runFrame();
 
   if (cg.clientFrame >= CGAME_INIT_DELAY_FRAMES) {
     delayedInit();

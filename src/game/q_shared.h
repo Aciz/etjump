@@ -1114,6 +1114,7 @@ inline constexpr int MAX_CS_SHADERS = 32;
 inline constexpr int32_t MAX_SHADER_INDEX = 512;
 inline constexpr int32_t EXT_SHADER_SET_COUNT =
     (MAX_SHADER_INDEX - MAX_CS_SHADERS) / MAX_CS_SHADERS;
+inline constexpr int32_t MAX_SHADER_STATES = EXT_SHADER_SET_COUNT + 1;
 
 inline constexpr int MAX_SERVER_TAGS = 256;
 inline constexpr int MAX_TAG_FILES = 64;

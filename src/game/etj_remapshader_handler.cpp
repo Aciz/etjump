@@ -85,11 +85,46 @@ void RemapShaderHandler::updateShaderState() {
   sendCurrentShaderStateExt();
 }
 
+void RemapShaderHandler::updateShaderStateForClient(const int32_t clientNum) {
+  if (clientShaderStates.find(clientNum) != clientShaderStates.cend()) {
+    clientShaderStates.at(clientNum).fill("");
+  }
+
+  // we don't use 'CS_SHADERS' configstrings here at all,
+  // those are reserved for global shader remaps
+  for (int32_t i = 0; i < remapCount; i++) {
+    // each state string contains a maximum of 'MAX_CS_SHADERS' worth of states
+    const int32_t index = i / MAX_CS_SHADERS;
+
+    // if there's no existing state for a client, this will also create it
+    clientShaderStates[clientNum][index] += buildShaderStateConfig(i);
+  }
+
+  sendClientShaderState(clientNum);
+}
+
 void RemapShaderHandler::sendCurrentShaderStateExt() {
   for (int32_t i = 0; i < extShaderStates.size(); i++) {
     if (!extShaderStates[i].empty()) {
       sendExtShaderState(i);
     }
+  }
+}
+
+void RemapShaderHandler::sendClientShaderState(const int32_t clientNum) {
+  // FIXME: just make a bool and set in mapscript parse to check
+  // if we have client side remapshaders at all and check against that here?
+  if (clientShaderStates.find(clientNum) == clientShaderStates.cend()) {
+    return;
+  }
+
+  for (int32_t i = 0; i < clientShaderStates.at(clientNum).size(); i++) {
+    if (clientShaderStates.at(clientNum)[i].empty()) {
+      continue;
+    }
+
+    Printer::commandAll(stringFormat("clientShaderState %i %i %s", clientNum, i,
+                                     clientShaderStates.at(clientNum)[i]));
   }
 }
 

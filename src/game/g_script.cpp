@@ -8,6 +8,7 @@
 
 #include "../game/g_local.h"
 #include "../game/q_shared.h"
+#include "etj_remapshader_handler.h"
 
 /*
 Scripting that allows the designers to control the behaviour of entities
@@ -130,6 +131,7 @@ qboolean useTarget(gentity_t *ent, char *params);
 qboolean wmAnnouncePrivate(gentity_t *ent, char *params);
 qboolean tracker(gentity_t *ent, char *params);
 qboolean changeSkin(gentity_t *ent, char *params);
+qboolean remapshaderFlushClient(gentity_t *ent, char *params);
 } // namespace ETJump::ScriptActions
 
 // these are the actions that each event can call
@@ -248,6 +250,7 @@ g_script_stack_action_t gScriptActions[] = {
     {"wm_announce_private", ETJump::ScriptActions::wmAnnouncePrivate},
     {"tracker", ETJump::ScriptActions::tracker},
     {"changeskin", ETJump::ScriptActions::changeSkin},
+    {"remapshaderflush_client", ETJump::ScriptActions::remapshaderFlushClient},
     {nullptr, nullptr}};
 
 qboolean G_Script_EventMatch_StringEqual(g_script_event_t *event,
@@ -516,6 +519,8 @@ G_Script_ScriptParse
 void G_Script_ScriptParse(gentity_t *ent) {
   const char *pScript;
   auto events = std::make_unique<g_script_event_t[]>(G_MAX_SCRIPT_STACK_ITEMS);
+  std::string oldShader;
+  std::string newShader;
 
   if (!ent->scriptName) {
     return;
@@ -712,6 +717,26 @@ void G_Script_ScriptParse(gentity_t *ent) {
               if (i == 0 || i == 1) {
                 if (!Q_stricmp(action->actionString, "remapshader")) {
                   G_ShaderIndex(token);
+
+                  // FIXME: hack hack hack I don't want do this ._.
+                  // we need to somehow get all possible shader states to all
+                  // clients on init, but this feels wrong
+                  // (although technically we're just pre-caching all of this,
+                  // so it's also kinda good..? idk, figure this out later)
+
+                  if (i == 0) {
+                    oldShader = token;
+                  }
+
+                  if (i == 1) {
+                    newShader = token;
+                  }
+
+                  if (!oldShader.empty() && !newShader.empty()) {
+                    ETJump::remapShaderHandler->addRemap(oldShader, newShader);
+                    oldShader.clear();
+                    newShader.clear();
+                  }
                 }
               }
 

@@ -4999,6 +4999,8 @@ void ClientCommand(int clientNum) {
     return;
   }
 
+  // Let's handle rest of the commands after checking if we're really
+  // connected.
   if (ent->client->pers.connected != CON_CONNECTED) {
     return;
   }
@@ -5013,8 +5015,13 @@ void ClientCommand(int clientNum) {
     return;
   }
 
-  // Let's handle rest of the commands after checking if we're really
-  // connected.
+  if (!Q_stricmp(cmd, "getClientShaderStates")) {
+    for (int i = 0; i < level.numConnectedClients; i++) {
+      ETJump::remapShaderHandler->updateShaderStateForClient(level.sortedClients[i]);
+    }
+
+    return;
+  }
 
   // handle say/vsay commands
   enc = !Q_stricmp(cmd, "enc_say") ? qtrue : qfalse;

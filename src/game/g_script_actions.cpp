@@ -5104,4 +5104,13 @@ qboolean changeSkin(gentity_t *ent, char *params) {
 
   return qtrue;
 }
+
+qboolean remapshaderFlushClient(gentity_t *ent, char *params) {
+  if (!ent || !ent->activator) {
+    G_Error("%s: activator must be a client\n", FMT_FUNC(__func__));
+  }
+
+  ETJump::remapShaderHandler->updateShaderStateForClient(ClientNum(ent->activator));
+  return qtrue;
+}
 } // namespace ETJump::ScriptActions

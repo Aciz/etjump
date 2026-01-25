@@ -1284,6 +1284,8 @@ typedef struct {
   bool teleportBitFlipped;
 
   bool requestExtShaders;
+
+  bool clientShaderStatesRequested;
 } cg_t;
 
 inline constexpr int NUM_FUNNEL_SPRITES = 21;
@@ -4214,6 +4216,7 @@ class PlayerBBox;
 class SavePos;
 class SyscallExt;
 class TrickjumpLines;
+class ClientShaderStateHandler;
 
 extern std::shared_ptr<ClientCommandsHandler> serverCommandsHandler;
 extern std::shared_ptr<ClientCommandsHandler> consoleCommandsHandler;
@@ -4232,6 +4235,7 @@ extern std::unique_ptr<SavePos> savePos;
 extern std::unique_ptr<SyscallExt> syscallExt;
 extern std::unique_ptr<PmoveUtils> pmoveUtils;
 extern std::shared_ptr<TrickjumpLines> trickjumpLines;
+extern std::unique_ptr<ClientShaderStateHandler> clientShaderStateHandler;
 
 enum extraTraceOptions {
   OB_DETECTOR,

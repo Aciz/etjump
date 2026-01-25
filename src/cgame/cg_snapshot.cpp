@@ -4,6 +4,8 @@
 #include "cg_local.h"
 #include "etj_utilities.h"
 #include "etj_demo_compatibility.h"
+#include "etj_client_shader_state_handler.h"
+
 #if __MACOS__
   #ifdef GAMERANGER
     #include "GameRanger SDK/GameRanger.h"
@@ -372,6 +374,7 @@ static void CG_SetNextSnap(snapshot_t *snap) {
   // if changing follow mode, don't interpolate
   if (cg.nextSnap->ps.clientNum != cg.snap->ps.clientNum) {
     cg.nextFrameTeleport = qtrue;
+    ETJump::clientShaderStateHandler->invalidateShaderState(cg.nextSnap->ps.clientNum);
   }
 
   // if changing server restarts, don't interpolate
