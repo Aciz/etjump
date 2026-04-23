@@ -176,7 +176,7 @@ jobs:
             etjump-artifacts-macos-x86_64
 
   package:
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    # if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     runs-on: ubuntu-22.04
     needs: [Windows, Linux, macOS-universal]
 

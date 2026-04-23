@@ -117,7 +117,7 @@ void CGaz::startListeners() {
 }
 
 void CGaz::setThickness(const vmCvar_t *cvar) {
-  thickness = std::clamp(cvar->value, 0.5f, 5.0f);
+  thickness = std::clamp(cvar->value, 0.5f, 50.0f);
 }
 
 void CGaz::UpdateCGaz1(vec3_t wishvel, const int8_t uCmdScale) const {
@@ -363,12 +363,15 @@ void CGaz::render() const {
     float scx = SCREEN_CENTER_X - 0.5f; // -0.5 since thickness is 1px
     const float scy = SCREEN_CENTER_Y - 0.5f;
 
+    float y1 = 0.0f;
+
     if (etj_stretchCgaz.integer) {
       ETJump_EnableWidthScale(false);
       scx -= SCREEN_OFFSET_X;
     }
 
     const bool highRes = etj_CGaz2HighRes.integer;
+    const bool flipped = etj_CGaz2Flipped.integer;
 
     // draw movement keys direction
     if (cmd.rightmove || cmd.forwardmove) {
@@ -386,14 +389,18 @@ void CGaz::render() const {
         mult /= sqrt2;
       }
 
+      y1 = scy - (mult * static_cast<float>(cmd.forwardmove));
+
+      if (flipped) {
+        y1 = SCREEN_HEIGHT - y1;
+      }
+
       if (highRes) {
         drawLineWu(scx, scy, scx + (mult * static_cast<float>(cmd.rightmove)),
-                   scy - (mult * static_cast<float>(cmd.forwardmove)),
-                   thickness, thickness, CGaz2Colors[1]);
+                   y1, thickness, thickness, CGaz2Colors[1]);
       } else {
         drawLineDDA(scx, scy, scx + (mult * static_cast<float>(cmd.rightmove)),
-                    scy - (mult * static_cast<float>(cmd.forwardmove)),
-                    CGaz2Colors[1]);
+                    y1, thickness, thickness, CGaz2Colors[1]);
       }
     }
 
@@ -420,32 +427,53 @@ void CGaz::render() const {
         dirSize = std::min(static_cast<float>(CMDSCALE_DEFAULT), dirSize);
       }
 
+      y1 = scy - (dirSize * std::cos(drawVel));
+
+      if (flipped) {
+        y1 = SCREEN_HEIGHT - y1;
+      }
+
       if (highRes) {
-        drawLineWu(scx, scy, scx + (dirSize * std::sin(drawVel)),
-                   scy - (dirSize * std::cos(drawVel)), thickness, thickness,
-                   CGaz2Colors[0]);
+        drawLineWu(scx, scy, scx + (dirSize * std::sin(drawVel)), y1, thickness,
+                   thickness, CGaz2Colors[0]);
       } else {
-        drawLineDDA(scx, scy, scx + (dirSize * std::sin(drawVel)),
-                    scy - (dirSize * std::cos(drawVel)), CGaz2Colors[0]);
+        drawLineDDA(scx, scy, scx + (dirSize * std::sin(drawVel)), y1,
+                    CGaz2Colors[0]);
       }
     }
 
     if (drawSides) {
       velSize /= 2;
 
+      y1 = scy - (velSize * std::cos(drawVel + drawOpt));
+
+      if (flipped) {
+        y1 = SCREEN_HEIGHT - y1;
+      }
+
       if (highRes) {
-        drawLineWu(scx, scy, scx + (velSize * std::sin(drawVel + drawOpt)),
-                   scy - (velSize * std::cos(drawVel + drawOpt)), thickness,
-                   thickness, CGaz2Colors[0]);
-        drawLineWu(scx, scy, scx + (velSize * std::sin(drawVel - drawOpt)),
-                   scy - (velSize * std::cos(drawVel - drawOpt)), thickness,
-                   thickness, CGaz2Colors[0]);
+        drawLineWu(scx, scy, scx + (velSize * std::sin(drawVel + drawOpt)), y1,
+                   thickness, thickness, CGaz2Colors[0]);
+
+        y1 = scy - (velSize * std::cos(drawVel - drawOpt));
+
+        if (flipped) {
+          y1 = SCREEN_HEIGHT - y1;
+        }
+
+        drawLineWu(scx, scy, scx + (velSize * std::sin(drawVel - drawOpt)), y1,
+                   thickness, thickness, CGaz2Colors[0]);
       } else {
-        drawLineDDA(scx, scy, scx + (velSize * std::sin(drawVel + drawOpt)),
-                    scy - (velSize * std::cos(drawVel + drawOpt)),
+        drawLineDDA(scx, scy, scx + (velSize * std::sin(drawVel + drawOpt)), y1,
                     CGaz2Colors[0]);
-        drawLineDDA(scx, scy, scx + (velSize * std::sin(drawVel - drawOpt)),
-                    scy - (velSize * std::cos(drawVel - drawOpt)),
+
+        y1 = scy - (velSize * std::cos(drawVel - drawOpt));
+
+        if (flipped) {
+          y1 = SCREEN_HEIGHT - y1;
+        }
+
+        drawLineDDA(scx, scy, scx + (velSize * std::sin(drawVel - drawOpt)), y1,
                     CGaz2Colors[0]);
       }
     }

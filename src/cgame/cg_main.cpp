@@ -313,6 +313,7 @@ vmCvar_t etj_CGaz1DrawMidLine;
 vmCvar_t etj_CGaz1MidlineColor;
 vmCvar_t etj_CGaz2HighRes;
 vmCvar_t etj_CGaz2Thickness;
+vmCvar_t etj_CGaz2Flipped;
 
 vmCvar_t etj_drawOB;
 // Aciz: movable drawOB
@@ -928,6 +929,7 @@ cvarTable_t cvarTable[] = {
      CVAR_ARCHIVE},
     {&etj_CGaz2HighRes, "etj_CGaz2HighRes", "0", CVAR_ARCHIVE},
     {&etj_CGaz2Thickness, "etj_CGaz2Thickness", "2.0", CVAR_ARCHIVE},
+    {&etj_CGaz2Flipped, "etj_CGaz2Flipped", "0", CVAR_ARCHIVE},
 
     {&cl_yawspeed, "cl_yawspeed", "0", CVAR_ARCHIVE},
     {&cl_freelook, "cl_freelook", "1", CVAR_ARCHIVE},
