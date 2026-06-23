@@ -3,8 +3,49 @@
 
 class StringUtilitiesTests : public testing::Test {
   void SetUp() override {}
-
   void TearDown() override {}
+
+public:
+  // Converts an UTF-8 input into UTF-32, then throws away everything except
+  // the 8 lowest bits, to represent what an UTF-8 input given to the game
+  // ends up being when the game's 1-byte character system receives it.
+  // This is what source ports using SDL as the input layer do when they send
+  // character events to the game - SDL provides UTF-8 input, which is converted
+  // to UTF-32 and cast down before the game receives it. The vanilla game
+  // already provides 8-bit char as an input, so this just emulates that.
+  // We need to perform this conversion here to test QP encoding/decoding,
+  // because the tests run in a UTF-8 environment (at least we assume so).
+  static std::string UTF8toGameInput(const char *c) {
+    std::string out;
+
+    while (*c) {
+      int utf32 = 0;
+
+      if ((*c & 0x80) == 0) {
+        utf32 = *c++;
+      } else if ((*c & 0xE0) == 0xC0) { // 110x xxxx
+        utf32 |= (*c++ & 0x1F) << 6;
+        utf32 |= (*c++ & 0x3F);
+      } else if ((*c & 0xF0) == 0xE0) { // 1110 xxxx
+        utf32 |= (*c++ & 0x0F) << 12;
+        utf32 |= (*c++ & 0x3F) << 6;
+        utf32 |= (*c++ & 0x3F);
+      } else if ((*c & 0xF8) == 0xF0) { // 1111 0xxx
+        utf32 |= (*c++ & 0x07) << 18;
+        utf32 |= (*c++ & 0x3F) << 12;
+        utf32 |= (*c++ & 0x3F) << 6;
+        utf32 |= (*c++ & 0x3F);
+      } else {
+        c++;
+      }
+
+      if (utf32 != 0) {
+        out += static_cast<char>(utf32);
+      }
+    }
+
+    return out;
+  }
 };
 
 TEST_F(StringUtilitiesTests,
@@ -375,4 +416,88 @@ TEST_F(StringUtilitiesTests, stripExtension_noExtIsUnmodified) {
   StringUtils::stripExtension(in);
 
   ASSERT_EQ(in, "test");
+}
+
+TEST_F(StringUtilitiesTests, encodeQP_encodesCorrectly) {
+  std::array<const char *, 5> tests = {"áéíó", "test áéíó", "testáéíótest",
+                                       "test", ""};
+
+  std::array<const char *, 5> results = {"=E1=E9=ED=F3", "test =E1=E9=ED=F3",
+                                         "test=E1=E9=ED=F3test", "test", ""};
+
+  for (size_t i = 0; i < tests.size(); i++) {
+    ASSERT_EQ(StringUtils::encodeQP(UTF8toGameInput(tests[i])), results[i]);
+  }
+}
+
+TEST_F(StringUtilitiesTests, encodeQP_handlesLiteralEqualSign) {
+  std::array<const char *, 4> tests = {"=", "===", "=FF=99", "=FF=99="};
+
+  std::array<const char *, 4> results = {"=3D", "=3D=3D=3D", "=3DFF=3D99",
+                                         "=3DFF=3D99=3D"};
+
+  for (size_t i = 0; i < tests.size(); i++) {
+    ASSERT_EQ(StringUtils::encodeQP(UTF8toGameInput(tests[i])), results[i]);
+  }
+}
+
+TEST_F(StringUtilitiesTests, encodeQP_encodesOnlyUpToMaxLen) {
+  std::array<const char *, 8> tests = {"testáéíó",   "áéíótest", "teáéíóst",
+                                       "te áéíó st", "test=FF",  "tesá",
+                                       "tes=FF",     "testtest"};
+
+  std::array<const char *, 8> results = {"test", "=E1=E9", "te=E1",  "te =E1",
+                                         "test", "tes=E1", "tes=3D", "testte"};
+
+  for (size_t i = 0; i < tests.size(); i++) {
+    ASSERT_EQ(StringUtils::encodeQP(UTF8toGameInput(tests[i]), 6), results[i]);
+  }
+}
+
+TEST_F(StringUtilitiesTests, decodeQP_decodesCorrectly) {
+  std::array<const char *, 5> tests = {"=E1=E9=ED=F3", "test =E1=E9=ED=F3",
+                                       "test=E1=E9=ED=F3test", "test", ""};
+
+  std::array<const char *, 5> results = {"áéíó", "test áéíó", "testáéíótest",
+                                         "test", ""};
+
+  for (size_t i = 0; i < tests.size(); i++) {
+    ASSERT_EQ(StringUtils::decodeQP(tests[i]), UTF8toGameInput(results[i]));
+  }
+}
+
+TEST_F(StringUtilitiesTests, decodeQP_handlesLiteralEqualSign) {
+  std::array<const char *, 4> tests = {"=3D", "=3D=3D=3D", "=3DFF=3D99",
+                                       "=3DFF=3D99=3D"};
+
+  std::array<const char *, 4> results = {"=", "===", "=FF=99", "=FF=99="};
+
+  for (size_t i = 0; i < tests.size(); i++) {
+    ASSERT_EQ(StringUtils::decodeQP(tests[i]), UTF8toGameInput(results[i]));
+  }
+}
+
+TEST_F(StringUtilitiesTests, decodeQP_decodesOnlyUpToMaxLen) {
+  std::array<const char *, 8> tests = {"test=E1=E9=ED=F3", "=E1=E9=ED=F3test",
+                                       "te=E1=E9=ED=F3st", "te =E1=E9=ED=F3 st",
+                                       "test=3DFF",        "test=3DF",
+                                       "testte",           "testtest"};
+
+  std::array<const char *, 8> results = {"testáé", "áéíóte", "teáéíó",
+                                         "te áéí", "test=F", "test=F",
+                                         "testte", "testte"};
+
+  for (size_t i = 0; i < tests.size(); i++) {
+    ASSERT_EQ(StringUtils::decodeQP(tests[i], 6), UTF8toGameInput(results[i]));
+  }
+}
+
+TEST_F(StringUtilitiesTests, decodeQP_ignoresInvalidEncoding) {
+  std::array<const char *, 3> tests = {"=GG", "=YYtest=E1=E9=GG=F3", "=GG=GG="};
+
+  std::array<const char *, 3> results = {"=GG", "=YYtestáé=GGó", "=GG=GG="};
+
+  for (size_t i = 0; i < tests.size(); i++) {
+    ASSERT_EQ(StringUtils::decodeQP(tests[i]), UTF8toGameInput(results[i]));
+  }
 }

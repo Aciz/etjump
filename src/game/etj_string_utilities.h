@@ -163,4 +163,14 @@ void stripLocalizationMarkers(std::string &str);
 // escapes color codes in a string that contains carets,
 // which are not meant to be used as color codes
 void escapeColorCodes(std::string &str, char escapeColor);
+
+// returns a QP-encoded string
+// if 'maxLen' is provided, the resulting string is capped to that length
+// NOTE: this isn't fully compliant with the RFC 2045 spec - we don't handle
+// line breaks or whitespace
+std::string encodeQP(std::string_view s, size_t maxLen = 0);
+
+// returns a decoded string from a QP-encoded string
+// if 'maxLen' is provided, the resulting string is capped to that length
+std::string decodeQP(std::string_view s, size_t maxLen = 0);
 } // namespace StringUtils

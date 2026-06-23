@@ -541,6 +541,10 @@ extern vec4_t g_color_table[32];
 #define Q_IsNoneColor(v) v[0] == 0 && v[1] == 0 && v[2] == 0 && v[3] == 0
 
 // Hex Color string support
+inline constexpr std::array<char, 16> hexDigits = {
+    {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E',
+     'F'}};
+
 #define gethex(ch)                                                             \
   ((ch) > '9' ? ((ch) >= 'a' ? ((ch) - 'a' + 10) : ((ch) - '7')) : ((ch) - '0'))
 #define ishex(ch)                                                              \

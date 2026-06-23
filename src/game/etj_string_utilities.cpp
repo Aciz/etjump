@@ -27,6 +27,7 @@
 #include <iomanip>
 
 #include "etj_string_utilities.h"
+#include "q_shared.h"
 
 extern "C" {
 #include "../sha-1/sha1.h"
@@ -407,5 +408,69 @@ void escapeColorCodes(std::string &str, char escapeColor) {
       i += 2;
     }
   }
+}
+
+std::string encodeQP(const std::string_view s, size_t maxLen) {
+  std::string out;
+
+  for (size_t i = 0; i < s.length(); ++i) {
+    if (maxLen > 0 && out.length() >= maxLen) {
+      break;
+    }
+
+    const auto c = static_cast<unsigned char>(s[i]);
+
+    if (c == '"' || c == '%' || c == '=' || c > 127) {
+      if (maxLen > 0 && out.length() + 3 > maxLen) {
+        break;
+      }
+
+      out += '=';
+      out += hexDigits[c >> 4];
+      out += hexDigits[c & 0x0F];
+    } else {
+      out += static_cast<signed char>(c);
+    }
+  }
+
+  return out;
+}
+
+std::string decodeQP(const std::string_view s, size_t maxLen) {
+  std::string out;
+  out.reserve(s.length());
+
+  for (size_t i = 0; i < s.length(); ++i) {
+    if (maxLen > 0 && out.length() >= maxLen) {
+      break;
+    }
+
+    if (s[i] != '=') {
+      out += s[i];
+      continue;
+    }
+
+    if (i + 3 > s.length()) {
+      // add the remaining characters
+      out += s.substr(i);
+      break;
+    }
+
+    if (!std::isxdigit(static_cast<unsigned char>(s[i + 1])) ||
+        !std::isxdigit(static_cast<unsigned char>(s[i + 2]))) {
+      // don't throw away an invalid sequence, just add it as-is
+      out += s[i];
+      out += s[i + 1];
+      out += s[i + 2];
+      i += 2;
+      continue;
+    }
+
+    out += static_cast<char>((gethex(s[i + 1]) << 4) | gethex(s[i + 2]));
+
+    i += 2;
+  }
+
+  return out;
 }
 } // namespace StringUtils
