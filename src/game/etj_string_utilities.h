@@ -164,6 +164,19 @@ void stripLocalizationMarkers(std::string &str);
 // which are not meant to be used as color codes
 void escapeColorCodes(std::string &str, char escapeColor);
 
+// Converts an UTF-8 input into UTF-32, then throws away everything except
+// the 8 lowest bits, to represent what an UTF-8 input given to the game
+// ends up being when the game's 1-byte character system receives it.
+// This is what source ports using SDL as the input layer do when they send
+// character events to the game - SDL provides UTF-8 input, which is converted
+// to UTF-32 and cast down before the game receives it. The vanilla game
+// already provides 8-bit char as an input, so this just emulates that.
+// Whenever you're dealing with strings that are not produced by the game
+// (for example when reading files or running tests), and you need to perform
+// QP encoding or decoding with the strings, use this to convert the text
+// to "1 byte per character" format that the game expects
+std::string UTF8toGameInput(const char *c);
+
 // returns a QP-encoded string
 // if 'maxLen' is provided, the resulting string is capped to that length
 // NOTE: this isn't fully compliant with the RFC 2045 spec - we don't handle

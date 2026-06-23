@@ -139,7 +139,8 @@ void CustomCommandMenu::parseCommands() {
         }
 
         CustomCommand command{};
-        command.name = name.value();
+        command.name = StringUtils::encodeQP(
+            StringUtils::UTF8toGameInput(name.value().c_str()));
         command.command = cmd.value();
 
         // we are looping 1-indexed to match the field names

@@ -410,6 +410,38 @@ void escapeColorCodes(std::string &str, char escapeColor) {
   }
 }
 
+std::string UTF8toGameInput(const char *c) {
+  std::string out;
+
+  while (*c) {
+    int utf32 = 0;
+
+    if ((*c & 0x80) == 0) {
+      utf32 = *c++;
+    } else if ((*c & 0xE0) == 0xC0) { // 110x xxxx
+      utf32 |= (*c++ & 0x1F) << 6;
+      utf32 |= (*c++ & 0x3F);
+    } else if ((*c & 0xF0) == 0xE0) { // 1110 xxxx
+      utf32 |= (*c++ & 0x0F) << 12;
+      utf32 |= (*c++ & 0x3F) << 6;
+      utf32 |= (*c++ & 0x3F);
+    } else if ((*c & 0xF8) == 0xF0) { // 1111 0xxx
+      utf32 |= (*c++ & 0x07) << 18;
+      utf32 |= (*c++ & 0x3F) << 12;
+      utf32 |= (*c++ & 0x3F) << 6;
+      utf32 |= (*c++ & 0x3F);
+    } else {
+      c++;
+    }
+
+    if (utf32 != 0) {
+      out += static_cast<char>(utf32);
+    }
+  }
+
+  return out;
+}
+
 std::string encodeQP(const std::string_view s, size_t maxLen) {
   std::string out;
 
@@ -440,6 +472,7 @@ std::string decodeQP(const std::string_view s, size_t maxLen) {
   std::string out;
   out.reserve(s.length());
 
+  // TODO: does this need to handle color codes?
   for (size_t i = 0; i < s.length(); ++i) {
     if (maxLen > 0 && out.length() >= maxLen) {
       break;

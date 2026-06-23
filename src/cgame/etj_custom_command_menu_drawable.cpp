@@ -354,9 +354,23 @@ void CustomCommandMenuDrawable::commandMenuTextDraw(panel_button_t *button) {
         break;
       default:
         const auto &cmd = commands.at(currentPage)[i];
-        s += StringUtils::truncate(!cmd.name.empty() ? cmd.name : cmd.command,
-                                   maxChars);
-        break;
+
+        if (cmd.name.empty()) {
+          s += StringUtils::truncate(cmd.command, maxChars);
+        } else {
+          // This is a bit complicated, because we can't call truncate()
+          // on a string with extended ASCII chars, as they will get sanitized
+          // away. Therefore, we call sanitize first on the encoded string,
+          // then truncate that using the decoding function.
+          // TODO: revisit this? not 100% sure if this correct yet,
+          // seems to work from a quick test though
+          const auto sanitizedLen = StringUtils::sanitize(cmd.name).length();
+          const auto len = cmd.name.length();
+          const std::string decoded =
+              StringUtils::decodeQP(cmd.name, maxChars + len - sanitizedLen);
+
+          s += decoded;
+        }
     }
 
     CG_Text_Paint_Ext(button->rect.x, y, button->font->scalex,
