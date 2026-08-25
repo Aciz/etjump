@@ -10,6 +10,7 @@
 #include "etj_event_loop.h"
 #include "etj_pmove_utils_v2.h"
 #include "etj_snaphud_data.h"
+#include "etj_trace_utils.h"
 #include "etj_trickjump_lines.h"
 #include "etj_utilities.h"
 #include "etj_upmove_meter_data.h"
@@ -1880,7 +1881,6 @@ namespace ETJump {
 static void runFrameEnd() {
   cgame.core.awaitedCommand->runFrame();
   cgame.utils.eventLoop->run();
-  cgame.visuals.trickjumpLines->runFrame();
 
   if (cg.clientFrame >= CGAME_INIT_DELAY_FRAMES) {
     delayedInit();
@@ -1945,6 +1945,8 @@ static void runFrameEnd() {
 }
 
 static void updateHUDData() {
+  ETJump::cgame.utils.trace->setupIgnoredEntities(cg.snap->ps.clientNum);
+
   if (ETJump::cgame.hudData.pmoveV2->check()) {
     ETJump::cgame.hudData.pmoveV2->runFrame();
   }
@@ -1965,6 +1967,8 @@ static void updateHUDData() {
   if (ETJump::CHSData::check()) {
     ETJump::cgame.hudData.chs->runFrame();
   }
+
+  ETJump::cgame.utils.trace->resetIgnoredEntities();
 }
 } // namespace ETJump
 
@@ -2171,6 +2175,10 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView,
       DEBUGTIME
 
       CG_AddAtmosphericEffects();
+
+      DEBUGTIME
+
+      ETJump::cgame.visuals.trickjumpLines->runFrame();
 
       DEBUGTIME
     }
