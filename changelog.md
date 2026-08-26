@@ -7,8 +7,10 @@
 * some HUD elements displayed incorrectly when traveling through nonsolid players [#1982](https://github.com/etjump/etjump/pull/1982)
 * `etj_jumpSpeedsX` shifted extra columns incorrectly to the right [#1980](https://github.com/etjump/etjump/pull/1980)
 * packet loss broke some HUD elements [#1985](https://github.com/etjump/etjump/pull/1985)
+* accel meter/advanced accel coloring flickered when FPS dropped below 125 [#1988](https://github.com/etjump/etjump/pull/1988)
 * `previous/next` actions in fireteam `propose/kick/warn` menus executed keybinds while pressing the corresponding buttons [#1981](https://github.com/etjump/etjump/pull/1981)
 * trickjump lines were not rendering [#1987](https://github.com/etjump/etjump/pull/1987)
+* `etj_speedColorUsesAccel 2` calculated color with wrong accel values for 1 frame after noclip ended [#1989](https://github.com/etjump/etjump/pull/1989)
 * crosshair names were not drawing through `func_static_client` entities that were in an off-state [#1983](https://github.com/etjump/etjump/pull/1983)
 
 # ETJump 3.6.1
