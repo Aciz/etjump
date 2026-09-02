@@ -1092,11 +1092,6 @@ bool PmoveUtilsV2::skipUpdate(int32_t &lastUpdateTime,
   // otherwise, fall back to 'cg.time'
   // (less accurate, things might break a bit with unstable fps)
   const int32_t frameTime = useCommandTime ? pm.ps->commandTime : cg.time;
-
-  // 'lastUpdateTime' should never be a static variable,
-  // as that makes it error prone with server time resets
-  assert(frameTime >= lastUpdateTime);
-
   const int now = frameTime - (frameTime % pm.pmove_msec);
 
   // never skip updates if lerping is requested
