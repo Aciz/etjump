@@ -1,3 +1,12 @@
+# ETJump 3.7.0
+
+## Added
+* `etj_drawYaw` to display an indicator when turning view left/right [#1390](https://github.com/etjump/etjump/pull/1390)
+* `editentity` script action to modify an entity without a `scriptname` via mapscripting [#1972](https://github.com/etjump/etjump/pull/1972)
+
+## Changed
+* numerous tweaks to default cvar values to improve the out-of-box experience [#1990](https://github.com/etjump/etjump/pull/1990)
+
 # ETJump 3.6.2
 
 ## Changed
