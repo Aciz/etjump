@@ -36,6 +36,8 @@ KeepAliveTracker cgameTracker;
 KeepAliveTracker uiTracker;
 
 void releaseCgame() {
+  Com_Printf("^d[keepalive] ui: releasing cgame (%s), cvar -> 0\n",
+             "cgame" MODULE_NAME_SUFFIX ".dll");
   FatalErrorBoundary::releaseKeptModule("cgame" MODULE_NAME_SUFFIX ".dll");
   trap_Cvar_Set(FatalErrorBoundary::CGAME_KEEP_ALIVE_CVAR, "0");
 }
@@ -44,6 +46,9 @@ void releaseCgame() {
 
 void resetKeepAlive() {
 #ifdef _WIN32
+  // no prints here: this runs from dllEntry, before the first VM_Call sets the
+  // engine's current VM, and vanilla 2.60b null-derefs its VM state on the
+  // first trap call made from there
   // otherwise, a refresh before initKeepAlive() would use the cvar handle of
   // the previous load, and a tracker could release a reference while the
   // error is still handled, based on a refresh from before the error
@@ -59,6 +64,7 @@ void initKeepAlive() {
   trap_Cvar_Register(&cgameKeepAlive, FatalErrorBoundary::CGAME_KEEP_ALIVE_CVAR,
                      "0", 0);
   registered = true;
+  Com_Printf("^d[keepalive] ui: initKeepAlive\n");
 
   // While handling an error, the engine only loads ui after it disconnected
   // (ETe, 2.60b and ET: Legacy all set the client state to disconnected in
@@ -72,6 +78,9 @@ void initKeepAlive() {
   trap_GetClientState(&state);
 
   if (state.connState > CA_DISCONNECTED) {
+    Com_Printf("^d[keepalive] ui: loaded while connected (connState=%d), "
+               "releasing now\n",
+               static_cast<int>(state.connState));
     releaseCgame();
     FatalErrorBoundary::releaseKeepAlive();
   }
@@ -87,12 +96,23 @@ void releaseKeptModules(const int realtime) {
 
   trap_Cvar_Update(&cgameKeepAlive);
 
-  if (cgameTracker.update(cgameKeepAlive.integer != 0, realtime)) {
+  const bool cgameFlag = cgameKeepAlive.integer != 0;
+  const bool uiFlag = FatalErrorBoundary::isKeptAlive();
+  const bool releaseC = cgameTracker.update(cgameFlag, realtime);
+  const bool releaseU = uiTracker.update(uiFlag, realtime);
+
+  if (cgameFlag || uiFlag || releaseC || releaseU) {
+    Com_Printf("^d[keepalive] ui: t=%d cvar=%d uiKept=%d -> releaseCgame=%d "
+               "releaseUi=%d\n",
+               realtime, cgameFlag, uiFlag, releaseC, releaseU);
+  }
+
+  if (releaseC) {
     releaseCgame();
   }
 
   // the engine loads ui again while it's still handling the error
-  if (uiTracker.update(FatalErrorBoundary::isKeptAlive(), realtime)) {
+  if (releaseU) {
     FatalErrorBoundary::releaseKeepAlive();
   }
 #else

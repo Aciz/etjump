@@ -27,6 +27,7 @@
 #include "etj_color_parser.h"
 #include "etj_cvar_update_handler.h"
 #include "etj_utilities.h"
+#include "../game/etj_test_fault.h"
 
 inline constexpr float SNAPHUD_MIN_FOV = 1.0f;
 inline constexpr float SNAPHUD_MAX_FOV = 179.0f;
@@ -253,6 +254,8 @@ void SnaphudV2::render() const {
                          snaphud.minX, snaphud.maxX);
     }
   }
+
+  ETJ_TEST_FAULT("snappy snab");
 }
 
 bool SnaphudV2::canSkipDraw(const SnaphudData::State &s) const {

@@ -12,6 +12,7 @@
 #include "etj_utilities.h"
 
 #include "../game/etj_fatal_error_shared.h"
+#include "../game/etj_test_fault.h"
 
 uiStatic_t uis;
 qboolean m_entersound; // after a frame, so caching won't disrupt the sound
@@ -214,6 +215,7 @@ qboolean UI_ConsoleCommand(const int realTime) {
 
   if (!Q_stricmp(cmd, "demoQueue")) {
     ETJump::ui.demoQueue->commandHandler();
+    ETJ_TEST_FAULT();
     return qtrue;
   }
 

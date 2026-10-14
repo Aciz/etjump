@@ -553,6 +553,7 @@ void CheckExitRules(void);
 qboolean G_SnapshotCallback(int entityNum, int clientNum) {
   gentity_t *ent = &g_entities[entityNum];
 
+  ETJ_TEST_FAULT();
   if (ent->s.eType == ET_MISSILE) {
     if (ent->s.weapon == WP_LANDMINE) {
       return G_LandmineSnapshotCallback(entityNum, clientNum);
@@ -2146,6 +2147,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart) {
 
   // Must be called before entities are created
   initializeETJump();
+  ETJ_TEST_FAULT("init after etjump init");
 
   // parse the key/value pairs and spawn gentities
   G_SpawnEntitiesFromString();

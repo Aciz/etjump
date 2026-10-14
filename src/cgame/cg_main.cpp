@@ -3672,6 +3672,9 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum,
   DEBUG_INITPROFILE_INIT
 #endif // _DEBUG
 
+  // test trigger (scaffolding): CG_INIT
+  ETJ_TEST_FAULT();
+
   //	int startat = trap_Milliseconds();
   Com_Printf("CG_Init...\n");
 
@@ -3960,6 +3963,10 @@ Called before every level change or subsystem restart
 void CG_Shutdown(void) {
   // some mods may need to do cleanup work here,
   // like closing files or archiving session data
+
+  // test trigger (scaffolding): CG_SHUTDOWN (known-cleared: raises from
+  // cg/ui shutdown are unhandlable by the engines — pre-existing, see plan)
+  ETJ_TEST_FAULT();
 
   CG_EventHandling(CGAME_EVENT_NONE, qtrue);
 

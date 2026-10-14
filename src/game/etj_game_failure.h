@@ -29,8 +29,7 @@
 
 #include "etj_fatal_error_shared.h"
 
-namespace ETJump {
-// real time to wait between dropping the clients and shutting down,
+namespace ETJump {// real time to wait between dropping the clients and shutting down,
 // the disconnect messages are delivered in the next server frames
 inline constexpr int GAME_FAILURE_SHUTDOWN_DELAY = 1000;
 

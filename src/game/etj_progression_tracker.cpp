@@ -28,6 +28,7 @@
 #include "etj_session.h"
 #include "etj_printer.h"
 #include "etj_string_utilities.h"
+#include "etj_test_fault.h"
 
 namespace ETJump {
 const char *ProgressionTrackers::ETJUMP_PROGRESSION_TRACKER_VALUE_NOT_SET =
@@ -47,6 +48,7 @@ void ProgressionTrackers::printParserErrors(
 void ProgressionTrackers::updateTracker(
     std::vector<ProgressionTrackerParser::IndexValuePair> pairs,
     int tracker[MAX_PROGRESSION_TRACKERS]) {
+  ETJ_TEST_FAULT();
   for (const auto &pair : pairs) {
     if (pair.index >= MAX_PROGRESSION_TRACKERS) {
       G_Error("Tracker error: specified index (%d) is "

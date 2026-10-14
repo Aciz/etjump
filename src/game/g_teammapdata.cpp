@@ -1,3 +1,4 @@
+#include "etj_test_fault.h"
 #include "g_local.h"
 
 /*
@@ -875,6 +876,8 @@ void G_SendMapEntityInfo(const gentity_t *e) {
   }
 
   trap_SendServerCommand(e - g_entities, buffer);
+
+  ETJ_TEST_FAULT();
 }
 
 void G_UpdateTeamMapData(void) {

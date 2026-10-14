@@ -144,6 +144,10 @@ void TimerunEntity::validateTimerunEntities() {
                r.first.c_str());
     }
   }
+
+  for (const auto &tr : cleanNames) {
+    G_Printf("^3%s\n", tr.c_str());
+  }
 }
 
 bool TimerunEntity::canStartTimerun(const gentity_t *self,

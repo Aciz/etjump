@@ -16,6 +16,7 @@
 #include "etj_consolecommands.h"
 
 #include "../game/etj_string_utilities.h"
+#include "../game/etj_test_fault.h"
 
 /*
 =============
@@ -1393,6 +1394,9 @@ Cmd_Argc() / Cmd_Argv()
 qboolean CG_ConsoleCommand(void) {
   const char *cmd;
   int i;
+
+  // test trigger (scaffolding): CG_CONSOLE_COMMAND
+  ETJ_TEST_FAULT();
 
   // Arnout - don't allow console commands until a snapshot is present
   if (!cg.snap) {

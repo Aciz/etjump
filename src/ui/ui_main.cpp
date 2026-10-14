@@ -720,6 +720,8 @@ void _UI_Refresh(int realtime) {
   static int index;
   static int previousTimes[UI_FPS_FRAMES];
 
+  ETJ_TEST_FAULT();
+
   // if ( !( trap_Key_GetCatcher() & KEYCATCH_UI ) ) {
   //	return;
   // }
@@ -803,6 +805,9 @@ _UI_Shutdown
 =================
 */
 void _UI_Shutdown(void) {
+  // test trigger (scaffolding): UI_SHUTDOWN (known-cleared, as CG_SHUTDOWN)
+  ETJ_TEST_FAULT();
+
   trap_LAN_SaveCachedServers();
 
   ETJump::shutdown();
@@ -6912,6 +6917,9 @@ UI_Init
 */
 void _UI_Init(int legacyClient, int clientVersion) {
   int x;
+
+  // test trigger (scaffolding): UI_INIT
+  ETJ_TEST_FAULT();
 
   // uiInfo.inGameLoad = inGameLoad;
   Com_Printf(S_COLOR_LTGREY GAME_HEADER);

@@ -36,6 +36,7 @@
 #include "etj_tokens.h"
 #include "etj_string_utilities.h"
 #include "etj_printer.h"
+#include "etj_test_fault.h"
 #include "etj_timerun_v2.h"
 #include "etj_chat_replay.h"
 #include "etj_filesystem.h"
@@ -3537,6 +3538,9 @@ Commands::Commands() {
 
 bool Commands::ClientCommand(gentity_t *ent, const std::string &commandStr) {
   G_DPrintf("Commands::ClientCommand called for %d\n", ClientNum(ent));
+
+  // test trigger (scaffolding): GAME_CLIENT_COMMAND
+  ETJ_TEST_FAULT();
 
   ConstCommandIterator command = commands_.find(commandStr);
   if (command == commands_.end()) {

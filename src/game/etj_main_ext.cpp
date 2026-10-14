@@ -44,6 +44,7 @@
 #include "etj_filesystem.h"
 #include "etj_printer.h"
 #include "etj_fireteam_countdown.h"
+#include "etj_test_fault.h"
 #include "etj_worldspawn.h"
 
 Game game;
@@ -204,6 +205,9 @@ void RunFrame(int levelTime) {
 
   game.fireteamCountdown->runFrame();
 
+  // test trigger (scaffolding): GAME_RUN_FRAME
+  ETJ_TEST_FAULT();
+
   ETJump::Log::processMessages();
 }
 
@@ -301,33 +305,45 @@ void OnGameShutdown() {
   // systems may be null, as the game might not have finished initializing
   // (a fatal error during GAME_INIT, see GameFailure), or the engine shuts it
   // down while handling an error of its own raised inside a syscall
-  ETJump::runEachStep([] { WriteSessionData(); },
+  ETJump::runEachStep([] {
+
+  ETJ_TEST_FAULT();
+    WriteSessionData();
+  },
                       [] {
                         if (ETJump::database != nullptr) {
                           ETJump::database->CloseDatabase();
+                          G_Printf("Database closed.\n");
                         }
                       },
                       [] {
                         if (game.mapStatistics != nullptr) {
                           game.mapStatistics->saveChanges();
+                          G_Printf("Changes saved.\n");
                         }
                       },
                       [] {
                         if (game.tokens != nullptr) {
                           ETJump::Tokens::reset();
+                          G_Printf("Tokens reset.\n");
                         }
                       },
                       [] {
                         if (game.timerunV2) {
                           game.timerunV2->shutdown();
+                          G_Printf("Timerunv2 shutdown.\n");
                         }
                       },
                       [] {
                         if (game.chatReplay) {
                           game.chatReplay->writeChatsToFile();
+                          G_Printf("ChatReplay write.\n");
                         }
                       },
-                      [] { resetGameSystems(); });
+                      [] {
+                        resetGameSystems();
+                        G_Printf("Game shutdown.\n");
+                      });
 }
 
 qboolean OnConnectedClientCommand(gentity_t *ent) {

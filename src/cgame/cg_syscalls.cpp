@@ -21,6 +21,7 @@ extern "C" FN_PUBLIC void dllEntry(intptr_t(QDECL *syscallptr)(intptr_t arg,
   // on Windows, cgame keeps itself mapped after an error, and ui releases
   // it once the error is handled, so a server's pk3 can replace the file
   ETJump::FatalErrorBoundary::initialize(trap_Error, trap_Print, [] {
+    trap_Print("^d[keepalive] cgame: acquiring, cvar -> 1\n");
     trap_Cvar_Set(ETJump::FatalErrorBoundary::CGAME_KEEP_ALIVE_CVAR, "1");
   });
 }

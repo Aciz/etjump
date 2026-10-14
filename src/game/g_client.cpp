@@ -5,6 +5,7 @@
 #include "etj_rtv.h"
 #include "etj_entity_utilities.h"
 #include "etj_progression_tracker.h"
+#include "etj_test_fault.h"
 #include "etj_worldspawn.h"
 
 // g_client.c -- client functions that don't happen every frame
@@ -1827,6 +1828,9 @@ void ClientUserinfoChanged(int clientNum) {
   gclient_t *client;
   int i;
 
+  // test trigger (scaffolding): GAME_CLIENT_USERINFO_CHANGED
+  ETJ_TEST_FAULT();
+
   ent = g_entities + clientNum;
   client = ent->client;
 
@@ -1983,6 +1987,9 @@ const char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot) {
   // Zero: has to be here because else it'll reset the ip we'll
   // set a bit later
   OnClientConnect(clientNum, firstTime, isBot);
+
+  // test trigger (scaffolding): GAME_CLIENT_CONNECT
+  ETJ_TEST_FAULT();
 
   // IP filtering
   // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=500
@@ -2180,6 +2187,9 @@ void ClientBegin(int clientNum) {
   gclient_t *client;
   int flags;
   int spawn_count; // DHM - Nerve
+
+  // test trigger (scaffolding): GAME_CLIENT_BEGIN
+  ETJ_TEST_FAULT();
 
   ent = g_entities + clientNum;
 
@@ -2726,6 +2736,7 @@ void ClientDisconnect(int clientNum) {
   }
 
   OnClientDisconnect(ent);
+  ETJ_TEST_FAULT("disconnect after etjump cleanup");
   G_RemoveClientFromFireteams(clientNum, qtrue, qfalse);
   G_RemoveFromAllIgnoreLists(clientNum);
   G_LeaveTank(ent, qfalse);

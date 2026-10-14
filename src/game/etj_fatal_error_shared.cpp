@@ -48,6 +48,14 @@
 
 #include "etj_fatal_error_shared.h"
 
+// test scaffolding for the Windows keep-alive pass, compiled only into harness
+// builds (USE_TEST_FAULTS); remove after the pass
+#ifdef ETJ_TEST_FAULTS
+  #define KEEPALIVE_PRINT(prefix, message) printError(prefix, message)
+#else
+  #define KEEPALIVE_PRINT(prefix, message) ((void)0)
+#endif
+
 namespace ETJump {
 FatalError::FatalError(std::string message, const bool unexpected,
                        const bool reported)
@@ -222,6 +230,7 @@ void acquireModule() {
                          reinterpret_cast<LPCWSTR>(&keepAliveHandle),
                          &handle)) {
     keepAliveHandle = handle;
+    KEEPALIVE_PRINT("^d[keepalive] acquireModule: ", "keeping module mapped");
 
     if (keepAliveFunction) {
       keepAliveFunction();
@@ -355,6 +364,10 @@ bool isKeptAlive() {
 
 void releaseKeepAlive() {
 #ifdef _WIN32
+  // only reaches here from runtime calls (the ui tracker, or initKeepAlive
+  // while connected), never from a module load, so printing is safe
+  KEEPALIVE_PRINT("^d[keepalive] releaseKeepAlive: ",
+                  "dropping kept reference");
   releaseModule();
 #endif
 }
@@ -364,6 +377,8 @@ void releaseKeptModule(const char *moduleName) {
   const HMODULE module = GetModuleHandleA(moduleName);
 
   if (!module) {
+    KEEPALIVE_PRINT("^d[keepalive] releaseKeptModule: module not found: ",
+                    moduleName);
     return;
   }
 
@@ -373,10 +388,14 @@ void releaseKeptModule(const char *moduleName) {
       GetProcAddress(module, "etj_takeKeepAliveReference")));
 
   if (!take) {
+    KEEPALIVE_PRINT("^d[keepalive] releaseKeptModule: no take export in: ",
+                    moduleName);
     return;
   }
 
   if (auto *const handle = static_cast<HMODULE>(take())) {
+    KEEPALIVE_PRINT("^d[keepalive] releaseKeptModule: FreeLibrary ",
+                    moduleName);
     FreeLibrary(handle);
   }
 #else

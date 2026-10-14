@@ -12,6 +12,7 @@
 #include "etj_crosshair.h"
 
 #include "../game/etj_string_utilities.h"
+#include "../game/etj_test_fault.h"
 
 char *BindingFromName(const char *cvar);
 void Controls_GetConfig(void);
@@ -4739,6 +4740,8 @@ void CG_DrawActive(stereoFrame_t stereoView) {
 
   ETJump::drawCoronas();
   ETJump::drawClientDlights();
+
+  ETJ_TEST_FAULT();
 
   if (!(cg.limboEndCinematicTime > cg.time && cg.showGameView)) {
     for (int i = 0; i < MAX_RENDER_STRINGS; i++) {

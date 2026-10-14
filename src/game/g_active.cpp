@@ -8,6 +8,7 @@
 #include "etj_entity_utilities.h"
 #include "etj_trace_utils.h"
 #include "etj_worldspawn.h"
+#include "etj_test_fault.h"
 
 /*
 ===============
@@ -1434,6 +1435,9 @@ void ClientThink_real(gentity_t *ent) {
               static_cast<weapon_t>(-1), qfalse);
     }
   }
+
+  // test trigger (scaffolding): GAME_CLIENT_THINK
+  ETJ_TEST_FAULT();
 }
 
 /*

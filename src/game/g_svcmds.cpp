@@ -4,6 +4,7 @@
 #include "etj_local.h"
 #include "etj_timerun_v2.h"
 #include "g_local.h"
+#include "etj_test_fault.h"
 
 /*
 ==============================================================================
@@ -633,6 +634,9 @@ ConsoleCommand
 */
 qboolean ConsoleCommand(void) {
   char cmd[MAX_TOKEN_CHARS];
+
+  // test trigger (scaffolding): GAME_CONSOLE_COMMAND
+  ETJ_TEST_FAULT();
 
   trap_Argv(0, cmd, sizeof(cmd));
 
