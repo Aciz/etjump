@@ -43,7 +43,7 @@ Workflow: entries are backfilled in batches — once a handful of changes have a
 
 ## Formatting & style
 
-- Format with `clang-format -i` (repo `.clang-format`). **Only run it on code in `src/`** — never on `deps/` or `assets/` (shaders/menus). `git clang-format -i` is fine.
+- Format with `clang-format -i` (repo `.clang-format`). **Only run it on code in `src/` and `tests/`** — never on `deps/` or `assets/` (shaders/menus). `git clang-format -i` is fine.
 - Style guide (`docs/styleguide.md`): new code should be modern C++ — `ETJump::` namespaces (or more specific), camelCase functions/vars, PascalCase classes/enums, uppercase `constexpr` constants, no `using namespace std`, no `_`/`m_` member prefixes, no nested ternaries, early exits over deep nesting, `enum class` + explicit casts, `[[nodiscard]]` where applicable, fixed-width int types. Old C-style code is exempt; don't refactor unrelated files. The `.clang-tidy` relaxations are deliberate (legacy C), not to be re-enabled casually.
 - Objects are constructed at module init and destroyed at shutdown, owned by a single per-module context struct (see `src/cgame/etj_cgame.h`); `shared_ptr` only for shared services/data, `unique_ptr` for sole ownership, raw refs for observers. `game` still needs migrating to this.
 - New files start with the MIT header from `LICENSE` (see any `src/game/etj_*.cpp`); `scripts/include-license.sh` prepends it to any `etj_*.cpp`/`.h` that lacks a `Copyright` line. Leave existing headers alone — legacy SDK files carry their own.
