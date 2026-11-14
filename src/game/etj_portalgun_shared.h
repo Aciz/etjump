@@ -28,16 +28,16 @@
 
 namespace ETJump {
 // portal trail colors
-inline constexpr vec3_t portalBlueTrail = {0.0f, 0.0f, 1.0f};
-inline constexpr vec3_t portalRedTrail = {1.0f, 0.1f, 0.0f};
-inline constexpr vec3_t portalGreenTrail = {0.2f, 1.0f, 0.5f};
+inline constexpr vec3_t portalBlueTrail   = {0.0f, 0.0f, 1.0f};
+inline constexpr vec3_t portalRedTrail    = {1.0f, 0.1f, 0.0f};
+inline constexpr vec3_t portalGreenTrail  = {0.2f, 1.0f, 0.5f};
 inline constexpr vec3_t portalYellowTrail = {1.0f, 1.0f, 0.0f};
 
 // portalteam
 enum class PortalTeamOpts {
-  OFF = 0,
+  OFF      = 0,
   FIRETEAM = 1,
-  ALL = 2,
+  ALL      = 2,
 };
 
 // cooldown between portal touch events (ms)
@@ -53,8 +53,7 @@ inline constexpr float PORTAL_BBOX_VERT_DEPTH = 5.0f;
 // radius for portal shader drawing
 inline constexpr float PORTAL_DRAW_RADIUS = 48.0f;
 // scalar for drawing the portal shader proportional to the portal size
-inline constexpr float PORTAL_DRAW_SCALAR =
-    PORTAL_DRAW_RADIUS / (PORTAL_BBOX_RADIUS * 2);
+inline constexpr float PORTAL_DRAW_SCALAR = PORTAL_DRAW_RADIUS / (PORTAL_BBOX_RADIUS * 2);
 // animation duration for portal spawning
 inline constexpr int32_t PORTAL_SPAWN_ANIM_DURATION = 200;
 
@@ -91,24 +90,20 @@ struct Placement {
 };
 
 // portal gun traces start from the eye position
-void traceEndpoints(const vec3_t origin, int32_t viewheight,
-                    const vec3_t viewangles, vec3_t start, vec3_t end);
+void traceEndpoints(const vec3_t origin, int32_t viewheight, const vec3_t viewangles, vec3_t start, vec3_t end);
 
 // start point of the portal trail, matches 'CalcMuzzlePoint' on server
-void muzzlePoint(const vec3_t origin, int32_t viewheight,
-                 const vec3_t viewangles, vec3_t out);
+void muzzlePoint(const vec3_t origin, int32_t viewheight, const vec3_t viewangles, vec3_t out);
 
 // checks if the surface hit by the portal gun trace can hold a portal
 [[nodiscard]] bool surfaceAllowsPortal(const trace_t &tr, bool portalSurfaces);
 
 // 'target' is nullptr if the trace didn't hit a portal target entity
-void computePlacement(const trace_t &tr, const PortalTarget *target,
-                      Placement &out);
+void computePlacement(const trace_t &tr, const PortalTarget *target, Placement &out);
 
 // 'otherSize' is the size of the other portal, as stored in 'onFireStart'
-[[nodiscard]] bool portalsOverlap(const Placement &placement,
-                                  const vec3_t otherOrigin,
-                                  const vec3_t otherAngles, int32_t otherSize);
+[[nodiscard]] bool portalsOverlap(const Placement &placement, const vec3_t otherOrigin, const vec3_t otherAngles,
+                                  int32_t otherSize);
 
 // portal size (diameter) stored in portal entities 'onFireStart'
 [[nodiscard]] int32_t sizeFromScale(float scale);

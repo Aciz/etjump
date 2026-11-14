@@ -23,6 +23,7 @@
  */
 
 #include "etj_entity_utilities.h"
+
 #include "etj_string_utilities.h"
 
 extern field_t fields[];
@@ -38,11 +39,12 @@ bool EntityUtilities::isPlayer(gentity_t *ent) {
 // vectors don't seem to like vec_t as their value,
 // so using raw values for colors here instead of colorRed, colorGreen etc.
 const std::vector<std::pair<std::string, std::vector<float>>> railBoxEnts{
-    {"trigger_multiple_ext", {0.0f, 1.0f, 0.0f}},
-    {"trigger_starttimer_ext", {0.0f, 0.0f, 1.0f}},
-    {"trigger_stoptimer_ext", {0.0f, 0.0f, 1.0f}},
-    {"trigger_checkpoint_ext", {1.0f, 0.0f, 1.0f}},
-    {"func_fakebrush", {1.0f, 0.0f, 0.0f}}};
+  {"trigger_multiple_ext",   {0.0f, 1.0f, 0.0f}},
+  {"trigger_starttimer_ext", {0.0f, 0.0f, 1.0f}},
+  {"trigger_stoptimer_ext",  {0.0f, 0.0f, 1.0f}},
+  {"trigger_checkpoint_ext", {1.0f, 0.0f, 1.0f}},
+  {"func_fakebrush",         {1.0f, 0.0f, 0.0f}}
+};
 
 void EntityUtilities::checkForRailBox(gentity_t *ent) {
   for (const auto &railBoxEnt : railBoxEnts) {
@@ -52,8 +54,7 @@ void EntityUtilities::checkForRailBox(gentity_t *ent) {
   }
 }
 
-void EntityUtilities::drawRailBox(const gentity_t *ent,
-                                  const std::vector<float> &color) {
+void EntityUtilities::drawRailBox(const gentity_t *ent, const std::vector<float> &color) {
   vec3_t b1;
   vec3_t b2;
   gentity_t *temp;
@@ -78,20 +79,18 @@ void EntityUtilities::drawRailBox(const gentity_t *ent,
 
 bool EntityUtilities::playerIsSolid(const int self, const int other) {
   fireteamData_t *ftSelf, *ftOther;
-  const gclient_t *selfClient = g_entities[self].client;
+  const gclient_t *selfClient  = g_entities[self].client;
   const gclient_t *otherClient = g_entities[other].client;
 
   if (self == other) {
     return false;
   }
 
-  if (selfClient->sess.sessionTeam == TEAM_SPECTATOR ||
-      otherClient->sess.sessionTeam == TEAM_SPECTATOR) {
+  if (selfClient->sess.sessionTeam == TEAM_SPECTATOR || otherClient->sess.sessionTeam == TEAM_SPECTATOR) {
     return false;
   }
 
-  if (selfClient->ps.pm_type == PM_NOCLIP ||
-      otherClient->ps.pm_type == PM_NOCLIP) {
+  if (selfClient->ps.pm_type == PM_NOCLIP || otherClient->ps.pm_type == PM_NOCLIP) {
     return false;
   }
 
@@ -130,8 +129,7 @@ bool EntityUtilities::entitiesFree(const int threshold) {
   return free > threshold;
 }
 
-void EntityUtilities::setCursorhintFromString(int &value,
-                                              const std::string &hint) {
+void EntityUtilities::setCursorhintFromString(int &value, const std::string &hint) {
   for (int i = 0; i < HINT_NUM_HINTS; i++) {
     if (StringUtils::iEqual(hint, hintStrings[i])) {
       value = i;
@@ -139,8 +137,7 @@ void EntityUtilities::setCursorhintFromString(int &value,
   }
 }
 
-void EntityUtilities::getOriginOrBmodelCenter(const gentity_t *ent,
-                                              vec3_t origin) {
+void EntityUtilities::getOriginOrBmodelCenter(const gentity_t *ent, vec3_t origin) {
   if (!VectorCompare(ent->r.currentOrigin, vec3_origin)) {
     VectorCopy(ent->r.currentOrigin, origin);
   } else {
@@ -157,13 +154,13 @@ bool EntityUtilities::clearPortals(gentity_t *ent) {
   if (ent->portalBlue) {
     G_FreeEntity(ent->portalBlue);
     ent->portalBlue = nullptr;
-    removed = true;
+    removed         = true;
   }
 
   if (ent->portalRed) {
     G_FreeEntity(ent->portalRed);
     ent->portalRed = nullptr;
-    removed = true;
+    removed        = true;
   }
 
   if (ent->client) {
@@ -179,8 +176,7 @@ void EntityUtilities::storeParsedEntity() {
   std::string entity;
 
   for (int i = 0; i < level.numSpawnVars; i++) {
-    entity += StringUtils::format("\"%s\" \"%s\"\n", level.spawnVars[i][0],
-                                  level.spawnVars[i][1]);
+    entity += StringUtils::format("\"%s\" \"%s\"\n", level.spawnVars[i][0], level.spawnVars[i][1]);
   }
 
   parsedEntities.push_back("{\n" + entity + "}\n");
@@ -190,10 +186,12 @@ const std::vector<std::string> &EntityUtilities::getParsedEntities() {
   return parsedEntities;
 }
 
-void EntityUtilities::clearParsedEntities() { parsedEntities.clear(); }
+void EntityUtilities::clearParsedEntities() {
+  parsedEntities.clear();
+}
 
-FindEntitiesResult EntityUtilities::findEntitiesByField(
-    const std::string &key, const std::string &value, const char *func) {
+FindEntitiesResult EntityUtilities::findEntitiesByField(const std::string &key, const std::string &value,
+                                                        const char *func) {
   FindEntitiesResult result;
   int32_t fieldIndex = 0;
 
@@ -214,18 +212,16 @@ FindEntitiesResult EntityUtilities::findEntitiesByField(
 
   gentity_t *found = nullptr;
 
-  const auto invalidArgCount = [&](const int expectedArgs,
-                                   const size_t numArgs) {
+  const auto invalidArgCount = [&](const int expectedArgs, const size_t numArgs) {
     G_Printf("%s: Invalid number of arguments for ^3'%s'^7, expected ^3%i^7, "
              "got ^3%i\n",
              func, key.c_str(), expectedArgs, static_cast<int>(numArgs));
     result.valid = false;
   };
 
-  const auto invalidArgType = [&](const std::string &expectedType,
-                                  const std::string &type) {
-    G_Printf("%s: Invalid argument for ^3'%s'^7, expected ^3%s^7, got ^3'%s'\n",
-             func, key.c_str(), expectedType.c_str(), type.c_str());
+  const auto invalidArgType = [&](const std::string &expectedType, const std::string &type) {
+    G_Printf("%s: Invalid argument for ^3'%s'^7, expected ^3%s^7, got ^3'%s'\n", func, key.c_str(),
+             expectedType.c_str(), type.c_str());
     result.valid = false;
   };
 
@@ -243,8 +239,7 @@ FindEntitiesResult EntityUtilities::findEntitiesByField(
         break;
       }
 
-      while ((found = G_FindInt(found, fields[fieldIndex].ofs, valueInt)) !=
-             nullptr) {
+      while ((found = G_FindInt(found, fields[fieldIndex].ofs, valueInt)) != nullptr) {
         result.entities.emplace_back(found->s.number);
       }
 
@@ -262,16 +257,14 @@ FindEntitiesResult EntityUtilities::findEntitiesByField(
         break;
       }
 
-      while ((found = G_FindFloat(found, fields[fieldIndex].ofs, valueFloat)) !=
-             nullptr) {
+      while ((found = G_FindFloat(found, fields[fieldIndex].ofs, valueFloat)) != nullptr) {
         result.entities.emplace_back(found->s.number);
       }
 
       break;
     case F_LSTRING:
     case F_GSTRING:
-      while ((found = G_Find(found, fields[fieldIndex].ofs, value.c_str())) !=
-             nullptr) {
+      while ((found = G_Find(found, fields[fieldIndex].ofs, value.c_str())) != nullptr) {
         result.entities.emplace_back(found->s.number);
       }
       break;
@@ -293,8 +286,7 @@ FindEntitiesResult EntityUtilities::findEntitiesByField(
         break;
       }
 
-      while ((found = G_FindVec(found, fields[fieldIndex].ofs, valueVec)) !=
-             nullptr) {
+      while ((found = G_FindVec(found, fields[fieldIndex].ofs, valueVec)) != nullptr) {
         result.entities.emplace_back(found->s.number);
       }
 
@@ -314,8 +306,7 @@ FindEntitiesResult EntityUtilities::findEntitiesByField(
         break;
       }
 
-      while ((found = G_FindVec(found, fields[fieldIndex].ofs, valueVec)) !=
-             nullptr) {
+      while ((found = G_FindVec(found, fields[fieldIndex].ofs, valueVec)) != nullptr) {
         result.entities.emplace_back(found->s.number);
       }
 
@@ -331,8 +322,7 @@ FindEntitiesResult EntityUtilities::findEntitiesByField(
       valueInt = HINT_NUM_HINTS;
       setCursorhintFromString(valueInt, value);
 
-      while ((found = G_FindInt(found, fields[fieldIndex].ofs, valueInt)) !=
-             nullptr) {
+      while ((found = G_FindInt(found, fields[fieldIndex].ofs, valueInt)) != nullptr) {
         result.entities.emplace_back(found->s.number);
       }
 

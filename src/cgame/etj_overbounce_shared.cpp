@@ -25,16 +25,15 @@
 #include "etj_overbounce_shared.h"
 
 namespace ETJump {
-bool Overbounce::isOverbounce(float zVel, float startHeight, float endHeight,
-                              float zVelSnapped, float pmoveSec, int gravity) {
+bool Overbounce::isOverbounce(float zVel, float startHeight, float endHeight, float zVelSnapped, float pmoveSec,
+                              int gravity) {
   float a, b, c, discriminant;
   float root1;
   float reachedHeight;
   int timeSteps;
 
   a = -pmoveSec * zVelSnapped / 2;
-  b = pmoveSec *
-      (zVel - static_cast<float>(gravity) * pmoveSec / 2 + zVelSnapped / 2);
+  b = pmoveSec * (zVel - static_cast<float>(gravity) * pmoveSec / 2 + zVelSnapped / 2);
   c = startHeight - endHeight;
 
   if (a == 0) {
@@ -51,18 +50,16 @@ bool Overbounce::isOverbounce(float zVel, float startHeight, float endHeight,
   root1 = (-b - std::sqrt(discriminant)) / (2 * a);
   // float root2 = (-b + std::sqrt(discriminant)) / (2 * a);
 
-  timeSteps = static_cast<int>(std::floor(root1));
-  reachedHeight =
-      startHeight + pmoveSec * static_cast<float>(timeSteps) *
-                        (zVel - static_cast<float>(gravity) * pmoveSec / 2 -
-                         static_cast<float>(timeSteps - 1) * zVelSnapped / 2);
+  timeSteps     = static_cast<int>(std::floor(root1));
+  reachedHeight = startHeight + pmoveSec * static_cast<float>(timeSteps) *
+                                  (zVel - static_cast<float>(gravity) * pmoveSec / 2 -
+                                   static_cast<float>(timeSteps - 1) * zVelSnapped / 2);
 
   // CG_Printf("zVel=%f, startHeight=%f, endHeight=%f, timeSteps=%d,
   // reachedHeight: %f\n", zVel, startHeight, endHeight, timeSteps,
   // reachedHeight);
 
-  if (timeSteps && reachedHeight < endHeight + stickyOffset &&
-      reachedHeight > endHeight) {
+  if (timeSteps && reachedHeight < endHeight + stickyOffset && reachedHeight > endHeight) {
     return true;
   }
   return false;
@@ -72,20 +69,17 @@ bool Overbounce::surfaceAllowsOverbounce(const trace_t *trace) {
   const bool onPlayer = trace->entityNum >= 0 && trace->entityNum < MAX_CLIENTS;
 
   if (onPlayer) {
-    if (cgame.sharedWSKeys.overbouncePlayers ==
-        OverbouncePlayersOpts::FORCE_OFF) {
+    if (cgame.sharedWSKeys.overbouncePlayers == OverbouncePlayersOpts::FORCE_OFF) {
       return false;
     }
 
-    if (cgame.sharedWSKeys.overbouncePlayers ==
-        OverbouncePlayersOpts::FORCE_ON) {
+    if (cgame.sharedWSKeys.overbouncePlayers == OverbouncePlayersOpts::FORCE_ON) {
       return true;
     }
   }
 
-  if (cgame.sharedWSKeys.noOverbounce
-          ? !(trace->surfaceFlags & SURF_OVERBOUNCE)
-          : (trace->surfaceFlags & SURF_OVERBOUNCE)) {
+  if (cgame.sharedWSKeys.noOverbounce ? !(trace->surfaceFlags & SURF_OVERBOUNCE)
+                                      : (trace->surfaceFlags & SURF_OVERBOUNCE)) {
     return false;
   }
 

@@ -22,9 +22,10 @@
  * SOFTWARE.
  */
 
+#include "etj_portalgun.h"
+
 #include <algorithm>
 
-#include "etj_portalgun.h"
 #include "etj_entity_utilities.h"
 #include "etj_entity_utilities_shared.h"
 #include "etj_func_static_client.h"
@@ -34,11 +35,10 @@
 #include "etj_worldspawn.h"
 
 namespace ETJump {
-void Portal::spawn(gentity_t *ent, const Type type,
-                   const PortalgunShared::Placement &placement,
+void Portal::spawn(gentity_t *ent, const Type type, const PortalgunShared::Placement &placement,
                    const int32_t hitEntityNum) {
-  gentity_t *portal = G_Spawn();
-  portal->classname = "portal_gate";
+  gentity_t *portal     = G_Spawn();
+  portal->classname     = "portal_gate";
   portal->s.onFireStart = PortalgunShared::sizeFromScale(placement.scale);
 
   // save the spawn timestamp so client can animate the spawning
@@ -81,13 +81,11 @@ void Portal::spawn(gentity_t *ent, const Type type,
   VectorCopy(placement.angles, portal->s.angles);
   VectorCopy(placement.angles, portal->r.currentAngles);
 
-  EntityUtilsShared::setPortalBBox(portal->r.mins, portal->r.maxs,
-                                   placement.angles, placement.scale);
+  EntityUtilsShared::setPortalBBox(portal->r.mins, portal->r.maxs, placement.angles, placement.scale);
 
   portal->r.contents = CONTENTS_TRIGGER | CONTENTS_ITEM;
-  portal->clipmask =
-      CONTENTS_SOLID | CONTENTS_MISSILECLIP; // NOTE: _TELE just a test...
-  portal->touch = [](gentity_t *self, gentity_t *other, trace_t *trace) {
+  portal->clipmask   = CONTENTS_SOLID | CONTENTS_MISSILECLIP; // NOTE: _TELE just a test...
+  portal->touch      = [](gentity_t *self, gentity_t *other, trace_t *trace) {
     touch(self, other);
   };
 
@@ -106,11 +104,10 @@ void Portal::spawn(gentity_t *ent, const Type type,
   portal->free = free;
 
   portal->r.ownerNum = ent->s.number;
-  portal->parent = ent;
+  portal->parent     = ent;
 
-  portal->s.pos.trType = TR_STATIONARY;
-  portal->s.otherEntityNum =
-      ent->s.clientNum; // HACK: Using this for render checks.....
+  portal->s.pos.trType     = TR_STATIONARY;
+  portal->s.otherEntityNum = ent->s.clientNum; // HACK: Using this for render checks.....
 
   // rather than using the shared cvar, we can simply set 'portalteam'
   // value to an entitystate field that we can check on client
@@ -145,10 +142,8 @@ void Portal::think(gentity_t *self) {
   // TODO: make this more generic for other entities that might disappear
   // during runtime, such as 'func_static', 'func_explosive' etc.
   // also, add possibility to move the portals along with movers?
-  if (self->portalParentEntity &&
-      self->portalParentEntity->s.eType == ET_STATIC_CLIENT &&
-      EntityUtilsShared::funcStaticClientIsHidden(&self->portalParentEntity->s,
-                                                  self->r.ownerNum)) {
+  if (self->portalParentEntity && self->portalParentEntity->s.eType == ET_STATIC_CLIENT &&
+      EntityUtilsShared::funcStaticClientIsHidden(&self->portalParentEntity->s, self->r.ownerNum)) {
     G_FreeEntity(self);
     return;
   }
@@ -174,8 +169,7 @@ void Portal::touch(gentity_t *self, gentity_t *other) {
 
   // if this isn't our portal, and 'portalteam' isn't set to 2,
   // determine if we can use this portal at all
-  if (self->r.ownerNum != other->s.number &&
-      game.worldspawn->portalTeam != PortalTeamOpts::ALL) {
+  if (self->r.ownerNum != other->s.number && game.worldspawn->portalTeam != PortalTeamOpts::ALL) {
     if (game.worldspawn->portalTeam == PortalTeamOpts::OFF) {
       return;
     }
@@ -184,8 +178,8 @@ void Portal::touch(gentity_t *self, gentity_t *other) {
       fireteamData_t *ftSelf{};
       fireteamData_t *ftOther{};
 
-      if (!G_IsOnFireteam(ClientNum(other), &ftSelf) ||
-          !G_IsOnFireteam(self->r.ownerNum, &ftOther) || ftSelf != ftOther) {
+      if (!G_IsOnFireteam(ClientNum(other), &ftSelf) || !G_IsOnFireteam(self->r.ownerNum, &ftOther) ||
+          ftSelf != ftOther) {
         return;
       }
     }
@@ -220,8 +214,7 @@ void Portal::touch(gentity_t *self, gentity_t *other) {
     return;
   }
 
-  EntityUtilsShared::portalTeleport(&other->client->ps, &other->s, &self->s,
-                                    &other->client->pers.cmd, level.time,
+  EntityUtilsShared::portalTeleport(&other->client->ps, &other->s, &self->s, &other->client->pers.cmd, level.time,
                                     other->client->teleportBitFlipped);
 }
 
@@ -266,17 +259,17 @@ void Portalgun::spawn(gentity_t *ent) {
   ent->s.otherEntityNum2 = 1;
 
   ent->classname = item->classname;
-  ent->item = item;
+  ent->item      = item;
 
   VectorSet(ent->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, 0);
   VectorSet(ent->r.maxs, ITEM_RADIUS, ITEM_RADIUS, 2 * ITEM_RADIUS);
   ent->r.contents = CONTENTS_TRIGGER | CONTENTS_ITEM;
-  ent->clipmask = CONTENTS_SOLID | CONTENTS_MISSILECLIP;
+  ent->clipmask   = CONTENTS_SOLID | CONTENTS_MISSILECLIP;
 
   ent->touch = touch;
 
   // TODO: can this be removed? does the portalgun even need to think?
-  ent->think = [](gentity_t *self) {};
+  ent->think     = [](gentity_t *self) {};
   ent->nextthink = level.time + FRAMETIME;
 
   if (ent->spawnflags & 2) {
@@ -299,8 +292,7 @@ void Portalgun::touch(gentity_t *self, gentity_t *other, trace_t *trace) {
   }
 
   if (other->client->sess.timerunActive &&
-      other->client->sess.runSpawnflags &
-          static_cast<int>(TimerunSpawnflags::NoPortalgunPickup)) {
+      other->client->sess.runSpawnflags & static_cast<int>(TimerunSpawnflags::NoPortalgunPickup)) {
     return;
   }
 
@@ -313,22 +305,17 @@ void Portalgun::touch(gentity_t *self, gentity_t *other, trace_t *trace) {
   Touch_Item_Give(self, other, trace);
 }
 
-void Portalgun::fire(gentity_t *ent, const Portal::Type type,
-                     vec3_t muzzleEffect) {
+void Portalgun::fire(gentity_t *ent, const Portal::Type type, vec3_t muzzleEffect) {
   vec3_t traceStart;
   vec3_t traceEnd;
   trace_t tr;
 
-  PortalgunShared::traceEndpoints(ent->r.currentOrigin,
-                                  ent->client->ps.viewheight,
-                                  ent->client->ps.viewangles, traceStart,
-                                  traceEnd);
+  PortalgunShared::traceEndpoints(ent->r.currentOrigin, ent->client->ps.viewheight, ent->client->ps.viewangles,
+                                  traceStart, traceEnd);
 
-  TraceUtils::filteredTrace(ent->s.number, &tr, traceStart, nullptr, nullptr,
-                            traceEnd, ent->s.number, MASK_PORTAL);
+  TraceUtils::filteredTrace(ent->s.number, &tr, traceStart, nullptr, nullptr, traceEnd, ent->s.number, MASK_PORTAL);
 
-  if (!PortalgunShared::surfaceAllowsPortal(
-          tr, game.worldspawn->sharedKeys.portalSurfaces)) {
+  if (!PortalgunShared::surfaceAllowsPortal(tr, game.worldspawn->sharedKeys.portalSurfaces)) {
     return;
   }
 
@@ -336,8 +323,7 @@ void Portalgun::fire(gentity_t *ent, const Portal::Type type,
   const bool hitTarget = getPortalTarget(tr.entityNum, target);
 
   PortalgunShared::Placement placement{};
-  PortalgunShared::computePlacement(tr, hitTarget ? &target : nullptr,
-                                    placement);
+  PortalgunShared::computePlacement(tr, hitTarget ? &target : nullptr, placement);
 
   if (portalsOverlap(ent, type, placement)) {
     return;
@@ -356,9 +342,8 @@ void Portalgun::fire(gentity_t *ent, const Portal::Type type,
   // close enough for the barrel on most cases, realistically we should
   // grab the starting point from the weapon tags
   gentity_t *tent = G_TempEntity(muzzleEffect, EV_PORTAL_TRAIL);
-  type == Portal::Type::PORTAL_BLUE
-      ? VectorCopy(portalBlueTrail, tent->s.angles)
-      : VectorCopy(portalRedTrail, tent->s.angles);
+  type == Portal::Type::PORTAL_BLUE ? VectorCopy(portalBlueTrail, tent->s.angles)
+                                    : VectorCopy(portalRedTrail, tent->s.angles);
 
   vec3_t trailEnd;
   VectorCopy(placement.surfacePoint, trailEnd);
@@ -373,10 +358,8 @@ void Portalgun::fire(gentity_t *ent, const Portal::Type type,
   Portal::spawn(ent, type, placement, tr.entityNum);
 }
 
-bool Portalgun::getPortalTarget(const int32_t entityNum,
-                                PortalgunShared::PortalTarget &target) {
-  if (entityNum <= MAX_CLIENTS + BODY_QUEUE_SIZE ||
-      entityNum >= ENTITYNUM_WORLD) {
+bool Portalgun::getPortalTarget(const int32_t entityNum, PortalgunShared::PortalTarget &target) {
+  if (entityNum <= MAX_CLIENTS + BODY_QUEUE_SIZE || entityNum >= ENTITYNUM_WORLD) {
     return false;
   }
 
@@ -384,8 +367,7 @@ bool Portalgun::getPortalTarget(const int32_t entityNum,
 
   // we hit an entity that wants portals to be centered
   if (Q_stricmp(traceEnt->classname, "func_portaltarget") != 0 &&
-      !(traceEnt->s.eType == ET_STATIC_CLIENT &&
-        traceEnt->spawnflags & FuncStaticClient::Spawnflags::PORTAL_TARGET)) {
+      !(traceEnt->s.eType == ET_STATIC_CLIENT && traceEnt->spawnflags & FuncStaticClient::Spawnflags::PORTAL_TARGET)) {
     return false;
   }
 
@@ -396,8 +378,7 @@ bool Portalgun::getPortalTarget(const int32_t entityNum,
   return true;
 }
 
-bool Portalgun::portalsOverlap(gentity_t *ent, const Portal::Type type,
-                               const PortalgunShared::Placement &placement) {
+bool Portalgun::portalsOverlap(gentity_t *ent, const Portal::Type type, const PortalgunShared::Placement &placement) {
   std::vector<const gentity_t *> otherPortals;
   // * 2 for 2 portals per client
   otherPortals.reserve(level.numConnectedClients * 2L);
@@ -442,8 +423,7 @@ bool Portalgun::portalsOverlap(gentity_t *ent, const Portal::Type type,
       break;
     case PortalTeamOpts::ALL:
       for (int i = 0; i < level.numConnectedClients; i++) {
-        auto *const other =
-            static_cast<gentity_t *>(g_entities + level.sortedClients[i]);
+        auto *const other = static_cast<gentity_t *>(g_entities + level.sortedClients[i]);
 
         // skip our portals
         if (other == ent) {
@@ -464,11 +444,9 @@ bool Portalgun::portalsOverlap(gentity_t *ent, const Portal::Type type,
       break;
   }
 
-  return std::any_of(otherPortals.cbegin(), otherPortals.cend(),
-                     [&placement](const gentity_t *otherPortal) {
-                       return PortalgunShared::portalsOverlap(
-                           placement, otherPortal->s.origin,
-                           otherPortal->s.angles, otherPortal->s.onFireStart);
-                     });
+  return std::any_of(otherPortals.cbegin(), otherPortals.cend(), [&placement](const gentity_t *otherPortal) {
+    return PortalgunShared::portalsOverlap(placement, otherPortal->s.origin, otherPortal->s.angles,
+                                           otherPortal->s.onFireStart);
+  });
 }
 } // namespace ETJump

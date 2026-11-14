@@ -23,6 +23,7 @@
  */
 
 #include "etj_target_wskey_overrides.h"
+
 #include "etj_shared.h"
 #include "etj_worldspawn.h"
 
@@ -40,8 +41,7 @@ void TargetWSKeyOverrides::spawn(gentity_t *ent) {
   // can't choose to ignore both timerun states
   if (spawnflags & WorldspawnShared::KeyOverrideFlags::TIMERUN_ONLY &&
       spawnflags & WorldspawnShared::KeyOverrideFlags::NO_TIMERUN) {
-    G_Error("%s: TIMERUN_ONLY and NO_TIMERUN cannot be set on the same entity.",
-            ent->classname);
+    G_Error("%s: TIMERUN_ONLY and NO_TIMERUN cannot be set on the same entity.", ent->classname);
   }
 
   for (const auto &desc : WorldspawnShared::keyDescriptors) {
@@ -53,8 +53,7 @@ void TargetWSKeyOverrides::spawn(gentity_t *ent) {
     // does not actually add an override with 0 as value.
     if (G_SpawnInt(desc.keyName, "0", &value)) {
       if (!desc.allowOverride) {
-        G_Printf(S_COLOR_YELLOW "%s: key '%s' does not allow overriding.\n",
-                 ent->classname, desc.keyName);
+        G_Printf(S_COLOR_YELLOW "%s: key '%s' does not allow overriding.\n", ent->classname, desc.keyName);
         continue;
       }
 

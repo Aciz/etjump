@@ -22,9 +22,10 @@
  * SOFTWARE.
  */
 
+#include "etj_falldamage_detector.h"
+
 #include <algorithm>
 
-#include "etj_falldamage_detector.h"
 #include "cg_local.h"
 #include "etj_pmove_utils_v2.h"
 #include "etj_trace_utils.h"
@@ -33,28 +34,25 @@
 #include "../game/bg_local.h"
 
 namespace ETJump {
-int32_t FalldamageDetector::computeFallDamage(const float zVel,
-                                              const float startHeight,
-                                              const float endHeight,
-                                              const float gravity,
-                                              const int32_t waterlevel) {
+int32_t FalldamageDetector::computeFallDamage(const float zVel, const float startHeight, const float endHeight,
+                                              const float gravity, const int32_t waterlevel) {
   // mirrors the math in PM_CrashLand, solving the quadratic for the landing
   // velocity at 'endHeight', given the current vertical velocity and gravity.
   // this is the exact same gravity calculation as 'PM_SlideMove' does, so it
   // is framerate independent and works for both 'pmove_fixed' 0 and 1.
   const float acc = -gravity;
-  const float a = acc / 2.0f;
-  const float b = zVel;
-  const float c = startHeight - endHeight;
+  const float a   = acc / 2.0f;
+  const float b   = zVel;
+  const float c   = startHeight - endHeight;
   const float den = (b * b) - (4.0f * a * c);
 
   if (a == 0.0f || den < 0.0f) {
     return 0;
   }
 
-  const float t = (-b - std::sqrt(den)) / (2.0f * a);
-  float delta = zVel + (t * acc);
-  delta *= delta * 0.0001f;
+  const float t  = (-b - std::sqrt(den)) / (2.0f * a);
+  float delta    = zVel + (t * acc);
+  delta         *= delta * 0.0001f;
 
   if (waterlevel == 3) {
     return 0;
@@ -109,9 +107,8 @@ bool FalldamageDetector::wouldTakeFallDamage(const trace_t &trace) {
     return false;
   }
 
-  return (cgame.sharedWSKeys.noFallDamage == NoFallDamageOpts::ON)
-             ? (trace.surfaceFlags & SURF_NODAMAGE)
-             : !(trace.surfaceFlags & SURF_NODAMAGE);
+  return (cgame.sharedWSKeys.noFallDamage == NoFallDamageOpts::ON) ? (trace.surfaceFlags & SURF_NODAMAGE)
+                                                                   : !(trace.surfaceFlags & SURF_NODAMAGE);
 }
 
 bool FalldamageDetector::beforeRender() {
@@ -121,9 +118,9 @@ bool FalldamageDetector::beforeRender() {
     return false;
   }
 
-  const float zVel = ps->velocity[2];
+  const float zVel        = ps->velocity[2];
   const float startHeight = ps->origin[2] + ps->mins[2];
-  const auto gravity = static_cast<float>(ps->gravity);
+  const auto gravity      = static_cast<float>(ps->gravity);
 
   vec3_t start{};
   vec3_t end{};
@@ -131,26 +128,24 @@ bool FalldamageDetector::beforeRender() {
   trace_t trace{};
 
   damageBelow = 0;
-  damageFall = 0;
-  damageJump = 0;
+  damageFall  = 0;
+  damageJump  = 0;
 
   // copy playerstate so we can calculate the waterlevel at the destination
   playerState_t landingPs = *ps;
 
   pmove_t pmove{};
-  pmove.ps = &landingPs;
+  pmove.ps            = &landingPs;
   pmove.pointcontents = CG_PointContents;
 
   // detect fall damage below us
-  if (etj_drawFallDamageDetector.integer == 2 &&
-      (ps->groundEntityNum == ENTITYNUM_NONE || ps->pm_type == PM_NOCLIP)) {
+  if (etj_drawFallDamageDetector.integer == 2 && (ps->groundEntityNum == ENTITYNUM_NONE || ps->pm_type == PM_NOCLIP)) {
     VectorCopy(ps->origin, start);
     start[2] = startHeight;
     VectorCopy(start, end);
     end[2] -= MAX_MAP_SIZE * 2;
 
-    cgame.utils.trace->filteredTrace(ps->clientNum, &trace, start, nullptr,
-                                     nullptr, end, ps->clientNum,
+    cgame.utils.trace->filteredTrace(ps->clientNum, &trace, start, nullptr, nullptr, end, ps->clientNum,
                                      (CONTENTS_SOLID | CONTENTS_PLAYERCLIP));
 
     if (trace.fraction != 1.0 && wouldTakeFallDamage(trace)) {
@@ -158,16 +153,14 @@ bool FalldamageDetector::beforeRender() {
       landingPs.origin[2] = trace.endpos[2] - ps->mins[2];
       PmoveUtilsV2::setWaterLevel(pmove);
 
-      damageBelow = computeFallDamage(zVel, startHeight, trace.endpos[2],
-                                      gravity, pmove.waterlevel);
+      damageBelow = computeFallDamage(zVel, startHeight, trace.endpos[2], gravity, pmove.waterlevel);
     }
   }
 
   VectorCopy(cg.refdef.vieworg, start);
   VectorMA(start, MAX_MAP_SIZE * 2, cg.refdef.viewaxis[0], end);
 
-  cgame.utils.trace->filteredTrace(ps->clientNum, &trace, start, nullptr,
-                                   nullptr, end, ps->clientNum,
+  cgame.utils.trace->filteredTrace(ps->clientNum, &trace, start, nullptr, nullptr, end, ps->clientNum,
                                    (CONTENTS_SOLID | CONTENTS_PLAYERCLIP));
 
   if (trace.fraction != 1.0f && wouldTakeFallDamage(trace)) {
@@ -175,13 +168,10 @@ bool FalldamageDetector::beforeRender() {
     landingPs.origin[2] = trace.endpos[2] - ps->mins[2];
     PmoveUtilsV2::setWaterLevel(pmove);
 
-    damageFall = computeFallDamage(zVel, startHeight, trace.endpos[2], gravity,
-                                   pmove.waterlevel);
+    damageFall = computeFallDamage(zVel, startHeight, trace.endpos[2], gravity, pmove.waterlevel);
 
     if (ps->groundEntityNum != ENTITYNUM_NONE || ps->pm_type == PM_NOCLIP) {
-      damageJump =
-          computeFallDamage(zVel + JUMP_VELOCITY, startHeight, trace.endpos[2],
-                            gravity, pmove.waterlevel);
+      damageJump = computeFallDamage(zVel + JUMP_VELOCITY, startHeight, trace.endpos[2], gravity, pmove.waterlevel);
     }
   }
 
@@ -191,25 +181,21 @@ bool FalldamageDetector::beforeRender() {
 void FalldamageDetector::render() const {
   float x = std::clamp(etj_fallDamageDetectorX.value, 0.0f, 640.0f);
   ETJump_AdjustPosition(&x);
-  const float y = std::clamp(etj_fallDamageDetectorY.value, 0.0f,
-                             static_cast<float>(SCREEN_HEIGHT));
+  const float y = std::clamp(etj_fallDamageDetectorY.value, 0.0f, static_cast<float>(SCREEN_HEIGHT));
 
   if (damageFall > 0) {
-    CG_DrawStringExt(x, y, va("F:%s", buildDamageString(damageFall).c_str()),
-                     colorWhite, qfalse, qtrue, TINYCHAR_WIDTH, TINYCHAR_HEIGHT,
-                     0);
+    CG_DrawStringExt(x, y, va("F:%s", buildDamageString(damageFall).c_str()), colorWhite, qfalse, qtrue, TINYCHAR_WIDTH,
+                     TINYCHAR_HEIGHT, 0);
   }
 
   if (damageJump > 0) {
-    CG_DrawStringExt(
-        x, y + 10, va("J:%s", buildDamageString(damageJump).c_str()),
-        colorWhite, qfalse, qtrue, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
+    CG_DrawStringExt(x, y + 10, va("J:%s", buildDamageString(damageJump).c_str()), colorWhite, qfalse, qtrue,
+                     TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
   }
 
   if (damageBelow > 0) {
-    CG_DrawStringExt(
-        x, y + 20, va("B:%s", buildDamageString(damageBelow).c_str()),
-        colorWhite, qfalse, qtrue, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
+    CG_DrawStringExt(x, y + 20, va("B:%s", buildDamageString(damageBelow).c_str()), colorWhite, qfalse, qtrue,
+                     TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
   }
 }
 

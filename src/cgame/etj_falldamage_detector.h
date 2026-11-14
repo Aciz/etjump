@@ -25,12 +25,13 @@
 #pragma once
 
 #include "etj_irenderable.h"
+
 #include "../game/q_shared.h"
 
 namespace ETJump {
 class FalldamageDetector : public IRenderable {
 public:
-  FalldamageDetector() = default;
+  FalldamageDetector()           = default;
   ~FalldamageDetector() override = default;
 
   bool beforeRender() override;
@@ -38,9 +39,7 @@ public:
 
 private:
   [[nodiscard]] bool canSkipDraw() const;
-  static int32_t computeFallDamage(float zVel, float startHeight,
-                                   float endHeight, float gravity,
-                                   int32_t waterlevel);
+  static int32_t computeFallDamage(float zVel, float startHeight, float endHeight, float gravity, int32_t waterlevel);
   [[nodiscard]] std::string buildDamageString(int32_t damage) const;
   static bool wouldTakeFallDamage(const trace_t &trace);
 

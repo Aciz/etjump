@@ -63,8 +63,7 @@ class FatalError {
   bool reported;
 
 public:
-  explicit FatalError(std::string message, bool unexpected = false,
-                      bool reported = false);
+  explicit FatalError(std::string message, bool unexpected = false, bool reported = false);
 
   const std::string &getMessage() const;
 
@@ -109,8 +108,7 @@ enum class KeepAliveRelease {
 };
 
 // must be called from dllEntry, every time the module is loaded
-void initialize(RaiseFunction raiseFunc, PrintFunction printFunc,
-                KeepAliveFunction keepAliveFunc = nullptr,
+void initialize(RaiseFunction raiseFunc, PrintFunction printFunc, KeepAliveFunction keepAliveFunc = nullptr,
                 KeepAliveRelease release = KeepAliveRelease::OnLoad);
 
 // records the error and throws a FatalError if called inside vmMain,
@@ -147,7 +145,7 @@ struct CaughtError {
   std::array<char, MAX_MESSAGE_LENGTH> message{};
   // anything but a FatalError is unexpected
   bool unexpected = false;
-  bool reported = false;
+  bool reported   = false;
   // set for a FatalError, which was recorded when it was thrown
   bool recorded = false;
 };
@@ -194,8 +192,7 @@ inline void rethrowPending() {
 // 'failureResult' is returned instead if the command fails without the error
 // being raised right away, because it's nested inside a syscall or deferred
 template <typename Dispatch>
-intptr_t run(Dispatch &&dispatch, const intptr_t failureResult = 0,
-             const DeferFunction defer = nullptr) {
+intptr_t run(Dispatch &&dispatch, const intptr_t failureResult = 0, const DeferFunction defer = nullptr) {
   intptr_t result = failureResult;
 
   const detail::Entry entry = detail::enter();
@@ -219,8 +216,7 @@ intptr_t run(Dispatch &&dispatch, const intptr_t failureResult = 0,
 // afterwards. Meant for shutdown sequences, where a failing step must not
 // skip the ones after it, e.g. a failed save must not leave worker threads
 // running, as destroying them while they run terminates the process.
-template <typename... Steps>
-void runEachStep(Steps &&...steps) {
+template <typename... Steps> void runEachStep(Steps &&...steps) {
   std::exception_ptr firstError;
 
   const auto runStep = [&firstError](auto &&step) {

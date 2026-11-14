@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include "etj_irenderable.h"
 #include "etj_cvar_parser.h"
+#include "etj_irenderable.h"
 #include "etj_pmove_utils_v2.h"
 
 #include "../ui/ui_shared.h"

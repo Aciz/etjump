@@ -16,7 +16,7 @@ Since the entire source is already formatted, it is okay to format the entire fi
 git clang-format -i <file1> <file2> ... <fileN>
 ```
 
-**Only format code inside the `src` directory!** We only format our own code. Do **NOT** run `clang-format` on dependencies, or asset files, such as shaders and menus.
+**Only format code inside the `src` and `tests` directories!** We only format our own code. Do **NOT** run `clang-format` on dependencies, or asset files, such as shaders and menus.
 
 ## Assets formatting
 

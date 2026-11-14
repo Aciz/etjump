@@ -75,17 +75,18 @@
 #ifdef USE_TEST_FAULTS
   // labels the vm call being dispatched for the duration of the scope, so a
   // fault placed inside it knows which vm call it runs under
-  #define ETJ_TEST_FAULT_SCOPE(name)                                           \
-    ETJump::TestFault::VmCallScope vmScope { name }
+  #define ETJ_TEST_FAULT_SCOPE(name)         \
+    ETJump::TestFault::VmCallScope vmScope { \
+      name                                   \
+    }
 
   // raises a fault at this point, if the 'etj_testFault' cvar matches the
   // active vm call; the logs name __func__, or a custom string literal if one
   // is given. Place this ad hoc, remove it after the test
-  #define ETJ_TEST_FAULT(...)                                                  \
-    ETJump::TestFault::maybeRaise(__func__, "" __VA_ARGS__)
+  #define ETJ_TEST_FAULT(...) ETJump::TestFault::maybeRaise(__func__, "" __VA_ARGS__)
 #else
   #define ETJ_TEST_FAULT_SCOPE(name) ((void)0)
-  #define ETJ_TEST_FAULT(...) ((void)0)
+  #define ETJ_TEST_FAULT(...)        ((void)0)
 #endif
 
 namespace ETJump::TestFault {
@@ -97,10 +98,10 @@ public:
   explicit VmCallScope(const char *name);
   ~VmCallScope();
 
-  VmCallScope(const VmCallScope &) = delete;
-  VmCallScope(VmCallScope &&) = delete;
+  VmCallScope(const VmCallScope &)            = delete;
+  VmCallScope(VmCallScope &&)                 = delete;
   VmCallScope &operator=(const VmCallScope &) = delete;
-  VmCallScope &operator=(VmCallScope &&) = delete;
+  VmCallScope &operator=(VmCallScope &&)      = delete;
 
 private:
   const char *previous;

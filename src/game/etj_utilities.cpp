@@ -23,6 +23,7 @@
  */
 
 #include "etj_utilities.h"
+
 #include "etj_entity_utilities.h"
 #include "etj_filesystem.h"
 #include "etj_map_statistics.h"
@@ -61,8 +62,7 @@ void Utilities::startRun(int clientNum) {
   player->client->sess.timerunActive = qtrue;
   ETJump::UpdateClientConfigString(*player);
 
-  if (!(player->client->sess.runSpawnflags &
-        static_cast<int>(ETJump::TimerunSpawnflags::NoSave))) {
+  if (!(player->client->sess.runSpawnflags & static_cast<int>(ETJump::TimerunSpawnflags::NoSave))) {
     ETJump::saveSystem->clearTimerunSaves(player);
   }
 
@@ -95,10 +95,8 @@ void Utilities::selectValidWeapon(const gentity_t *ent) {
   // primary > secondary > knife
   if (primary != WP_NONE && BG_WeaponHasAmmo(&ent->client->ps, primary)) {
     ent->client->ps.weapon = primary;
-  } else if (COM_BitCheck(ent->client->ps.weapons,
-                          ent->client->sess.playerWeapon2) &&
-             BG_WeaponHasAmmo(&ent->client->ps,
-                              ent->client->sess.playerWeapon2)) {
+  } else if (COM_BitCheck(ent->client->ps.weapons, ent->client->sess.playerWeapon2) &&
+             BG_WeaponHasAmmo(&ent->client->ps, ent->client->sess.playerWeapon2)) {
     ent->client->ps.weapon = ent->client->sess.playerWeapon2;
   } else {
     ent->client->ps.weapon = WP_KNIFE;
@@ -107,9 +105,8 @@ void Utilities::selectValidWeapon(const gentity_t *ent) {
 
 bool Utilities::inNoNoclipArea(gentity_t *ent) {
   trace_t trace;
-  trap_TraceCapsule(&trace, ent->client->ps.origin, ent->r.mins, ent->r.maxs,
-                    ent->client->ps.origin, ent->client->ps.clientNum,
-                    CONTENTS_NONOCLIP);
+  trap_TraceCapsule(&trace, ent->client->ps.origin, ent->r.mins, ent->r.maxs, ent->client->ps.origin,
+                    ent->client->ps.clientNum, CONTENTS_NONOCLIP);
 
   // if we're touching a no-noclip area, do another trace for solids
   // so that we don't get instantly stuck in a wall, unable to noclip
@@ -117,8 +114,7 @@ bool Utilities::inNoNoclipArea(gentity_t *ent) {
   switch (game.worldspawn->resolvedKeysForClient(ent).noNoclip) {
     default: // AreaOpts::FORBID_INSIDE
       if (trace.fraction != 1.0f) {
-        trap_TraceCapsule(&trace, ent->client->ps.origin, ent->r.mins,
-                          ent->r.maxs, ent->client->ps.origin,
+        trap_TraceCapsule(&trace, ent->client->ps.origin, ent->r.mins, ent->r.maxs, ent->client->ps.origin,
                           ent->client->ps.clientNum, CONTENTS_SOLID);
 
         if (!trace.allsolid) {
@@ -129,8 +125,7 @@ bool Utilities::inNoNoclipArea(gentity_t *ent) {
       return false;
     case ETJump::AreaOpts::FORBID_OUTSIDE:
       if (trace.fraction == 1.0f) {
-        trap_TraceCapsule(&trace, ent->client->ps.origin, ent->r.mins,
-                          ent->r.maxs, ent->client->ps.origin,
+        trap_TraceCapsule(&trace, ent->client->ps.origin, ent->r.mins, ent->r.maxs, ent->client->ps.origin,
                           ent->client->ps.clientNum, CONTENTS_SOLID);
 
         if (!trace.allsolid) {
@@ -146,12 +141,11 @@ bool Utilities::inNoNoclipArea(gentity_t *ent) {
   }
 }
 
-std::string Utilities::timestampToString(int timestamp, const char *format,
-                                         const char *start) {
+std::string Utilities::timestampToString(int timestamp, const char *format, const char *start) {
   char buf[1024];
-  struct tm *lt = NULL;
+  struct tm *lt    = NULL;
   time_t toConvert = timestamp;
-  lt = localtime(&toConvert);
+  lt               = localtime(&toConvert);
   if (timestamp > 0) {
     strftime(buf, sizeof(buf), format, lt);
   } else {
@@ -164,7 +158,7 @@ std::string Utilities::timestampToString(int timestamp, const char *format,
 bool Utilities::anyonePlaying() {
   for (auto i = 0; i < level.numConnectedClients; i++) {
     auto clientNum = level.sortedClients[i];
-    auto target = g_entities + clientNum;
+    auto target    = g_entities + clientNum;
 
     if (target->client->sess.sessionTeam != TEAM_SPECTATOR) {
       return true;
@@ -181,19 +175,21 @@ void Utilities::Console(const std::string &message) {
   G_Printf(message.c_str());
 }
 
-void Utilities::Error(const std::string &error) { G_Error(error.c_str()); }
+void Utilities::Error(const std::string &error) {
+  G_Error(error.c_str());
+}
 
 std::vector<std::string> Utilities::getMaps() {
   std::vector<std::string> maps;
   ETJump::MapStatistics mapStats;
 
-  int i = 0;
+  int i       = 0;
   int numDirs = 0;
-  int dirLen = 0;
+  int dirLen  = 0;
   char dirList[32768];
   char *dirPtr = nullptr;
-  numDirs = trap_FS_GetFileList("maps", ".bsp", dirList, sizeof(dirList));
-  dirPtr = dirList;
+  numDirs      = trap_FS_GetFileList("maps", ".bsp", dirList, sizeof(dirList));
+  dirPtr       = dirList;
 
   for (i = 0; i < numDirs; i++, dirPtr += dirLen + 1) {
     dirLen = static_cast<int>(strlen(dirPtr));
@@ -222,16 +218,15 @@ void Utilities::copyStanceFromClient(gentity_t *self, const gentity_t *target) {
   }
 
   if (target->client->ps.eFlags & EF_CROUCHING) {
-    self->client->ps.eFlags &= ~EF_PRONE;
-    self->client->ps.eFlags &= ~EF_PRONE_MOVING;
+    self->client->ps.eFlags   &= ~EF_PRONE;
+    self->client->ps.eFlags   &= ~EF_PRONE_MOVING;
     self->client->ps.pm_flags |= PMF_DUCKED;
-  } else if (target->client->ps.eFlags & EF_PRONE ||
-             target->client->ps.eFlags & EF_PRONE_MOVING) {
+  } else if (target->client->ps.eFlags & EF_PRONE || target->client->ps.eFlags & EF_PRONE_MOVING) {
     self->client->ps.eFlags |= EF_PRONE;
     SetClientViewAngle(self, target->client->ps.viewangles);
   } else {
-    self->client->ps.eFlags &= ~EF_PRONE;
-    self->client->ps.eFlags &= ~EF_PRONE_MOVING;
+    self->client->ps.eFlags   &= ~EF_PRONE;
+    self->client->ps.eFlags   &= ~EF_PRONE_MOVING;
     self->client->ps.pm_flags &= ~PMF_DUCKED;
   }
 }
@@ -241,13 +236,11 @@ team_t Utilities::teamFromString(const std::string_view team) {
     return TEAM_AXIS;
   }
 
-  if (StringUtils::iEqual(team, "allies") ||
-      StringUtils::iEqual(team, "allied") || StringUtils::iEqual(team, "b")) {
+  if (StringUtils::iEqual(team, "allies") || StringUtils::iEqual(team, "allied") || StringUtils::iEqual(team, "b")) {
     return TEAM_ALLIES;
   }
 
-  if (StringUtils::iEqual(team, "spectator") ||
-      StringUtils::iEqual(team, "spectators") ||
+  if (StringUtils::iEqual(team, "spectator") || StringUtils::iEqual(team, "spectators") ||
       StringUtils::iEqual(team, "s")) {
     return TEAM_SPECTATOR;
   }
@@ -261,7 +254,6 @@ void Utilities::execMapAutoexec() {
   if (FileSystem::exists(filename)) {
     trap_SendConsoleCommand(EXEC_APPEND, va("exec %s\n", filename));
   } else if (FileSystem::exists(ETJump::AUTOEXEC_MAP_DEFAULT)) {
-    trap_SendConsoleCommand(EXEC_APPEND,
-                            va("exec %s\n", ETJump::AUTOEXEC_MAP_DEFAULT));
+    trap_SendConsoleCommand(EXEC_APPEND, va("exec %s\n", ETJump::AUTOEXEC_MAP_DEFAULT));
   }
 }

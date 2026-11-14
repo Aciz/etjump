@@ -36,7 +36,7 @@ namespace ETJump {
 // in the actual .menu files as well.
 struct ServerAction {
   int8_t statusType = -1;
-  int8_t joinType = -1;
+  int8_t joinType   = -1;
 };
 
 class SyscallExt;

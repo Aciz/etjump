@@ -23,6 +23,7 @@
  */
 
 #include "etj_ignore_completions.h"
+
 #include "cg_local.h"
 
 namespace ETJump {
@@ -39,8 +40,7 @@ bool IgnoreCompletions::complete(const std::vector<std::string> &args) const {
     }
 
     // current argument is already a valid client name
-    if (!Q_stricmp(ci.name, currentArg.c_str()) ||
-        !Q_stricmp(ci.cleanname, currentArg.c_str())) {
+    if (!Q_stricmp(ci.name, currentArg.c_str()) || !Q_stricmp(ci.cleanname, currentArg.c_str())) {
       return false;
     }
 

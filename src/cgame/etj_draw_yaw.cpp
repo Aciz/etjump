@@ -23,6 +23,7 @@
  */
 
 #include "etj_draw_yaw.h"
+
 #include "cg_local.h"
 #include "etj_color_parser.h"
 #include "etj_cvar_update_handler.h"
@@ -33,8 +34,7 @@ namespace ETJump {
 inline constexpr float DRAWYAW_SIZE_MIN = 1.0f;
 inline constexpr float DRAWYAW_SIZE_MAX = 10.0f;
 
-DrawYaw::DrawYaw(const std::shared_ptr<CvarUpdateHandler> &cvarUpdate)
-    : cvarUpdate(cvarUpdate) {
+DrawYaw::DrawYaw(const std::shared_ptr<CvarUpdateHandler> &cvarUpdate) : cvarUpdate(cvarUpdate) {
   parseColor(etj_yawColor.string);
   setSize(etj_yawSize);
   startListeners();
@@ -50,8 +50,9 @@ void DrawYaw::startListeners() {
     parseColor(cvar->string);
   });
 
-  cvarUpdate->subscribe(&etj_yawSize,
-                        [this](const vmCvar_t *cvar) { setSize(*cvar); });
+  cvarUpdate->subscribe(&etj_yawSize, [this](const vmCvar_t *cvar) {
+    setSize(*cvar);
+  });
 }
 
 void DrawYaw::parseColor(const std::string &colorStr) {
@@ -59,8 +60,7 @@ void DrawYaw::parseColor(const std::string &colorStr) {
 }
 
 void DrawYaw::setSize(const vmCvar_t &cvar) {
-  size = CvarValueParser::parse<CvarValue::Size>(cvar, DRAWYAW_SIZE_MIN,
-                                                 DRAWYAW_SIZE_MAX);
+  size    = CvarValueParser::parse<CvarValue::Size>(cvar, DRAWYAW_SIZE_MIN, DRAWYAW_SIZE_MAX);
   size.x *= 0.1f;
   size.y *= 0.1f;
 }
@@ -85,47 +85,43 @@ bool DrawYaw::beforeRender() {
   // 'delta_angles', which absorbs server-side view changes (spawning,
   // teleporting, rotating movers etc.) - subtract it, so only mouse-induced
   // yaw changes are tracked
-  const int yawAngle =
-      (ANGLE2SHORT(s.pm.ps->viewangles[YAW]) - s.pm.ps->delta_angles[YAW]) &
-      65535;
+  const int yawAngle = (ANGLE2SHORT(s.pm.ps->viewangles[YAW]) - s.pm.ps->delta_angles[YAW]) & 65535;
 
   // seed the reference angle on the first update and when the
   // spectated client changes, to avoid a spurious arrow flash
   if (!hasLastYaw || s.pm.ps->clientNum != lastClientNum) {
-    lastYaw = yawAngle;
+    lastYaw       = yawAngle;
     lastClientNum = s.pm.ps->clientNum;
-    hasLastYaw = true;
+    hasLastYaw    = true;
     moveLeft = moveRight = false;
     return false;
   }
 
-  const int diff = yawAngle - lastYaw;
+  const int diff          = yawAngle - lastYaw;
   constexpr int halfRange = 65536 / 2;
-  moveLeft = ((diff > 0 && diff <= halfRange) || diff < -halfRange);
-  moveRight = ((diff < 0 && diff >= -halfRange) || diff > halfRange);
-  lastYaw = yawAngle;
+  moveLeft                = ((diff > 0 && diff <= halfRange) || diff < -halfRange);
+  moveRight               = ((diff < 0 && diff >= -halfRange) || diff > halfRange);
+  lastYaw                 = yawAngle;
 
   if (!moveLeft && !moveRight) {
     return false;
   }
 
-  x = std::clamp(etj_yawX.value, 0.0f, 640.0f);
-  const float halfWidth = std::clamp(etj_yawWidth.value, 0.0f, 640.0f) * 0.5f;
-  x += moveLeft ? -halfWidth : halfWidth;
+  x                      = std::clamp(etj_yawX.value, 0.0f, 640.0f);
+  const float halfWidth  = std::clamp(etj_yawWidth.value, 0.0f, 640.0f) * 0.5f;
+  x                     += moveLeft ? -halfWidth : halfWidth;
   ETJump_AdjustPosition(&x);
   y = std::clamp(etj_yawY.value, 0.0f, static_cast<float>(SCREEN_HEIGHT));
 
   str = moveLeft ? "<" : ">";
 
-  textStyle =
-      etj_yawShadow.integer ? ITEM_TEXTSTYLE_SHADOWED : ITEM_TEXTSTYLE_NORMAL;
+  textStyle = etj_yawShadow.integer ? ITEM_TEXTSTYLE_SHADOWED : ITEM_TEXTSTYLE_NORMAL;
 
   return true;
 }
 
 void DrawYaw::render() const {
-  CG_Text_Paint_Centred_Ext(x, y, size.x, size.y, color, str, 0, 0, textStyle,
-                            &cgs.media.limboFont1);
+  CG_Text_Paint_Centred_Ext(x, y, size.x, size.y, color, str, 0, 0, textStyle, &cgs.media.limboFont1);
 }
 
 bool DrawYaw::canSkipDraw() {

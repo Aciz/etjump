@@ -23,8 +23,9 @@
  */
 
 #pragma once
-#include <string>
 #include <functional>
+#include <string>
+
 #include "etj_client_commands_handler.h"
 
 namespace ETJump {
@@ -35,11 +36,9 @@ public:
     std::string message;
   };
 
-  explicit ClientAuthentication(
-      std::function<void(const std::string &)> sendClientCommand,
-      std::function<void(const std::string &)> print,
-      std::function<std::string()> getHwid,
-      std::shared_ptr<ClientCommandsHandler> serverCommandsHandler);
+  explicit ClientAuthentication(std::function<void(const std::string &)> sendClientCommand,
+                                std::function<void(const std::string &)> print, std::function<std::string()> getHwid,
+                                std::shared_ptr<ClientCommandsHandler> serverCommandsHandler);
   ~ClientAuthentication();
 
   void login();

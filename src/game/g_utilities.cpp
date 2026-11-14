@@ -1,8 +1,8 @@
 #include <vector>
 
-#include "utilities.hpp"
 #include "etj_local.h"
 #include "etj_string_utilities.h"
+#include "utilities.hpp"
 
 using std::string;
 using std::vector;
@@ -74,20 +74,17 @@ bool ToFloat(const std::string &toConvert, float &value) {
 }
 
 std::string ToString(vec3_t toConvert) {
-  string vec3 = "(" + std::to_string(toConvert[0]) + ", " +
-                std::to_string(toConvert[1]) + ", " +
+  string vec3 = "(" + std::to_string(toConvert[0]) + ", " + std::to_string(toConvert[1]) + ", " +
                 std::to_string(toConvert[2]) + ")";
   return vec3;
 }
 
 std::string ToString(vec_t x, vec_t y, vec_t z) {
-  string vec3 = "(" + std::to_string(x) + ", " + std::to_string(y) + ", " +
-                std::to_string(z) + ")";
+  string vec3 = "(" + std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(z) + ")";
   return vec3;
 }
 
-gentity_t *PlayerGentityFromString(char *name, char *err, int size,
-                                   team_t filter) {
+gentity_t *PlayerGentityFromString(char *name, char *err, int size, team_t filter) {
   int pids[MAX_CLIENTS];
   gentity_t *player;
 
@@ -101,8 +98,7 @@ gentity_t *PlayerGentityFromString(char *name, char *err, int size,
   return player;
 }
 
-gentity_t *PlayerGentityFromString(const std::string &name, std::string &err,
-                                   team_t filter) {
+gentity_t *PlayerGentityFromString(const std::string &name, std::string &err, team_t filter) {
   char errorMsg[MAX_TOKEN_CHARS] = "\0";
   int pids[MAX_CLIENTS];
   gentity_t *player;
@@ -131,7 +127,7 @@ std::string SayArgv(int n) {
 
 string ValueForKey(gentity_t *ent, const std::string &key) {
   char userinfo[MAX_INFO_STRING] = "\0";
-  char *value = NULL;
+  char *value                    = NULL;
 
   trap_GetUserinfo(ClientNum(ent), userinfo, sizeof(userinfo));
   value = Info_ValueForKey(userinfo, key.c_str());
@@ -144,7 +140,7 @@ string ValueForKey(gentity_t *ent, const std::string &key) {
 
 string ValueForKey(int clientNum, const std::string &key) {
   char userinfo[MAX_INFO_STRING] = "\0";
-  char *value = NULL;
+  char *value                    = NULL;
 
   trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
   value = Info_ValueForKey(userinfo, key.c_str());
@@ -157,9 +153,9 @@ string ValueForKey(int clientNum, const std::string &key) {
 
 string TimeStampToString(int t) {
   char buf[MAX_TOKEN_CHARS];
-  struct tm *lt = NULL;
+  struct tm *lt    = NULL;
   time_t toConvert = t;
-  lt = localtime(&toConvert);
+  lt               = localtime(&toConvert);
   if (t > 0) {
     // day / month / year
     strftime(buf, sizeof(buf), "%d/%m/%y %H:%M:%S", lt);
@@ -172,11 +168,11 @@ string TimeStampToString(int t) {
 
 std::string TimeStampDifferenceToString(int diff) {
   constexpr int MINUTE = 60;
-  constexpr int HOUR = 60 * MINUTE;
-  constexpr int DAY = 24 * HOUR;
-  constexpr int WEEK = 7 * DAY;
-  constexpr int MONTH = 30 * DAY;
-  constexpr int YEAR = 365 * DAY;
+  constexpr int HOUR   = 60 * MINUTE;
+  constexpr int DAY    = 24 * HOUR;
+  constexpr int WEEK   = 7 * DAY;
+  constexpr int MONTH  = 30 * DAY;
+  constexpr int YEAR   = 365 * DAY;
 
   if (diff < HOUR) {
     return StringUtils::getMinutesString(diff / MINUTE);
@@ -251,8 +247,8 @@ std::string interpolateNametags(std::string input, const int color) {
 
   int i = 1;
   int len;
-  std::string colorCode = "^";
-  colorCode += static_cast<char>(color);
+  std::string colorCode  = "^";
+  colorCode             += static_cast<char>(color);
 
   for (len = static_cast<int>(split.size()); i < len; i += 2) {
     interpolated += split[i - 1];
@@ -262,8 +258,8 @@ std::string interpolateNametags(std::string input, const int color) {
     } else {
       auto names = getNames(getMatchingIds(split[i]));
       if (!names.empty()) {
-        const std::string &splitStr = colorCode + ", ^7";
-        interpolated += "^7" + StringUtils::join(names, splitStr) + colorCode;
+        const std::string &splitStr  = colorCode + ", ^7";
+        interpolated                += "^7" + StringUtils::join(names, splitStr) + colorCode;
       } else {
         interpolated += "@" + split[i] + "@";
       }

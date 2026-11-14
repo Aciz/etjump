@@ -74,9 +74,7 @@ bool anyonePlaying();
 /**
  * Converts timestamp to date
  */
-std::string timestampToString(int timestamp,
-                              const char *format = "%d/%m/%y %H:%M:%S",
-                              const char *start = "never");
+std::string timestampToString(int timestamp, const char *format = "%d/%m/%y %H:%M:%S", const char *start = "never");
 
 /**
  * Sets a valid weapon as currently held weapon

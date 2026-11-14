@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+
 #include "../src/ui/etj_keep_alive.h"
 
 namespace ETJump {

@@ -33,9 +33,9 @@ namespace ETJump {
 class Worldspawn {
 public:
   enum class NoExplosivesOpts {
-    OFF = 0,
+    OFF                  = 0,
     NO_EXPLOSIVE_WEAPONS = 1,
-    NO_DYNAMITE = 2,
+    NO_DYNAMITE          = 2,
   };
 
   NoExplosivesOpts noExplosives{};
