@@ -22,20 +22,20 @@
  * SOFTWARE.
  */
 
-#include <iostream>
+#include "etj_session.h"
+
 #include <ctime>
+#include <iostream>
 #include <utility>
 
-#include "etj_session.h"
-#include "utilities.hpp"
-#include "etj_printer.h"
-#include "etj_string_utilities.h"
 #include "etj_levels.h"
-#include "etj_save_system.h"
+#include "etj_printer.h"
 #include "etj_progression_tracker.h"
+#include "etj_save_system.h"
+#include "etj_string_utilities.h"
+#include "utilities.hpp"
 
-Session::Session(std::shared_ptr<IAuthentication> database)
-    : database_(std::move(database)) {
+Session::Session(std::shared_ptr<IAuthentication> database) : database_(std::move(database)) {
   for (unsigned i = 0; i < MAX_CLIENTS; i++) {
     ResetClient(i);
   }
@@ -44,30 +44,30 @@ Session::Session(std::shared_ptr<IAuthentication> database)
 Session::~Session() {}
 
 void Session::ResetClient(int clientNum) {
-  clients_[clientNum].guid = "";
-  clients_[clientNum].hwid = "";
-  clients_[clientNum].user = NULL;
-  clients_[clientNum].level = NULL;
+  clients_[clientNum].guid             = "";
+  clients_[clientNum].hwid             = "";
+  clients_[clientNum].user             = NULL;
+  clients_[clientNum].level            = NULL;
   clients_[clientNum].sessionStartTime = 0;
   clients_[clientNum].permissions.reset();
 }
 
 void Session::Init(int clientNum) {
   G_DPrintf("Session::Init called for %d\n", clientNum);
-  clients_[clientNum].guid = "";
-  clients_[clientNum].hwid = "";
-  clients_[clientNum].user = NULL;
-  clients_[clientNum].level = NULL;
+  clients_[clientNum].guid             = "";
+  clients_[clientNum].hwid             = "";
+  clients_[clientNum].user             = NULL;
+  clients_[clientNum].level            = NULL;
   clients_[clientNum].sessionStartTime = 0;
   clients_[clientNum].permissions.reset();
 
-  std::string ip = ValueForKey(clientNum, "ip");
-  const size_t pos = ip.find(':');
+  std::string ip         = ValueForKey(clientNum, "ip");
+  const size_t pos       = ip.find(':');
   clients_[clientNum].ip = ip.substr(0, pos);
 
   // FIXME: 32-bit time
   time_t t;
-  t = std::time(&t);
+  t                                    = std::time(&t);
   clients_[clientNum].sessionStartTime = static_cast<int>(t);
 }
 
@@ -85,8 +85,7 @@ void Session::UpdateLastSeen(int clientNum) {
 
     lastSeen = static_cast<unsigned>(t);
 
-    G_DPrintf("Updating client's last seen to: %s\n",
-              TimeStampToString(lastSeen).c_str());
+    G_DPrintf("Updating client's last seen to: %s\n", TimeStampToString(lastSeen).c_str());
 
     if (!database_->UpdateLastSeen(clients_[clientNum].user->id, lastSeen)) {
       G_LogPrintf("ERROR: %s\n", database_->GetMessage().c_str());
@@ -97,8 +96,7 @@ void Session::UpdateLastSeen(int clientNum) {
 void Session::WriteSessionData(int clientNum) {
   G_DPrintf("DEBUG: Writing client %d etjump session data\n", clientNum);
 
-  const char *sessionData = va("%s %s %i", clients_[clientNum].guid.c_str(),
-                               clients_[clientNum].hwid.c_str(),
+  const char *sessionData = va("%s %s %i", clients_[clientNum].guid.c_str(), clients_[clientNum].hwid.c_str(),
                                clients_[clientNum].sessionStartTime);
 
   trap_Cvar_Set(va("etjumpsession%i", clientNum), sessionData);
@@ -113,17 +111,16 @@ void Session::ReadSessionData(int clientNum) {
 
   char sessionData[MAX_CVAR_VALUE_STRING] = "\0";
 
-  trap_Cvar_VariableStringBuffer(va("etjumpsession%i", clientNum), sessionData,
-                                 sizeof(sessionData));
+  trap_Cvar_VariableStringBuffer(va("etjumpsession%i", clientNum), sessionData, sizeof(sessionData));
 
-  char guidBuf[MAX_CVAR_VALUE_STRING] = "\0";
-  char hwidBuf[MAX_CVAR_VALUE_STRING] = "\0";
+  char guidBuf[MAX_CVAR_VALUE_STRING]          = "\0";
+  char hwidBuf[MAX_CVAR_VALUE_STRING]          = "\0";
   char sessStartTimeBuf[MAX_CVAR_VALUE_STRING] = "\0";
 
   sscanf(sessionData, "%s %s %s", guidBuf, hwidBuf, sessStartTimeBuf);
 
-  clients_[clientNum].guid = guidBuf;
-  clients_[clientNum].hwid = hwidBuf;
+  clients_[clientNum].guid             = guidBuf;
+  clients_[clientNum].hwid             = hwidBuf;
   clients_[clientNum].sessionStartTime = Q_atoi(sessStartTimeBuf);
 
   GetUserAndLevelData(clientNum);
@@ -150,19 +147,17 @@ void Session::OnGuidReceived(gentity_t *ent) {
 }
 
 bool Session::GuidReceived(gentity_t *ent) {
-  int argc = trap_Argc();
+  int argc      = trap_Argc();
   int clientNum = ClientNum(ent);
   char guidBuf[MAX_CVAR_VALUE_STRING];
   char hwidBuf[MAX_CVAR_VALUE_STRING];
-  const std::string cleanName =
-      StringUtils::sanitize(ent->client->pers.netname);
+  const std::string cleanName = StringUtils::sanitize(ent->client->pers.netname);
 
   // Client sends 'AUTHENTICATE guid hwid'
   constexpr int ARGC = 3;
   if (argc != ARGC) {
-    Printer::logAdminLn(
-        "authentication: Potential GUID/HWID spoof attempt by %i %s (%s)",
-        clientNum, cleanName, ClientIPAddr(ent));
+    Printer::logAdminLn("authentication: Potential GUID/HWID spoof attempt by %i %s (%s)", clientNum, cleanName,
+                        ClientIPAddr(ent));
     return false;
   }
 
@@ -170,25 +165,22 @@ bool Session::GuidReceived(gentity_t *ent) {
   trap_Argv(2, hwidBuf, sizeof(hwidBuf));
 
   if (!ValidGuid(guidBuf) || !ValidGuid(hwidBuf)) {
-    Printer::logAdminLn(
-        "authentication: Potential GUID/HWID spoof attempt by %i %s (%s)",
-        clientNum, cleanName, ClientIPAddr(ent));
+    Printer::logAdminLn("authentication: Potential GUID/HWID spoof attempt by %i %s (%s)", clientNum, cleanName,
+                        ClientIPAddr(ent));
     return false;
   }
 
   clients_[clientNum].guid = G_SHA1(guidBuf);
   clients_[clientNum].hwid = G_SHA1(hwidBuf);
 
-  G_DPrintf("GuidReceived: %d GUID: %s HWID: %s\n", clientNum,
-            clients_[clientNum].guid.c_str(), clients_[clientNum].hwid.c_str());
+  G_DPrintf("GuidReceived: %d GUID: %s HWID: %s\n", clientNum, clients_[clientNum].guid.c_str(),
+            clients_[clientNum].hwid.c_str());
 
   if (database_->IsBanned(clients_[clientNum].guid, clients_[clientNum].hwid)) {
     Printer::logAdminLn("authentication: Banned player %s tried to connect "
                         "with GUID '%s' and HWID '%s'",
-                        cleanName, clients_[clientNum].guid,
-                        clients_[clientNum].hwid);
-    Printer::popupAll("Banned player %s ^7tried to connect.",
-                      ent->client->pers.netname);
+                        cleanName, clients_[clientNum].guid, clients_[clientNum].hwid);
+    Printer::popupAll("Banned player %s ^7tried to connect.", ent->client->pers.netname);
     trap_DropClient(clientNum, "You are banned.", 0);
     return false;
   }
@@ -203,13 +195,11 @@ void Session::GetUserAndLevelData(int clientNum) {
   if (!database_->UserExists(clients_[clientNum].guid)) {
     if (!database_->AddUser(clients_[clientNum].guid, clients_[clientNum].hwid,
                             std::string(ent->client->pers.netname))) {
-      G_LogPrintf("ERROR: failed to add user to database: %s\n",
-                  database_->GetMessage().c_str());
+      G_LogPrintf("ERROR: failed to add user to database: %s\n", database_->GetMessage().c_str());
     } else {
       G_DPrintf("New user connected. Added user to the "
                 "user database\n");
-      clients_[clientNum].user =
-          database_->GetUserData(clients_[clientNum].guid);
+      clients_[clientNum].user = database_->GetUserData(clients_[clientNum].guid);
     }
   } else {
     G_DPrintf("Old user connected. Getting user data from the "
@@ -219,16 +209,13 @@ void Session::GetUserAndLevelData(int clientNum) {
     if (clients_[clientNum].user) {
       G_DPrintf("User data found: %s\n", clients_[clientNum].user->ToChar());
 
-      if (find(clients_[clientNum].user->hwids.begin(),
-               clients_[clientNum].user->hwids.end(),
-               clients_[clientNum].hwid) ==
-          clients_[clientNum].user->hwids.end()) {
+      if (find(clients_[clientNum].user->hwids.begin(), clients_[clientNum].user->hwids.end(),
+               clients_[clientNum].hwid) == clients_[clientNum].user->hwids.end()) {
         G_DPrintf("New HWID detected. Adding HWID %s "
                   "to list.\n",
                   clients_[clientNum].hwid.c_str());
 
-        if (!database_->AddNewHardwareId(clients_[clientNum].user->id,
-                                         clients_[clientNum].hwid)) {
+        if (!database_->AddNewHardwareId(clients_[clientNum].user->id, clients_[clientNum].hwid)) {
           G_LogPrintf("Failed to add a "
                       "new hardware ID "
                       "to user %s\n",
@@ -236,8 +223,7 @@ void Session::GetUserAndLevelData(int clientNum) {
         }
       }
     } else {
-      G_LogPrintf("ERROR: couldn't get user's data (%s)\n",
-                  ent->client->pers.netname);
+      G_LogPrintf("ERROR: couldn't get user's data (%s)\n", ent->client->pers.netname);
     }
   }
 
@@ -246,13 +232,11 @@ void Session::GetUserAndLevelData(int clientNum) {
     G_Error("Client %i doesn't have db::user.\n", clientNum);
   }
 
-  clients_[clientNum].level =
-      game.levels->GetLevel(clients_[clientNum].user->level);
+  clients_[clientNum].level = game.levels->GetLevel(clients_[clientNum].user->level);
 
   if (ent->client->sess.firstTime) {
     PrintGreeting(ent);
-    Printer::popup(ent, "^5Your last visit was on %s.",
-                   clients_[clientNum].user->GetLastSeenString());
+    Printer::popup(ent, "^5Your last visit was on %s.", clients_[clientNum].user->GetLastSeenString());
   }
 
   ParsePermissions(clientNum);
@@ -262,12 +246,11 @@ void Session::ParsePermissions(int clientNum) {
   clients_[clientNum].permissions.reset();
   // First parse level commands then user commands (as user commands
   // override level ones)
-  std::string commands =
-      clients_[clientNum].level->commands + clients_[clientNum].user->commands;
+  std::string commands = clients_[clientNum].level->commands + clients_[clientNum].user->commands;
 
   const int STATE_ALLOW = 1;
-  const int STATE_DENY = 2;
-  int state = STATE_ALLOW;
+  const int STATE_DENY  = 2;
+  int state             = STATE_ALLOW;
   for (unsigned i = 0; i < commands.length(); i++) {
     char c = commands.at(i);
     if (state == STATE_ALLOW) {
@@ -303,15 +286,15 @@ void Session::OnClientDisconnect(int clientNum) {
   WriteSessionData(clientNum);
   UpdateLastSeen(clientNum);
 
-  clients_[clientNum].user = NULL;
-  clients_[clientNum].level = NULL;
+  clients_[clientNum].user             = NULL;
+  clients_[clientNum].level            = NULL;
   clients_[clientNum].sessionStartTime = 0;
   clients_[clientNum].permissions.reset();
 }
 
 void Session::PrintGreeting(gentity_t *ent) {
   int clientNum = ClientNum(ent);
-  Client *cl = &clients_[clientNum];
+  Client *cl    = &clients_[clientNum];
 
   // If user has own greeting, print it
   if (cl->user->greeting.length() > 0) {
@@ -363,14 +346,15 @@ bool Session::SetLevel(int id, int level) {
   for (int i = 0; i < MAX_CLIENTS; i++) {
     if (clients_[i].user && clients_[i].user->id == id) {
       ParsePermissions(i);
-      Printer::chat(g_entities + i,
-                    va("^3setlevel: ^7you are now a level %d user.", level));
+      Printer::chat(g_entities + i, va("^3setlevel: ^7you are now a level %d user.", level));
     }
   }
   return true;
 }
 
-bool Session::UserExists(unsigned id) { return database_->UserExists(id); }
+bool Session::UserExists(unsigned id) {
+  return database_->UserExists(id);
+}
 
 int Session::GetLevelById(unsigned id) const {
   return database_->GetUserData(id)->level;
@@ -421,8 +405,7 @@ bool Session::IsIpBanned(int clientNum) {
   return database_->IsIpBanned(clients_[clientNum].ip);
 }
 
-bool Session::Ban(gentity_t *ent, gentity_t *player, unsigned expires,
-                  std::string reason) {
+bool Session::Ban(gentity_t *ent, gentity_t *player, unsigned expires, std::string reason) {
   int clientNum = ClientNum(player);
   time_t t;
   time(&t);
@@ -433,15 +416,13 @@ bool Session::Ban(gentity_t *ent, gentity_t *player, unsigned expires,
     return false;
   }
 
-  std::string ipport = ValueForKey(player, "ip");
+  std::string ipport         = ValueForKey(player, "ip");
   std::string::size_type pos = ipport.find(":");
-  std::string ip = ipport.substr(0, pos);
+  std::string ip             = ipport.substr(0, pos);
 
-  return database_->BanUser(
-      std::string(player->client->pers.netname), clients_[clientNum].guid,
-      clients_[clientNum].hwid, ip,
-      std::string(ent ? ent->client->pers.netname : "Console"),
-      TimeStampToString(static_cast<unsigned>(t)), expires, reason);
+  return database_->BanUser(std::string(player->client->pers.netname), clients_[clientNum].guid,
+                            clients_[clientNum].hwid, ip, std::string(ent ? ent->client->pers.netname : "Console"),
+                            TimeStampToString(static_cast<unsigned>(t)), expires, reason);
 }
 
 void Session::PrintFinger(gentity_t *ent, gentity_t *target) {
@@ -455,15 +436,14 @@ void Session::PrintFinger(gentity_t *ent, gentity_t *target) {
   Printer::chat(ent, "^3finger: ^7check console for more information.");
 
   const auto *const user = clients_[num].user;
-  Printer::console(
-      ent,
-      "^7Name: %s\n"
-      "^7Original name: %s\n"
-      "^7ID: %d\n"
-      "^7Level: %d\n"
-      "^7Title: %s\n",
-      target->client->pers.netname, user->name, user->id, user->level,
-      user->title.empty() ? clients_[num].level->name : user->title);
+  Printer::console(ent,
+                   "^7Name: %s\n"
+                   "^7Original name: %s\n"
+                   "^7ID: %d\n"
+                   "^7Level: %d\n"
+                   "^7Title: %s\n",
+                   target->client->pers.netname, user->name, user->id, user->level,
+                   user->title.empty() ? clients_[num].level->name : user->title);
 }
 
 void Session::PrintAdmintest(gentity_t *ent) {
@@ -476,15 +456,15 @@ void Session::PrintAdmintest(gentity_t *ent) {
   }
 
   if (ent && clients_[clientNum].user && clients_[clientNum].level) {
-    Printer::chatAll("^3admintest: ^7%s^7 is a level %d user (%s^7).",
-                     ent->client->pers.netname, clients_[clientNum].user->level,
-                     clients_[clientNum].user->title.length() > 0
-                         ? clients_[clientNum].user->title
-                         : clients_[clientNum].level->name);
+    Printer::chatAll(
+      "^3admintest: ^7%s^7 is a level %d user (%s^7).", ent->client->pers.netname, clients_[clientNum].user->level,
+      clients_[clientNum].user->title.length() > 0 ? clients_[clientNum].user->title : clients_[clientNum].level->name);
   }
 }
 
-std::string Session::GetMessage() const { return message_; }
+std::string Session::GetMessage() const {
+  return message_;
+}
 
 std::bitset<256> Session::Permissions(gentity_t *ent) const {
   if (!ent) {
@@ -512,9 +492,8 @@ int Session::LevelDeleted(int adminLevel) {
   int usersReseted = database_->ResetUsersWithLevel(adminLevel);
 
   for (int i = 0; i < level.numConnectedClients; i++) {
-    int clientNum = level.sortedClients[i];
-    clients_[clientNum].level =
-        game.levels->GetLevel(clients_[clientNum].user->level);
+    int clientNum             = level.sortedClients[i];
+    clients_[clientNum].level = game.levels->GetLevel(clients_[clientNum].user->level);
     ParsePermissions(clientNum);
   }
   return usersReseted;
@@ -527,8 +506,7 @@ void Session::NewName(gentity_t *ent) {
                 "is null.\n");
     return;
   }
-  database_->NewName(clients_[ClientNum(ent)].user->id,
-                     ent->client->pers.netname);
+  database_->NewName(clients_[ClientNum(ent)].user->id, ent->client->pers.netname);
 }
 
 bool Session::HasPermission(gentity_t *ent, char flag) {

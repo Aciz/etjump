@@ -28,8 +28,8 @@
 #include <vector>
 
 #include "../game/bg_public.h"
-#include "../game/q_shared.h"
 #include "../game/etj_worldspawn_shared.h"
+#include "../game/q_shared.h"
 
 namespace ETJump {
 class ClientCommandsHandler;

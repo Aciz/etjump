@@ -23,8 +23,8 @@
  */
 
 #pragma once
-#include <string>
 #include <sqlite_modern_cpp.h>
+#include <string>
 
 #include "etj_container_utilities.h"
 #include "etj_string_utilities.h"
@@ -41,27 +41,30 @@ public:
   ~DatabaseV2();
 
   void addMigration(const Migration &migration);
-  void addMigration(const std::string &name,
-                    const std::vector<std::string> &statements);
+  void addMigration(const std::string &name, const std::vector<std::string> &statements);
 
   void applyMigrations();
 
-  template <typename T>
-  static std::string createPlaceholderString(const std::vector<T> &input) {
-    return StringUtils::join(
-        Container::map(input, [](const auto &e) { return "?"; }), ",");
+  template <typename T> static std::string createPlaceholderString(const std::vector<T> &input) {
+    return StringUtils::join(Container::map(input,
+                                            [](const auto &e) {
+                                              return "?";
+                                            }),
+                             ",");
   }
 
   // RAII guard for a transaction. Begins a transaction on construction,
   // and rolls it back on destruction unless commit() was called.
   class TransactionGuard {
   public:
-    explicit TransactionGuard(DatabaseV2 &db) : db(&db) { db.sql << "begin;"; }
+    explicit TransactionGuard(DatabaseV2 &db) : db(&db) {
+      db.sql << "begin;";
+    }
 
-    TransactionGuard(const TransactionGuard &) = delete;
+    TransactionGuard(const TransactionGuard &)            = delete;
     TransactionGuard &operator=(const TransactionGuard &) = delete;
-    TransactionGuard(TransactionGuard &&) = delete;
-    TransactionGuard &operator=(TransactionGuard &&) = delete;
+    TransactionGuard(TransactionGuard &&)                 = delete;
+    TransactionGuard &operator=(TransactionGuard &&)      = delete;
 
     ~TransactionGuard() {
       if (!committed) {

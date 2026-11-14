@@ -21,16 +21,15 @@ USER INTERFACE MAIN
 
 #include "../cgame/etj_color_parser.h"
 #include "../cgame/etj_cvar_parser.h"
-
 #include "../game/etj_fatal_error_shared.h"
-#include "../game/etj_string_utilities.h"
 #include "../game/etj_filesystem.h"
+#include "../game/etj_string_utilities.h"
 #include "../game/etj_test_fault.h"
 
 // NERVE - SMF
-inline constexpr int AXIS_TEAM = 0;
+inline constexpr int AXIS_TEAM   = 0;
 inline constexpr int ALLIES_TEAM = 1;
-inline constexpr int SPECT_TEAM = 2;
+inline constexpr int SPECT_TEAM  = 2;
 // -NERVE - SMF
 
 extern qboolean g_waitingForKey;
@@ -39,13 +38,13 @@ extern itemDef_t *g_editItem;
 
 uiInfo_t uiInfo;
 
-static const char *MonthAbbrev[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+static const char *MonthAbbrev[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
-static const serverFilter_t serverFilters[] = {{"All", ""}};
+static const serverFilter_t serverFilters[] = {
+  {"All", ""}
+};
 
-static const int numServerFilters =
-    sizeof(serverFilters) / sizeof(serverFilter_t);
+static const int numServerFilters = sizeof(serverFilters) / sizeof(serverFilter_t);
 
 static const char *netnames[] = {"???", "UDP", "IPX", NULL};
 
@@ -114,8 +113,7 @@ void _UI_MouseEvent(int dx, int dy);
 void _UI_Refresh(int realtime);
 qboolean _UI_IsFullscreen(void);
 
-static intptr_t dispatchCommand(const int command, const intptr_t arg0,
-                                const intptr_t arg1, const intptr_t arg2) {
+static intptr_t dispatchCommand(const int command, const intptr_t arg0, const intptr_t arg1, const intptr_t arg2) {
   switch (command) {
     case UI_GETAPIVERSION:
       return UI_API_VERSION;
@@ -178,15 +176,15 @@ static intptr_t dispatchCommand(const int command, const intptr_t arg0,
   return -1;
 }
 
-extern "C" FN_PUBLIC intptr_t vmMain(int command, intptr_t arg0, intptr_t arg1,
-                                     intptr_t arg2, intptr_t arg3,
-                                     intptr_t arg4, intptr_t arg5,
-                                     intptr_t arg6) {
+extern "C" FN_PUBLIC intptr_t vmMain(int command, intptr_t arg0, intptr_t arg1, intptr_t arg2, intptr_t arg3,
+                                     intptr_t arg4, intptr_t arg5, intptr_t arg6) {
   // a failed console command still counts as handled,
   // so the engine doesn't pass it on
   return ETJump::FatalErrorBoundary::run(
-      [&] { return dispatchCommand(command, arg0, arg1, arg2); },
-      command == UI_CONSOLE_COMMAND ? qtrue : qfalse);
+    [&] {
+      return dispatchCommand(command, arg0, arg1, arg2);
+    },
+    command == UI_CONSOLE_COMMAND ? qtrue : qfalse);
 }
 
 void AssetCache() {
@@ -195,90 +193,69 @@ void AssetCache() {
   // }
   // Assets.background = trap_R_RegisterShaderNoMip( ASSET_BACKGROUND );
   // Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
-  uiInfo.uiDC.Assets.gradientBar =
-      trap_R_RegisterShaderNoMip(ASSET_GRADIENTBAR);
-  uiInfo.uiDC.Assets.fxBasePic = trap_R_RegisterShaderNoMip(ART_FX_BASE);
-  uiInfo.uiDC.Assets.fxPic[0] = trap_R_RegisterShaderNoMip(ART_FX_RED);
-  uiInfo.uiDC.Assets.fxPic[1] = trap_R_RegisterShaderNoMip(ART_FX_YELLOW);
-  uiInfo.uiDC.Assets.fxPic[2] = trap_R_RegisterShaderNoMip(ART_FX_GREEN);
-  uiInfo.uiDC.Assets.fxPic[3] = trap_R_RegisterShaderNoMip(ART_FX_TEAL);
-  uiInfo.uiDC.Assets.fxPic[4] = trap_R_RegisterShaderNoMip(ART_FX_BLUE);
-  uiInfo.uiDC.Assets.fxPic[5] = trap_R_RegisterShaderNoMip(ART_FX_CYAN);
-  uiInfo.uiDC.Assets.fxPic[6] = trap_R_RegisterShaderNoMip(ART_FX_WHITE);
-  uiInfo.uiDC.Assets.scrollBar = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR);
+  uiInfo.uiDC.Assets.gradientBar = trap_R_RegisterShaderNoMip(ASSET_GRADIENTBAR);
+  uiInfo.uiDC.Assets.fxBasePic   = trap_R_RegisterShaderNoMip(ART_FX_BASE);
+  uiInfo.uiDC.Assets.fxPic[0]    = trap_R_RegisterShaderNoMip(ART_FX_RED);
+  uiInfo.uiDC.Assets.fxPic[1]    = trap_R_RegisterShaderNoMip(ART_FX_YELLOW);
+  uiInfo.uiDC.Assets.fxPic[2]    = trap_R_RegisterShaderNoMip(ART_FX_GREEN);
+  uiInfo.uiDC.Assets.fxPic[3]    = trap_R_RegisterShaderNoMip(ART_FX_TEAL);
+  uiInfo.uiDC.Assets.fxPic[4]    = trap_R_RegisterShaderNoMip(ART_FX_BLUE);
+  uiInfo.uiDC.Assets.fxPic[5]    = trap_R_RegisterShaderNoMip(ART_FX_CYAN);
+  uiInfo.uiDC.Assets.fxPic[6]    = trap_R_RegisterShaderNoMip(ART_FX_WHITE);
+  uiInfo.uiDC.Assets.scrollBar   = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR);
 
-  uiInfo.uiDC.Assets.scrollBarArrowDown =
-      trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWDOWN);
-  uiInfo.uiDC.Assets.scrollBarArrowUp =
-      trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWUP);
-  uiInfo.uiDC.Assets.scrollBarArrowLeft =
-      trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWLEFT);
-  uiInfo.uiDC.Assets.scrollBarArrowRight =
-      trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWRIGHT);
+  uiInfo.uiDC.Assets.scrollBarArrowDown  = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWDOWN);
+  uiInfo.uiDC.Assets.scrollBarArrowUp    = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWUP);
+  uiInfo.uiDC.Assets.scrollBarArrowLeft  = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWLEFT);
+  uiInfo.uiDC.Assets.scrollBarArrowRight = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWRIGHT);
 
-  uiInfo.uiDC.Assets.scrollBarArrowDownActive =
-      trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWDOWN_ACTIVE);
-  uiInfo.uiDC.Assets.scrollBarArrowUpActive =
-      trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWUP_ACTIVE);
-  uiInfo.uiDC.Assets.scrollBarArrowLeftActive =
-      trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWLEFT_ACTIVE);
-  uiInfo.uiDC.Assets.scrollBarArrowRightActive =
-      trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWRIGHT_ACTIVE);
+  uiInfo.uiDC.Assets.scrollBarArrowDownActive  = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWDOWN_ACTIVE);
+  uiInfo.uiDC.Assets.scrollBarArrowUpActive    = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWUP_ACTIVE);
+  uiInfo.uiDC.Assets.scrollBarArrowLeftActive  = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWLEFT_ACTIVE);
+  uiInfo.uiDC.Assets.scrollBarArrowRightActive = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWRIGHT_ACTIVE);
 
-  uiInfo.uiDC.Assets.sliderBar = trap_R_RegisterShaderNoMip(ASSET_SLIDER_BAR);
-  uiInfo.uiDC.Assets.sliderThumb =
-      trap_R_RegisterShaderNoMip(ASSET_SLIDER_THUMB);
-  uiInfo.uiDC.Assets.checkboxCheck =
-      trap_R_RegisterShaderNoMip(ASSET_CHECKBOX_CHECK);
-  uiInfo.uiDC.Assets.checkboxCheckNot =
-      trap_R_RegisterShaderNoMip(ASSET_CHECKBOX_CHECK_NOT);
-  uiInfo.uiDC.Assets.checkboxCheckNo =
-      trap_R_RegisterShaderNoMip(ASSET_CHECKBOX_CHECK_NO);
+  uiInfo.uiDC.Assets.sliderBar        = trap_R_RegisterShaderNoMip(ASSET_SLIDER_BAR);
+  uiInfo.uiDC.Assets.sliderThumb      = trap_R_RegisterShaderNoMip(ASSET_SLIDER_THUMB);
+  uiInfo.uiDC.Assets.checkboxCheck    = trap_R_RegisterShaderNoMip(ASSET_CHECKBOX_CHECK);
+  uiInfo.uiDC.Assets.checkboxCheckNot = trap_R_RegisterShaderNoMip(ASSET_CHECKBOX_CHECK_NOT);
+  uiInfo.uiDC.Assets.checkboxCheckNo  = trap_R_RegisterShaderNoMip(ASSET_CHECKBOX_CHECK_NO);
 
   for (n = 0; n < NUM_CROSSHAIRS; n++) {
-    uiInfo.uiDC.Assets.crosshairShader[n] =
-        ETJump::shaderForCrosshair(n, false);
-    uiInfo.uiDC.Assets.crosshairAltShader[n] =
-        ETJump::shaderForCrosshair(n, true);
+    uiInfo.uiDC.Assets.crosshairShader[n]    = ETJump::shaderForCrosshair(n, false);
+    uiInfo.uiDC.Assets.crosshairAltShader[n] = ETJump::shaderForCrosshair(n, true);
   }
 
-  uiInfo.uiDC.Assets.replayDirectory =
-      trap_R_RegisterShaderNoMip(ASSET_REPLAY_DIRECTORY);
-  uiInfo.uiDC.Assets.replayHome = trap_R_RegisterShaderNoMip(ASSET_REPLAY_HOME);
-  uiInfo.uiDC.Assets.replayUp = trap_R_RegisterShaderNoMip(ASSET_REPLAY_UP);
+  uiInfo.uiDC.Assets.replayDirectory = trap_R_RegisterShaderNoMip(ASSET_REPLAY_DIRECTORY);
+  uiInfo.uiDC.Assets.replayHome      = trap_R_RegisterShaderNoMip(ASSET_REPLAY_HOME);
+  uiInfo.uiDC.Assets.replayUp        = trap_R_RegisterShaderNoMip(ASSET_REPLAY_UP);
 
-  uiInfo.uiDC.Assets.colorPickerMask =
-      trap_R_RegisterShaderNoMip(ASSET_COLORPICKER_MASK);
+  uiInfo.uiDC.Assets.colorPickerMask = trap_R_RegisterShaderNoMip(ASSET_COLORPICKER_MASK);
 }
 
 void _UI_DrawSides(float x, float y, float w, float h, float size) {
   UI_AdjustFrom640(&x, &y, &w, &h);
   size *= uiInfo.uiDC.xscale;
   trap_R_DrawStretchPic(x, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
-  trap_R_DrawStretchPic(x + w - size, y, size, h, 0, 0, 0, 0,
-                        uiInfo.uiDC.whiteShader);
+  trap_R_DrawStretchPic(x + w - size, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
 }
 
 void _UI_DrawTopBottom(float x, float y, float w, float h, float size) {
   UI_AdjustFrom640(&x, &y, &w, &h);
   size *= uiInfo.uiDC.yscale;
   trap_R_DrawStretchPic(x, y, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
-  trap_R_DrawStretchPic(x, y + h - size, w, size, 0, 0, 0, 0,
-                        uiInfo.uiDC.whiteShader);
+  trap_R_DrawStretchPic(x, y + h - size, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
 }
 
 void _UI_DrawSides_NoScale(float x, float y, float w, float h, float size) {
   UI_AdjustFrom640(&x, &y, &w, &h);
   trap_R_DrawStretchPic(x, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
-  trap_R_DrawStretchPic(x + w - size, y, size, h, 0, 0, 0, 0,
-                        uiInfo.uiDC.whiteShader);
+  trap_R_DrawStretchPic(x + w - size, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
 }
 
 void _UI_DrawTopBottom_NoScale(float x, float y, float w, float h, float size) {
   UI_AdjustFrom640(&x, &y, &w, &h);
   trap_R_DrawStretchPic(x, y, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
-  trap_R_DrawStretchPic(x, y + h - size, w, size, 0, 0, 0, 0,
-                        uiInfo.uiDC.whiteShader);
+  trap_R_DrawStretchPic(x, y + h - size, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
 }
 
 /*
@@ -288,8 +265,7 @@ UI_DrawRect
 Coordinates are 640*480 virtual values
 =================
 */
-void _UI_DrawRect(float x, float y, float width, float height, float size,
-                  const float *color) {
+void _UI_DrawRect(float x, float y, float width, float height, float size, const float *color) {
   trap_R_SetColor(color);
 
   _UI_DrawTopBottom(x, y, width, height, size);
@@ -298,9 +274,7 @@ void _UI_DrawRect(float x, float y, float width, float height, float size,
   trap_R_SetColor(NULL);
 }
 
-void _UI_DrawRect_DrawRect_FixedBorder(float x, float y, float width,
-                                       float height, float border,
-                                       const float *color) {
+void _UI_DrawRect_DrawRect_FixedBorder(float x, float y, float width, float height, float border, const float *color) {
   trap_R_SetColor(color);
 
   _UI_DrawSides_NoScale(x, y, width, height, border);
@@ -310,7 +284,9 @@ void _UI_DrawRect_DrawRect_FixedBorder(float x, float y, float width,
 }
 
 // NERVE - SMF
-void Text_SetActiveFont(int font) { uiInfo.activeFont = font; }
+void Text_SetActiveFont(int font) {
+  uiInfo.activeFont = font;
+}
 
 int Text_Width_Ext(const char *text, float scale, int limit, fontInfo_t *font) {
   int count, len;
@@ -329,8 +305,8 @@ int Text_Width_Ext(const char *text, float scale, int limit, fontInfo_t *font) {
         s += 2;
         continue;
       } else {
-        glyph = &font->glyphs[(unsigned char)*s];
-        out += glyph->xSkip;
+        glyph  = &font->glyphs[(unsigned char)*s];
+        out   += glyph->xSkip;
         s++;
         count++;
       }
@@ -357,7 +333,7 @@ int Multiline_Text_Width(const char *text, float scale, int limit) {
   }
 
   const auto linecount = static_cast<int>(lines.size());
-  auto maxWidth = 0;
+  auto maxWidth        = 0;
 
   for (int i = 0; i < linecount; i++) {
     const int width = Text_Width(lines[i].c_str(), scale, limit);
@@ -371,8 +347,7 @@ int Multiline_Text_Width(const char *text, float scale, int limit) {
   return maxWidth + Text_Width(" ", scale, limit);
 }
 
-int Text_Height_Ext(const char *text, float scale, int limit,
-                    fontInfo_t *font) {
+int Text_Height_Ext(const char *text, float scale, int limit, fontInfo_t *font) {
   int len, count;
   float max;
   glyphInfo_t *glyph;
@@ -423,9 +398,9 @@ int Multiline_Text_Height(const char *text, float scale, int limit) {
   }
 
   glyphInfo_t *glyph;
-  fontInfo_t *font = &uiInfo.uiDC.Assets.fonts[uiInfo.activeFont];
+  fontInfo_t *font     = &uiInfo.uiDC.Assets.fonts[uiInfo.activeFont];
   const auto linecount = static_cast<int>(lines.size());
-  int height = 0;
+  int height           = 0;
 
   // some glyphs (notably '_') have their top position on a negative offset,
   // we keep track of this so that on the last line, we can add this offset
@@ -445,31 +420,29 @@ int Multiline_Text_Height(const char *text, float scale, int limit) {
     }
 
     height += Text_Height(lines[i].c_str(), scale, limit) + std::abs(minTop);
-    minTop = 0;
+    minTop  = 0;
   }
 
   return height + (AUTOWRAP_OFFSET * (linecount - 1));
 }
 
-void Text_PaintCharExt(float x, float y, float w, float h, float scalex,
-                       float scaley, float s, float t, float s2, float t2,
-                       qhandle_t hShader) {
+void Text_PaintCharExt(float x, float y, float w, float h, float scalex, float scaley, float s, float t, float s2,
+                       float t2, qhandle_t hShader) {
   w *= scalex;
   h *= scaley;
   UI_AdjustFrom640(&x, &y, &w, &h);
   trap_R_DrawStretchPic(x, y, w, h, s, t, s2, t2, hShader);
 }
 
-void Text_PaintChar(float x, float y, float w, float h, float scale, float s,
-                    float t, float s2, float t2, qhandle_t hShader) {
+void Text_PaintChar(float x, float y, float w, float h, float scale, float s, float t, float s2, float t2,
+                    qhandle_t hShader) {
   w *= scale;
   h *= scale;
   UI_AdjustFrom640(&x, &y, &w, &h);
   trap_R_DrawStretchPic(x, y, w, h, s, t, s2, t2, hShader);
 }
 
-void Text_Paint_Ext(float x, float y, float scalex, float scaley,
-                    const vec4_t color, const char *text, float adjust,
+void Text_Paint_Ext(float x, float y, float scalex, float scaley, const vec4_t color, const char *text, float adjust,
                     int limit, int style, fontInfo_t *font) {
   int len, count;
   vec4_t newColor;
@@ -503,8 +476,7 @@ void Text_Paint_Ext(float x, float y, float scalex, float scaley,
         if (*(s + 1) == COLOR_NULL) {
           memcpy(&newColor[0], &color[0], sizeof(vec4_t));
         } else {
-          memcpy(newColor, g_color_table[ColorIndex(*(s + 1))],
-                 sizeof(newColor));
+          memcpy(newColor, g_color_table[ColorIndex(*(s + 1))], sizeof(newColor));
           newColor[3] = color[3];
         }
         trap_R_SetColor(newColor);
@@ -513,20 +485,16 @@ void Text_Paint_Ext(float x, float y, float scalex, float scaley,
       } else {
         float yadj = scaley * glyph->top;
         if (style == ITEM_TEXTSTYLE_SHADOWED) {
-          constexpr float ofs = 2.5f;
+          constexpr float ofs      = 2.5f;
           const vec4_t shadowColor = {0, 0, 0, newColor[3]};
 
           trap_R_SetColor(shadowColor);
-          Text_PaintCharExt(x + (glyph->pitch * scalex) + ofs * scalex,
-                            y - yadj + ofs * scaley, glyph->imageWidth,
-                            glyph->imageHeight, scalex, scaley, glyph->s,
-                            glyph->t, glyph->s2, glyph->t2, glyph->glyph);
+          Text_PaintCharExt(x + (glyph->pitch * scalex) + ofs * scalex, y - yadj + ofs * scaley, glyph->imageWidth,
+                            glyph->imageHeight, scalex, scaley, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
           trap_R_SetColor(newColor);
         }
-        Text_PaintCharExt(x + (glyph->pitch * scalex), y - yadj,
-                          glyph->imageWidth, glyph->imageHeight, scalex, scaley,
-                          glyph->s, glyph->t, glyph->s2, glyph->t2,
-                          glyph->glyph);
+        Text_PaintCharExt(x + (glyph->pitch * scalex), y - yadj, glyph->imageWidth, glyph->imageHeight, scalex, scaley,
+                          glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
 
         x += (glyph->xSkip * scalex) + adjust;
         s++;
@@ -537,16 +505,15 @@ void Text_Paint_Ext(float x, float y, float scalex, float scaley,
   }
 }
 
-static void Text_Paint(float x, float y, float scale, const vec4_t color,
-                       const char *text, float adjust, int limit, int style) {
+static void Text_Paint(float x, float y, float scale, const vec4_t color, const char *text, float adjust, int limit,
+                       int style) {
   fontInfo_t *font = &uiInfo.uiDC.Assets.fonts[uiInfo.activeFont];
 
   Text_Paint_Ext(x, y, scale, scale, color, text, adjust, limit, style, font);
 }
 
-void Text_PaintWithCursor(float x, float y, float scale, vec4_t color,
-                          vec4_t cursorColor, const char *text, int cursorPos,
-                          char cursor, int limit, int style) {
+void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, vec4_t cursorColor, const char *text,
+                          int cursorPos, char cursor, int limit, int style) {
   int len, count;
   vec4_t newColor;
   glyphInfo_t *glyph, *glyph2;
@@ -565,7 +532,7 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color,
     if (limit > 0 && len > limit) {
       len = limit;
     }
-    count = 0;
+    count  = 0;
     glyph2 = &font->glyphs[(unsigned char)cursor];
     while (s && *s && count < len) {
       glyph = &font->glyphs[(unsigned char)*s]; // NERVE - SMF - this needs
@@ -586,19 +553,16 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color,
       {
         yadj = useScale * glyph->top;
         if (style == ITEM_TEXTSTYLE_SHADOWED) {
-          constexpr float ofs = 2.5f;
+          constexpr float ofs      = 2.5f;
           const vec4_t shadowColor = {0, 0, 0, newColor[3]};
 
           trap_R_SetColor(shadowColor);
-          Text_PaintChar(x + (glyph->pitch * useScale) + ofs * useScale,
-                         y - yadj + ofs * useScale, glyph->imageWidth,
-                         glyph->imageHeight, useScale, glyph->s, glyph->t,
-                         glyph->s2, glyph->t2, glyph->glyph);
+          Text_PaintChar(x + (glyph->pitch * useScale) + ofs * useScale, y - yadj + ofs * useScale, glyph->imageWidth,
+                         glyph->imageHeight, useScale, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
 
           trap_R_SetColor(newColor);
         }
-        Text_PaintChar(x + (glyph->pitch * useScale), y - yadj,
-                       glyph->imageWidth, glyph->imageHeight, useScale,
+        Text_PaintChar(x + (glyph->pitch * useScale), y - yadj, glyph->imageWidth, glyph->imageHeight, useScale,
                        glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
 
         // CG_DrawPic(x, y - yadj, scale *
@@ -607,13 +571,10 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color,
         // uiDC.Assets.textFont.glyphs[text[i]].imageHeight,
         // uiDC.Assets.textFont.glyphs[text[i]].glyph);
         yadj = useScale * glyph2->top;
-        if (count == cursorPos &&
-            !((uiInfo.uiDC.realTime / BLINK_DIVISOR) & 1)) {
+        if (count == cursorPos && !((uiInfo.uiDC.realTime / BLINK_DIVISOR) & 1)) {
           trap_R_SetColor(cursorColor);
-          Text_PaintChar(x + (glyph->pitch * useScale), y - yadj,
-                         glyph2->imageWidth, glyph2->imageHeight, useScale,
-                         glyph2->s, glyph2->t, glyph2->s2, glyph2->t2,
-                         glyph2->glyph);
+          Text_PaintChar(x + (glyph->pitch * useScale), y - yadj, glyph2->imageWidth, glyph2->imageHeight, useScale,
+                         glyph2->s, glyph2->t, glyph2->s2, glyph2->t2, glyph2->glyph);
           trap_R_SetColor(color);
         }
 
@@ -626,25 +587,22 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color,
     if (cursorPos == len && !((uiInfo.uiDC.realTime / BLINK_DIVISOR) & 1)) {
       trap_R_SetColor(cursorColor);
       yadj = useScale * glyph2->top;
-      Text_PaintChar(x + (glyph2->pitch * useScale), y - yadj,
-                     glyph2->imageWidth, glyph2->imageHeight, useScale,
-                     glyph2->s, glyph2->t, glyph2->s2, glyph2->t2,
-                     glyph2->glyph);
+      Text_PaintChar(x + (glyph2->pitch * useScale), y - yadj, glyph2->imageWidth, glyph2->imageHeight, useScale,
+                     glyph2->s, glyph2->t, glyph2->s2, glyph2->t2, glyph2->glyph);
     }
 
     trap_R_SetColor(NULL);
   }
 }
 
-static void Text_Paint_Limit(float *maxX, float x, float y, float scale,
-                             vec4_t color, const char *text, float adjust,
+static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t color, const char *text, float adjust,
                              int limit) {
   int len, count;
   vec4_t newColor;
   glyphInfo_t *glyph;
   if (text) {
     const char *s = text;
-    float max = *maxX;
+    float max     = *maxX;
     float useScale;
     fontInfo_t *font = &uiInfo.uiDC.Assets.fonts[uiInfo.activeFont];
 
@@ -664,8 +622,7 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale,
         if (*(s + 1) == COLOR_NULL) {
           memcpy(&newColor[0], &color[0], sizeof(vec4_t));
         } else {
-          memcpy(newColor, g_color_table[ColorIndex(*(s + 1))],
-                 sizeof(newColor));
+          memcpy(newColor, g_color_table[ColorIndex(*(s + 1))], sizeof(newColor));
           newColor[3] = color[3];
         }
         trap_R_SetColor(newColor);
@@ -677,11 +634,10 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale,
           *maxX = 0;
           break;
         }
-        Text_PaintChar(x + (glyph->pitch * useScale), y - yadj,
-                       glyph->imageWidth, glyph->imageHeight, useScale,
+        Text_PaintChar(x + (glyph->pitch * useScale), y - yadj, glyph->imageWidth, glyph->imageHeight, useScale,
                        glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
-        x += (glyph->xSkip * useScale) + adjust;
-        *maxX = x;
+        x     += (glyph->xSkip * useScale) + adjust;
+        *maxX  = x;
         count++;
         s++;
       }
@@ -725,7 +681,7 @@ void _UI_Refresh(int realtime) {
   // }
 
   uiInfo.uiDC.frameTime = realtime - uiInfo.uiDC.realTime;
-  uiInfo.uiDC.realTime = realtime;
+  uiInfo.uiDC.realTime  = realtime;
 
   previousTimes[index % UI_FPS_FRAMES] = uiInfo.uiDC.frameTime;
   index++;
@@ -774,8 +730,7 @@ void _UI_Refresh(int realtime) {
     trap_GetClientState(&cstate);
 
     // only refresh quick connect servers when not connected to a server
-    if (etj_drawQuickConnectMenu.integer &&
-        cstate.connState <= CA_DISCONNECTED) {
+    if (etj_drawQuickConnectMenu.integer && cstate.connState <= CA_DISCONNECTED) {
       if (!ETJump::ui.quickConnect->initialRefreshDone) {
         ETJump::ui.quickConnect->initialRefreshDone = true;
         ETJump::ui.quickConnect->refreshServers(true);
@@ -819,14 +774,11 @@ char *GetMenuBuffer(const char *filename) {
 
   len = trap_FS_FOpenFile(filename, &f, FS_READ);
   if (!f) {
-    trap_Print(
-        va(S_COLOR_RED "menu file not found: %s, using default\n", filename));
+    trap_Print(va(S_COLOR_RED "menu file not found: %s, using default\n", filename));
     return defaultMenu;
   }
   if (len >= MAX_MENUFILE) {
-    trap_Print(va(S_COLOR_RED
-                  "menu file too large: %s is %i, max allowed is %i",
-                  filename, len, MAX_MENUFILE));
+    trap_Print(va(S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", filename, len, MAX_MENUFILE));
     trap_FS_FCloseFile(f);
     return defaultMenu;
   }
@@ -850,7 +802,6 @@ qboolean Asset_Parse(int handle) {
   }
 
   while (1) {
-
     memset(&token, 0, sizeof(pc_token_t));
 
     if (!trap_PC_ReadToken(handle, &token)) {
@@ -864,16 +815,14 @@ qboolean Asset_Parse(int handle) {
     // font
     if (Q_stricmp(token.string, "font") == 0) {
       int pointSize, fontIndex;
-      if (!PC_Int_Parse(handle, &fontIndex) ||
-          !PC_String_Parse(handle, &tempStr) ||
+      if (!PC_Int_Parse(handle, &fontIndex) || !PC_String_Parse(handle, &tempStr) ||
           !PC_Int_Parse(handle, &pointSize)) {
         return qfalse;
       }
       if (fontIndex < 0 || fontIndex >= 6) {
         return qfalse;
       }
-      trap_R_RegisterFont(tempStr, pointSize,
-                          &uiInfo.uiDC.Assets.fonts[fontIndex]);
+      trap_R_RegisterFont(tempStr, pointSize, &uiInfo.uiDC.Assets.fonts[fontIndex]);
       uiInfo.uiDC.Assets.fontRegistered = qtrue;
       continue;
     }
@@ -928,8 +877,7 @@ qboolean Asset_Parse(int handle) {
       if (!PC_String_Parse(handle, &uiInfo.uiDC.cursor.cursorStr)) {
         return qfalse;
       }
-      uiInfo.uiDC.cursor.defaultShader =
-          trap_R_RegisterShaderNoMip(uiInfo.uiDC.cursor.cursorStr);
+      uiInfo.uiDC.cursor.defaultShader = trap_R_RegisterShaderNoMip(uiInfo.uiDC.cursor.cursorStr);
       continue;
     }
 
@@ -979,7 +927,9 @@ qboolean Asset_Parse(int handle) {
   return qfalse;
 }
 
-void UI_Report() { String_Report(); }
+void UI_Report() {
+  String_Report();
+}
 
 qboolean UI_ParseMenu(const char *menuFile) {
   int handle;
@@ -1040,7 +990,6 @@ qboolean Load_Menu(int handle) {
   }
 
   while (1) {
-
     if (!trap_PC_ReadToken(handle, &token)) {
       return qfalse;
     }
@@ -1096,16 +1045,12 @@ void UI_LoadMenus(const char *menuFile, qboolean reset) {
   handle = trap_PC_LoadSource(menuFile);
 
   if (!handle) {
-    Com_Printf(va(S_COLOR_YELLOW
-                  "%s: menu file '%s' not found, using default\n",
-                  __func__, menuFile));
+    Com_Printf(va(S_COLOR_YELLOW "%s: menu file '%s' not found, using default\n", __func__, menuFile));
     handle = trap_PC_LoadSource(DEFAULT_MENU_FILE);
 
     if (!handle) {
-      Com_Error(ERR_DROP,
-                S_COLOR_RED
-                "%s: default menu file '%s' not found, unable to continue!\n",
-                __func__, DEFAULT_MENU_FILE);
+      Com_Error(ERR_DROP, S_COLOR_RED "%s: default menu file '%s' not found, unable to continue!\n", __func__,
+                DEFAULT_MENU_FILE);
     }
   }
 
@@ -1146,15 +1091,14 @@ void UI_LoadMenus(const char *menuFile, qboolean reset) {
     trap_Cmd_ExecuteText(EXEC_APPEND, "forceCustomvoteRefresh\n");
   }
 
-  Com_DPrintf("UI menu load time = %d milli seconds\n",
-              trap_Milliseconds() - start);
+  Com_DPrintf("UI menu load time = %d milli seconds\n", trap_Milliseconds() - start);
 
   trap_PC_FreeSource(handle);
 }
 
 void UI_Load() {
   char lastName[1024]{};
-  menuDef_t *menu = Menu_GetFocused();
+  menuDef_t *menu     = Menu_GetFocused();
   const char *menuSet = UI_Cvar_VariableString("ui_menuFiles");
   if (menu && menu->window.name) {
     Q_strncpyz(lastName, menu->window.name, sizeof(lastName));
@@ -1176,13 +1120,9 @@ void UI_Load() {
 }
 
 // ui_gameType assumes gametype 0 is -1 ALL and will not show
-static void UI_DrawGameType(rectDef_t *rect, float scale, vec4_t color,
-                            int textStyle) {
-  Text_Paint(
-      rect->x, rect->y, scale, color,
-      uiInfo.gameTypes[std::clamp(ui_gameType.integer, 0, MAX_GAMETYPES - 1)]
-          .gameType,
-      0, 0, textStyle);
+static void UI_DrawGameType(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
+  Text_Paint(rect->x, rect->y, scale, color,
+             uiInfo.gameTypes[std::clamp(ui_gameType.integer, 0, MAX_GAMETYPES - 1)].gameType, 0, 0, textStyle);
 }
 
 static int UI_TeamIndexFromName(const char *name) {
@@ -1199,21 +1139,16 @@ static int UI_TeamIndexFromName(const char *name) {
   return 0;
 }
 
-static void UI_DrawTeamName(rectDef_t *rect, float scale, vec4_t color,
-                            qboolean blue, int textStyle) {
+static void UI_DrawTeamName(rectDef_t *rect, float scale, vec4_t color, qboolean blue, int textStyle) {
   int i;
-  i = UI_TeamIndexFromName(
-      UI_Cvar_VariableString((blue) ? "ui_blueTeam" : "ui_redTeam"));
+  i = UI_TeamIndexFromName(UI_Cvar_VariableString((blue) ? "ui_blueTeam" : "ui_redTeam"));
   if (i >= 0 && i < uiInfo.teamCount) {
-    Text_Paint(
-        rect->x, rect->y, scale, color,
-        va("%s: %s", (blue) ? "Blue" : "Red", uiInfo.teamList[i].teamName), 0,
-        0, textStyle);
+    Text_Paint(rect->x, rect->y, scale, color, va("%s: %s", (blue) ? "Blue" : "Red", uiInfo.teamList[i].teamName), 0, 0,
+               textStyle);
   }
 }
 
-static void UI_DrawTeamMember(rectDef_t *rect, float scale, vec4_t color,
-                              qboolean blue, int num, int textStyle) {}
+static void UI_DrawTeamMember(rectDef_t *rect, float scale, vec4_t color, qboolean blue, int num, int textStyle) {}
 
 static void UI_DrawEffects(rectDef_t *rect, float scale, vec4_t color) {
   UI_DrawHandlePic(rect->x, rect->y, 128, 8, uiInfo.uiDC.Assets.fxBasePic);
@@ -1221,8 +1156,7 @@ static void UI_DrawEffects(rectDef_t *rect, float scale, vec4_t color) {
                    uiInfo.uiDC.Assets.fxPic[uiInfo.effectsColor]);
 }
 
-void UI_DrawMapPreview(rectDef_t *rect, float scale, vec4_t color,
-                       qboolean net) {
+void UI_DrawMapPreview(rectDef_t *rect, float scale, vec4_t color, qboolean net) {
   int map = (net) ? ui_currentNetMap.integer : ui_currentMap.integer;
 
   if (map < 0 || map > uiInfo.mapCount) {
@@ -1266,8 +1200,8 @@ void UI_DrawMapPreview(rectDef_t *rect, float scale, vec4_t color,
     w = rect->w;
     h = rect->h;
     UI_AdjustFrom640(&x, &y, &w, &h);
-    trap_R_DrawStretchPic(x, y, w, h, tl[0] / 1024.f, tl[1] / 1024.f,
-                          br[0] / 1024.f, br[1] / 1024.f, uiInfo.campaignMap);
+    trap_R_DrawStretchPic(x, y, w, h, tl[0] / 1024.f, tl[1] / 1024.f, br[0] / 1024.f, br[1] / 1024.f,
+                          uiInfo.campaignMap);
 
     x = rect->x + ((uiInfo.mapList[map].mappos[0] - tl[0]) / 650.f * rect->w);
     y = rect->y + ((uiInfo.mapList[map].mappos[1] - tl[1]) / 650.f * rect->h);
@@ -1282,19 +1216,15 @@ void UI_DrawMapPreview(rectDef_t *rect, float scale, vec4_t color,
       UI_FillRect(x, y - 6, 12 + w, 12, colorBlack);
     }
 
-    UI_DrawHandlePic(x - 8, y - 8, 16, 16,
-                     trap_R_RegisterShaderNoMip("gfx/loading/pin_neutral"));
+    UI_DrawHandlePic(x - 8, y - 8, 16, 16, trap_R_RegisterShaderNoMip("gfx/loading/pin_neutral"));
 
     if (x + 10 + w > rect->x + rect->w) {
-      Text_Paint(x - w - 10, y + 3, scale, colorWhite,
-                 uiInfo.mapList[map].mapName, 0, 0, 0);
+      Text_Paint(x - w - 10, y + 3, scale, colorWhite, uiInfo.mapList[map].mapName, 0, 0, 0);
     } else {
-      Text_Paint(x + 10, y + 3, scale, colorWhite, uiInfo.mapList[map].mapName,
-                 0, 0, 0);
+      Text_Paint(x + 10, y + 3, scale, colorWhite, uiInfo.mapList[map].mapName, 0, 0, 0);
     }
   } else {
-    UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h,
-                     trap_R_RegisterShaderNoMip("levelshots/unknownmap"));
+    UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, trap_R_RegisterShaderNoMip("levelshots/unknownmap"));
   }
 
   /*if (uiInfo.mapList[map].levelShot == -1) {
@@ -1310,20 +1240,15 @@ void UI_DrawMapPreview(rectDef_t *rect, float scale, vec4_t color,
   }*/
 }
 
-void UI_DrawNetMapPreview(rectDef_t *rect, float scale, vec4_t color,
-                          qboolean net) {
+void UI_DrawNetMapPreview(rectDef_t *rect, float scale, vec4_t color, qboolean net) {
   if (uiInfo.serverStatus.currentServerPreview > 0) {
-    UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h,
-                     uiInfo.serverStatus.currentServerPreview);
+    UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, uiInfo.serverStatus.currentServerPreview);
   } else {
-    UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h,
-                     trap_R_RegisterShaderNoMip("levelshots/unknownmap"));
+    UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, trap_R_RegisterShaderNoMip("levelshots/unknownmap"));
   }
 }
 
-static void UI_DrawMapCinematic(rectDef_t *rect, float scale, vec4_t color,
-                                qboolean net) {
-
+static void UI_DrawMapCinematic(rectDef_t *rect, float scale, vec4_t color, qboolean net) {
   int map = (net) ? ui_currentNetMap.integer : ui_currentMap.integer;
 
   if (map < 0 || map > uiInfo.mapCount) {
@@ -1340,13 +1265,11 @@ static void UI_DrawMapCinematic(rectDef_t *rect, float scale, vec4_t color,
   if (uiInfo.mapList[map].cinematic >= -1) {
     if (uiInfo.mapList[map].cinematic == -1) {
       uiInfo.mapList[map].cinematic =
-          trap_CIN_PlayCinematic(va("%s.roq", uiInfo.mapList[map].mapLoadName),
-                                 0, 0, 0, 0, (CIN_loop | CIN_silent));
+        trap_CIN_PlayCinematic(va("%s.roq", uiInfo.mapList[map].mapLoadName), 0, 0, 0, 0, (CIN_loop | CIN_silent));
     }
     if (uiInfo.mapList[map].cinematic >= 0) {
       trap_CIN_RunCinematic(uiInfo.mapList[map].cinematic);
-      trap_CIN_SetExtents(uiInfo.mapList[map].cinematic, rect->x, rect->y,
-                          rect->w, rect->h);
+      trap_CIN_SetExtents(uiInfo.mapList[map].cinematic, rect->x, rect->y, rect->w, rect->h);
       trap_CIN_DrawCinematic(uiInfo.mapList[map].cinematic);
     } else {
       uiInfo.mapList[map].cinematic = -2;
@@ -1356,8 +1279,7 @@ static void UI_DrawMapCinematic(rectDef_t *rect, float scale, vec4_t color,
   }
 }
 
-void UI_DrawGametypeDescription(rectDef_t *rect, float scale, vec4_t color,
-                                float text_x, float text_y, int textStyle,
+void UI_DrawGametypeDescription(rectDef_t *rect, float scale, vec4_t color, float text_x, float text_y, int textStyle,
                                 int align, qboolean net) {
   const char *p, *textPtr = nullptr, *newLinePtr = nullptr;
   char buff[1024];
@@ -1386,26 +1308,25 @@ void UI_DrawGametypeDescription(rectDef_t *rect, float scale, vec4_t color,
   textRect.h = rect->h;
 
   // y = text_y;
-  y = 0;
-  len = 0;
-  buff[0] = '\0';
-  newLine = 0;
+  y            = 0;
+  len          = 0;
+  buff[0]      = '\0';
+  newLine      = 0;
   newLineWidth = 0;
-  p = textPtr;
+  p            = textPtr;
 
   while (p) {
     textWidth = DC->textWidth(buff, scale, 0);
     if (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\0') {
-      newLine = len;
-      newLinePtr = p + 1;
+      newLine      = len;
+      newLinePtr   = p + 1;
       newLineWidth = textWidth;
     } else if (*p == '*' && *(p + 1) == '*') {
-      newLine = len;
-      newLinePtr = p + 2;
+      newLine      = len;
+      newLinePtr   = p + 2;
       newLineWidth = textWidth;
     }
-    if ((newLine && textWidth > rect->w) || *p == '\n' || *p == '\0' ||
-        (*p == '*' && *(p + 1) == '*')) {
+    if ((newLine && textWidth > rect->w) || *p == '\n' || *p == '\0' || (*p == '*' && *(p + 1) == '*')) {
       if (len) {
         if (align == ITEM_ALIGN_LEFT) {
           textRect.x = text_x;
@@ -1420,18 +1341,17 @@ void UI_DrawGametypeDescription(rectDef_t *rect, float scale, vec4_t color,
         textRect.y += rect->y;
         //
         buff[newLine] = '\0';
-        DC->drawText(textRect.x, textRect.y, scale, color, buff, 0, 0,
-                     textStyle);
+        DC->drawText(textRect.x, textRect.y, scale, color, buff, 0, 0, textStyle);
       }
       if (*p == '\0') {
         break;
       }
       //
-      y += height + AUTOWRAP_OFFSET;
-      p = newLinePtr;
-      len = 0;
-      newLine = 0;
-      newLineWidth = 0;
+      y            += height + AUTOWRAP_OFFSET;
+      p             = newLinePtr;
+      len           = 0;
+      newLine       = 0;
+      newLineWidth  = 0;
       continue;
     }
     buff[len++] = *p++;
@@ -1444,9 +1364,8 @@ void UI_DrawGametypeDescription(rectDef_t *rect, float scale, vec4_t color,
   }
 }
 
-void UI_DrawMapDescription(rectDef_t *rect, float scale, const vec4_t color,
-                           float text_x, int textStyle, int align) {
-  fontInfo_t *font = &uiInfo.uiDC.Assets.fonts[uiInfo.activeFont];
+void UI_DrawMapDescription(rectDef_t *rect, float scale, const vec4_t color, float text_x, int textStyle, int align) {
+  fontInfo_t *font   = &uiInfo.uiDC.Assets.fonts[uiInfo.activeFont];
   rectDef_t textRect = {0, 0, rect->w, rect->h};
 
   const int map = ui_currentNetMap.integer;
@@ -1481,25 +1400,23 @@ void UI_DrawMapDescription(rectDef_t *rect, float scale, const vec4_t color,
 
   static textScroll_t ts;
 
-  if (ts.scrollStartTime == 0 ||
-      (!ts.scrolling && DC->realTime > ts.scrollEndTime) ||
+  if (ts.scrollStartTime == 0 || (!ts.scrolling && DC->realTime > ts.scrollEndTime) ||
       ts.scrollItem != ui_currentNetMap.integer) {
     ts.scrollStartTime = DC->realTime + 2000;
-    ts.scrolling = true;
-    ts.y = 0;
-    ts.scrollItem = ui_currentNetMap.integer;
+    ts.scrolling       = true;
+    ts.y               = 0;
+    ts.scrollItem      = ui_currentNetMap.integer;
   }
 
   static constexpr int lineHeight = 10;
-  const float totalHeight = static_cast<float>(lines.size()) * lineHeight;
-  float y = 0.0f + ts.y;
+  const float totalHeight         = static_cast<float>(lines.size()) * lineHeight;
+  float y                         = 0.0f + ts.y;
 
   ts.scrollDeltaTime = static_cast<float>(DC->frameTime) * 0.001f;
 
-  if (totalHeight > rect->h && ts.scrolling &&
-      DC->realTime > ts.scrollStartTime) {
-    static constexpr float scrollSpeed = 15.0f; // pixels per second
-    ts.y -= scrollSpeed * ts.scrollDeltaTime;
+  if (totalHeight > rect->h && ts.scrolling && DC->realTime > ts.scrollStartTime) {
+    static constexpr float scrollSpeed  = 15.0f; // pixels per second
+    ts.y                               -= scrollSpeed * ts.scrollDeltaTime;
   }
 
   vec4_t textColor;
@@ -1521,7 +1438,7 @@ void UI_DrawMapDescription(rectDef_t *rect, float scale, const vec4_t color,
         break;
     }
 
-    textRect.y = y;
+    textRect.y  = y;
     textRect.x += rect->x;
     textRect.y += rect->y;
 
@@ -1532,11 +1449,11 @@ void UI_DrawMapDescription(rectDef_t *rect, float scale, const vec4_t color,
       if (textRect.y < rect->y) {
         // text is above the rect
         float oobDist = rect->y - textRect.y;
-        fadeFactor = 1.0f - (oobDist / (lineHeight * 0.5f));
+        fadeFactor    = 1.0f - (oobDist / (lineHeight * 0.5f));
       } else if (textRect.y + lineHeight > rect->y + rect->h) {
         // text is below the rect
         float oobDist = (textRect.y + lineHeight) - (rect->y + rect->h);
-        fadeFactor = 1.0f - (oobDist / (lineHeight * 0.5f));
+        fadeFactor    = 1.0f - (oobDist / (lineHeight * 0.5f));
       }
 
       Vector4Copy(color, textColor);
@@ -1545,14 +1462,13 @@ void UI_DrawMapDescription(rectDef_t *rect, float scale, const vec4_t color,
       Vector4Copy(color, textColor);
     }
 
-    Text_Paint(textRect.x, textRect.y, scale, textColor, line.c_str(), 0, 0,
-               textStyle);
+    Text_Paint(textRect.x, textRect.y, scale, textColor, line.c_str(), 0, 0, textStyle);
     y += lineHeight;
   }
 
   if (ts.scrolling && ts.y + totalHeight < textRect.h) {
     ts.scrollEndTime = DC->realTime + 2000;
-    ts.scrolling = false;
+    ts.scrolling     = false;
   }
 }
 
@@ -1568,13 +1484,11 @@ static void UI_DrawMissionBriefingMap(rectDef_t *rect) {
   if (image) {
     UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, image);
   } else {
-    UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h,
-                     trap_R_RegisterShaderNoMip("levelshots/unknownmap"));
+    UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, trap_R_RegisterShaderNoMip("levelshots/unknownmap"));
   }
 }
 
-static void UI_DrawMissionBriefingTitle(rectDef_t *rect, float scale,
-                                        vec4_t color, int textStyle) {
+static void UI_DrawMissionBriefingTitle(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
   char buffer[64];
   mapInfo *mi;
 
@@ -1585,14 +1499,11 @@ static void UI_DrawMissionBriefingTitle(rectDef_t *rect, float scale,
     return;
   }
 
-  Text_Paint(rect->x, rect->y, scale, color, va("%s Objectives", mi->mapName),
-             0, 0, textStyle);
+  Text_Paint(rect->x, rect->y, scale, color, va("%s Objectives", mi->mapName), 0, 0, textStyle);
 }
 
-static void UI_DrawMissionBriefingObjectives(rectDef_t *rect, float scale,
-                                             vec4_t color, float text_x,
-                                             float text_y, int textStyle,
-                                             int align) {
+static void UI_DrawMissionBriefingObjectives(rectDef_t *rect, float scale, vec4_t color, float text_x, float text_y,
+                                             int textStyle, int align) {
   const char *p, *textPtr, *newLinePtr;
   char buff[1024];
   int height, len, textWidth, newLine, newLineWidth;
@@ -1618,18 +1529,18 @@ static void UI_DrawMissionBriefingObjectives(rectDef_t *rect, float scale,
   textRect.w = rect->w;
   textRect.h = rect->h;
 
-  textWidth = 0;
-  newLinePtr = NULL;
-  y = text_y;
-  len = 0;
-  buff[0] = '\0';
-  newLine = 0;
+  textWidth    = 0;
+  newLinePtr   = NULL;
+  y            = text_y;
+  len          = 0;
+  buff[0]      = '\0';
+  newLine      = 0;
   newLineWidth = 0;
-  p = textPtr;
+  p            = textPtr;
   while (p) {
     if (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\0') {
-      newLine = len;
-      newLinePtr = p + 1;
+      newLine      = len;
+      newLinePtr   = p + 1;
       newLineWidth = textWidth;
     }
     textWidth = Text_Width(buff, scale, 0);
@@ -1655,11 +1566,11 @@ static void UI_DrawMissionBriefingObjectives(rectDef_t *rect, float scale,
         break;
       }
       //
-      y += height + AUTOWRAP_OFFSET;
-      p = newLinePtr;
-      len = 0;
-      newLine = 0;
-      newLineWidth = 0;
+      y            += height + AUTOWRAP_OFFSET;
+      p             = newLinePtr;
+      len           = 0;
+      newLine       = 0;
+      newLineWidth  = 0;
       continue;
     }
     buff[len++] = *p++;
@@ -1672,14 +1583,12 @@ static void UI_DrawMissionBriefingObjectives(rectDef_t *rect, float scale,
   }
 }
 
-static void UI_DrawNetFilter(rectDef_t *rect, float scale, vec4_t color,
-                             int textStyle) {
+static void UI_DrawNetFilter(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
   if (ui_serverFilterType < 0 || ui_serverFilterType >= numServerFilters) {
     ui_serverFilterType = 0;
   }
-  Text_Paint(rect->x, rect->y, scale, color,
-             va("Filter: %s", serverFilters[ui_serverFilterType].description),
-             0, 0, textStyle);
+  Text_Paint(rect->x, rect->y, scale, color, va("Filter: %s", serverFilters[ui_serverFilterType].description), 0, 0,
+             textStyle);
 }
 
 static void UI_NextOpponent() {
@@ -1718,112 +1627,85 @@ static void UI_DrawPlayerLogo(rectDef_t *rect, vec3_t color) {
   int i = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_teamName"));
 
   if (uiInfo.teamList[i].teamIcon == -1) {
-    uiInfo.teamList[i].teamIcon =
-        trap_R_RegisterShaderNoMip(uiInfo.teamList[i].imageName);
-    uiInfo.teamList[i].teamIcon_Metal = trap_R_RegisterShaderNoMip(
-        va("%s_metal", uiInfo.teamList[i].imageName));
-    uiInfo.teamList[i].teamIcon_Name =
-        trap_R_RegisterShaderNoMip(va("%s_name", uiInfo.teamList[i].imageName));
+    uiInfo.teamList[i].teamIcon       = trap_R_RegisterShaderNoMip(uiInfo.teamList[i].imageName);
+    uiInfo.teamList[i].teamIcon_Metal = trap_R_RegisterShaderNoMip(va("%s_metal", uiInfo.teamList[i].imageName));
+    uiInfo.teamList[i].teamIcon_Name  = trap_R_RegisterShaderNoMip(va("%s_name", uiInfo.teamList[i].imageName));
   }
 
   trap_R_SetColor(color);
-  UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h,
-                   uiInfo.teamList[i].teamIcon);
+  UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon);
   trap_R_SetColor(NULL);
 }
 
 static void UI_DrawPlayerLogoMetal(rectDef_t *rect, vec3_t color) {
   int i = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_teamName"));
   if (uiInfo.teamList[i].teamIcon == -1) {
-    uiInfo.teamList[i].teamIcon =
-        trap_R_RegisterShaderNoMip(uiInfo.teamList[i].imageName);
-    uiInfo.teamList[i].teamIcon_Metal = trap_R_RegisterShaderNoMip(
-        va("%s_metal", uiInfo.teamList[i].imageName));
-    uiInfo.teamList[i].teamIcon_Name =
-        trap_R_RegisterShaderNoMip(va("%s_name", uiInfo.teamList[i].imageName));
+    uiInfo.teamList[i].teamIcon       = trap_R_RegisterShaderNoMip(uiInfo.teamList[i].imageName);
+    uiInfo.teamList[i].teamIcon_Metal = trap_R_RegisterShaderNoMip(va("%s_metal", uiInfo.teamList[i].imageName));
+    uiInfo.teamList[i].teamIcon_Name  = trap_R_RegisterShaderNoMip(va("%s_name", uiInfo.teamList[i].imageName));
   }
 
   trap_R_SetColor(color);
-  UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h,
-                   uiInfo.teamList[i].teamIcon_Metal);
+  UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon_Metal);
   trap_R_SetColor(NULL);
 }
 
 static void UI_DrawPlayerLogoName(rectDef_t *rect, vec3_t color) {
   int i = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_teamName"));
   if (uiInfo.teamList[i].teamIcon == -1) {
-    uiInfo.teamList[i].teamIcon =
-        trap_R_RegisterShaderNoMip(uiInfo.teamList[i].imageName);
-    uiInfo.teamList[i].teamIcon_Metal = trap_R_RegisterShaderNoMip(
-        va("%s_metal", uiInfo.teamList[i].imageName));
-    uiInfo.teamList[i].teamIcon_Name =
-        trap_R_RegisterShaderNoMip(va("%s_name", uiInfo.teamList[i].imageName));
+    uiInfo.teamList[i].teamIcon       = trap_R_RegisterShaderNoMip(uiInfo.teamList[i].imageName);
+    uiInfo.teamList[i].teamIcon_Metal = trap_R_RegisterShaderNoMip(va("%s_metal", uiInfo.teamList[i].imageName));
+    uiInfo.teamList[i].teamIcon_Name  = trap_R_RegisterShaderNoMip(va("%s_name", uiInfo.teamList[i].imageName));
   }
 
   trap_R_SetColor(color);
-  UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h,
-                   uiInfo.teamList[i].teamIcon_Name);
+  UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon_Name);
   trap_R_SetColor(NULL);
 }
 
 static void UI_DrawOpponentLogo(rectDef_t *rect, vec3_t color) {
   int i = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_opponentName"));
   if (uiInfo.teamList[i].teamIcon == -1) {
-    uiInfo.teamList[i].teamIcon =
-        trap_R_RegisterShaderNoMip(uiInfo.teamList[i].imageName);
-    uiInfo.teamList[i].teamIcon_Metal = trap_R_RegisterShaderNoMip(
-        va("%s_metal", uiInfo.teamList[i].imageName));
-    uiInfo.teamList[i].teamIcon_Name =
-        trap_R_RegisterShaderNoMip(va("%s_name", uiInfo.teamList[i].imageName));
+    uiInfo.teamList[i].teamIcon       = trap_R_RegisterShaderNoMip(uiInfo.teamList[i].imageName);
+    uiInfo.teamList[i].teamIcon_Metal = trap_R_RegisterShaderNoMip(va("%s_metal", uiInfo.teamList[i].imageName));
+    uiInfo.teamList[i].teamIcon_Name  = trap_R_RegisterShaderNoMip(va("%s_name", uiInfo.teamList[i].imageName));
   }
 
   trap_R_SetColor(color);
-  UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h,
-                   uiInfo.teamList[i].teamIcon);
+  UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon);
   trap_R_SetColor(NULL);
 }
 
 static void UI_DrawOpponentLogoMetal(rectDef_t *rect, vec3_t color) {
   int i = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_opponentName"));
   if (uiInfo.teamList[i].teamIcon == -1) {
-    uiInfo.teamList[i].teamIcon =
-        trap_R_RegisterShaderNoMip(uiInfo.teamList[i].imageName);
-    uiInfo.teamList[i].teamIcon_Metal = trap_R_RegisterShaderNoMip(
-        va("%s_metal", uiInfo.teamList[i].imageName));
-    uiInfo.teamList[i].teamIcon_Name =
-        trap_R_RegisterShaderNoMip(va("%s_name", uiInfo.teamList[i].imageName));
+    uiInfo.teamList[i].teamIcon       = trap_R_RegisterShaderNoMip(uiInfo.teamList[i].imageName);
+    uiInfo.teamList[i].teamIcon_Metal = trap_R_RegisterShaderNoMip(va("%s_metal", uiInfo.teamList[i].imageName));
+    uiInfo.teamList[i].teamIcon_Name  = trap_R_RegisterShaderNoMip(va("%s_name", uiInfo.teamList[i].imageName));
   }
 
   trap_R_SetColor(color);
-  UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h,
-                   uiInfo.teamList[i].teamIcon_Metal);
+  UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon_Metal);
   trap_R_SetColor(NULL);
 }
 
 static void UI_DrawOpponentLogoName(rectDef_t *rect, vec3_t color) {
   int i = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_opponentName"));
   if (uiInfo.teamList[i].teamIcon == -1) {
-    uiInfo.teamList[i].teamIcon =
-        trap_R_RegisterShaderNoMip(uiInfo.teamList[i].imageName);
-    uiInfo.teamList[i].teamIcon_Metal = trap_R_RegisterShaderNoMip(
-        va("%s_metal", uiInfo.teamList[i].imageName));
-    uiInfo.teamList[i].teamIcon_Name =
-        trap_R_RegisterShaderNoMip(va("%s_name", uiInfo.teamList[i].imageName));
+    uiInfo.teamList[i].teamIcon       = trap_R_RegisterShaderNoMip(uiInfo.teamList[i].imageName);
+    uiInfo.teamList[i].teamIcon_Metal = trap_R_RegisterShaderNoMip(va("%s_metal", uiInfo.teamList[i].imageName));
+    uiInfo.teamList[i].teamIcon_Name  = trap_R_RegisterShaderNoMip(va("%s_name", uiInfo.teamList[i].imageName));
   }
 
   trap_R_SetColor(color);
-  UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h,
-                   uiInfo.teamList[i].teamIcon_Name);
+  UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon_Name);
   trap_R_SetColor(NULL);
 }
 
-static void UI_DrawAllMapsSelection(rectDef_t *rect, float scale, vec4_t color,
-                                    int textStyle, qboolean net) {}
+static void UI_DrawAllMapsSelection(rectDef_t *rect, float scale, vec4_t color, int textStyle, qboolean net) {}
 
-static void UI_DrawOpponentName(rectDef_t *rect, float scale, vec4_t color,
-                                int textStyle) {
-  Text_Paint(rect->x, rect->y, scale, color,
-             UI_Cvar_VariableString("ui_opponentName"), 0, 0, textStyle);
+static void UI_DrawOpponentName(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
+  Text_Paint(rect->x, rect->y, scale, color, UI_Cvar_VariableString("ui_opponentName"), 0, 0, textStyle);
 }
 
 static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
@@ -1831,9 +1713,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 
   switch (ownerDraw) {
     case UI_GAMETYPE:
-      s = uiInfo
-              .gameTypes[std::clamp(ui_gameType.integer, 0, MAX_GAMETYPES - 1)]
-              .gameType;
+      s = uiInfo.gameTypes[std::clamp(ui_gameType.integer, 0, MAX_GAMETYPES - 1)].gameType;
       break;
     case UI_NETFILTER:
       if (ui_serverFilterType < 0 || ui_serverFilterType >= numServerFilters) {
@@ -1849,8 +1729,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
       }
       break;
     case UI_SERVERREFRESHDATE:
-      s = UI_Cvar_VariableString(
-          va("ui_lastServerRefresh_%i", ui_netSource.integer));
+      s = UI_Cvar_VariableString(va("ui_lastServerRefresh_%i", ui_netSource.integer));
       break;
     default:
       break;
@@ -1862,8 +1741,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
   return 0;
 }
 
-static void UI_DrawBotName(rectDef_t *rect, float scale, vec4_t color,
-                           int textStyle) {}
+static void UI_DrawBotName(rectDef_t *rect, float scale, vec4_t color, int textStyle) {}
 
 /*static void UI_DrawBotSkill(rectDef_t *rect, float scale, vec4_t color, int
 textStyle) { if (uiInfo.skillIndex >= 0 && uiInfo.skillIndex < numSkillLevels) {
@@ -1872,35 +1750,29 @@ textStyle) { if (uiInfo.skillIndex >= 0 && uiInfo.skillIndex < numSkillLevels) {
     }
 }*/
 
-static void UI_DrawRedBlue(rectDef_t *rect, float scale, vec4_t color,
-                           int textStyle) {
-  Text_Paint(rect->x, rect->y, scale, color,
-             (uiInfo.redBlue == 0) ? "Red" : "Blue", 0, 0, textStyle);
+static void UI_DrawRedBlue(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
+  Text_Paint(rect->x, rect->y, scale, color, (uiInfo.redBlue == 0) ? "Red" : "Blue", 0, 0, textStyle);
 }
 
 static void UI_DrawCrosshair(const rectDef_t *rect) {
   // Make sure currentCrosshair is updated if crosshair is changed via console
   uiInfo.currentCrosshair = ui_drawCrosshair.integer;
 
-  if (uiInfo.currentCrosshair < 0 ||
-      uiInfo.currentCrosshair >= NUM_CROSSHAIRS) {
+  if (uiInfo.currentCrosshair < 0 || uiInfo.currentCrosshair >= NUM_CROSSHAIRS) {
     uiInfo.currentCrosshair = 0;
   }
 
   if (uiInfo.currentCrosshair < 10) {
-    vec4_t crosshairColor = {1.0, 1.0, 1.0, 1.0};
+    vec4_t crosshairColor    = {1.0, 1.0, 1.0, 1.0};
     vec4_t crosshairColorAlt = {1.0, 1.0, 1.0, 1.0};
 
-    ETJump::ui.colorParser->parseColorString(cg_crosshairColor.string,
-                                             crosshairColor);
+    ETJump::ui.colorParser->parseColorString(cg_crosshairColor.string, crosshairColor);
     crosshairColor[3] = std::clamp(cg_crosshairAlpha.value, 0.0f, 1.0f);
 
-    ETJump::ui.colorParser->parseColorString(cg_crosshairColorAlt.string,
-                                             crosshairColorAlt);
+    ETJump::ui.colorParser->parseColorString(cg_crosshairColorAlt.string, crosshairColorAlt);
     crosshairColorAlt[3] = std::clamp(cg_crosshairAlphaAlt.value, 0.0f, 1.0f);
 
-    auto size = ETJump::CvarValueParser::parse<ETJump::CvarValue::Size>(
-        cg_crosshairSize, -256, 256);
+    auto size = ETJump::CvarValueParser::parse<ETJump::CvarValue::Size>(cg_crosshairSize, -256, 256);
 
     if (size.x == 0 && size.y == 0) {
       return;
@@ -1920,26 +1792,18 @@ static void UI_DrawCrosshair(const rectDef_t *rect) {
     }
 
     trap_R_SetColor(crosshairColor);
-    UI_DrawHandlePic(
-        rect->x + (rect->w - size.x) / 2, rect->y + (rect->h - size.y) / 2,
-        size.x, size.y,
-        uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]);
+    UI_DrawHandlePic(rect->x + (rect->w - size.x) / 2, rect->y + (rect->h - size.y) / 2, size.x, size.y,
+                     uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]);
 
     trap_R_SetColor(crosshairColorAlt);
-    UI_DrawHandlePic(
-        rect->x + (rect->w - size.x) / 2, rect->y + (rect->h - size.y) / 2,
-        size.x, size.y,
-        uiInfo.uiDC.Assets.crosshairAltShader[uiInfo.currentCrosshair]);
+    UI_DrawHandlePic(rect->x + (rect->w - size.x) / 2, rect->y + (rect->h - size.y) / 2, size.x, size.y,
+                     uiInfo.uiDC.Assets.crosshairAltShader[uiInfo.currentCrosshair]);
   } else {
-    const auto text = va("Crosshair %d", uiInfo.currentCrosshair);
-    const auto width = static_cast<float>(
-        Text_Width_Ext(text, 0.12f, 0, &uiInfo.loadscreenfont1));
-    const auto height = static_cast<float>(
-        Text_Height_Ext(text, 0.12f, 0, &uiInfo.loadscreenfont1));
-    Text_Paint_Ext(rect->x + (rect->w - width) * 0.5f,
-                   rect->y + (rect->h + height) * 0.5f, 0.12f, 0.12f,
-                   colorWhite, text, 0, 0, ITEM_TEXTSTYLE_SHADOWED,
-                   &uiInfo.loadscreenfont1);
+    const auto text   = va("Crosshair %d", uiInfo.currentCrosshair);
+    const auto width  = static_cast<float>(Text_Width_Ext(text, 0.12f, 0, &uiInfo.loadscreenfont1));
+    const auto height = static_cast<float>(Text_Height_Ext(text, 0.12f, 0, &uiInfo.loadscreenfont1));
+    Text_Paint_Ext(rect->x + (rect->w - width) * 0.5f, rect->y + (rect->h + height) * 0.5f, 0.12f, 0.12f, colorWhite,
+                   text, 0, 0, ITEM_TEXTSTYLE_SHADOWED, &uiInfo.loadscreenfont1);
   }
 
   trap_R_SetColor(nullptr);
@@ -1959,13 +1823,13 @@ static void UI_BuildPlayerList() {
   trap_GetClientState(&cs);
   trap_GetConfigString(CS_PLAYERS + cs.clientNum, info, MAX_INFO_STRING);
   uiInfo.playerNumber = cs.clientNum;
-  uiInfo.teamLeader = Q_atoi(Info_ValueForKey(info, "tl")) ? qtrue : qfalse;
-  team = Q_atoi(Info_ValueForKey(info, "t"));
+  uiInfo.teamLeader   = Q_atoi(Info_ValueForKey(info, "tl")) ? qtrue : qfalse;
+  team                = Q_atoi(Info_ValueForKey(info, "t"));
   trap_GetConfigString(CS_SERVERINFO, info, sizeof(info));
-  count = Q_atoi(Info_ValueForKey(info, "sv_maxclients"));
+  count              = Q_atoi(Info_ValueForKey(info, "sv_maxclients"));
   uiInfo.playerCount = 0;
   uiInfo.myTeamCount = 0;
-  playerTeamNumber = 0;
+  playerTeamNumber   = 0;
   for (n = 0; n < count; n++) {
     trap_GetConfigString(CS_PLAYERS + n, info, MAX_INFO_STRING);
 
@@ -1974,8 +1838,7 @@ static void UI_BuildPlayerList() {
       // fretn - dont expand colors twice, so: foo^^xbar
       // -> foo^bar -> fooar
       //			Q_CleanStr( namebuf );
-      Q_strncpyz(uiInfo.playerNames[uiInfo.playerCount], namebuf,
-                 sizeof(uiInfo.playerNames[0]));
+      Q_strncpyz(uiInfo.playerNames[uiInfo.playerCount], namebuf, sizeof(uiInfo.playerNames[0]));
       muted = Q_atoi(Info_ValueForKey(info, "mu"));
       if (muted) {
         uiInfo.playerMuted[uiInfo.playerCount] = qtrue;
@@ -1990,8 +1853,7 @@ static void UI_BuildPlayerList() {
         // foo^^xbar -> foo^bar -> fooar
         //				Q_CleanStr(
         // namebuf );
-        Q_strncpyz(uiInfo.teamNames[uiInfo.myTeamCount], namebuf,
-                   sizeof(uiInfo.teamNames[0]));
+        Q_strncpyz(uiInfo.teamNames[uiInfo.myTeamCount], namebuf, sizeof(uiInfo.teamNames[0]));
         uiInfo.teamClientNums[uiInfo.myTeamCount] = n;
         if (uiInfo.playerNumber == n) {
           playerTeamNumber = uiInfo.myTeamCount;
@@ -2014,21 +1876,17 @@ static void UI_BuildPlayerList() {
   }
 }
 
-static void UI_DrawSelectedPlayer(rectDef_t *rect, float scale, vec4_t color,
-                                  int textStyle) {
+static void UI_DrawSelectedPlayer(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
   if (uiInfo.uiDC.realTime > uiInfo.playerRefresh) {
     uiInfo.playerRefresh = uiInfo.uiDC.realTime + 3000;
     UI_BuildPlayerList();
   }
   Text_Paint(rect->x, rect->y, scale, color,
-             (uiInfo.teamLeader)
-                 ? UI_Cvar_VariableString("cg_selectedPlayerName")
-                 : UI_Cvar_VariableString("name"),
-             0, 0, textStyle);
+             (uiInfo.teamLeader) ? UI_Cvar_VariableString("cg_selectedPlayerName") : UI_Cvar_VariableString("name"), 0,
+             0, textStyle);
 }
 
-static void UI_DrawServerRefreshDate(rectDef_t *rect, float scale, vec4_t color,
-                                     int textStyle) {
+static void UI_DrawServerRefreshDate(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
   int serverCount; // NERVE - SMF
   if (uiInfo.serverStatus.refreshActive) {
     vec4_t lowLight, newColor;
@@ -2036,26 +1894,19 @@ static void UI_DrawServerRefreshDate(rectDef_t *rect, float scale, vec4_t color,
     lowLight[1] = 0.8 * color[1];
     lowLight[2] = 0.8 * color[2];
     lowLight[3] = 0.8 * color[3];
-    LerpColor(color, lowLight, newColor,
-              0.5 + 0.5 * sin(uiInfo.uiDC.realTime / PULSE_DIVISOR));
+    LerpColor(color, lowLight, newColor, 0.5 + 0.5 * sin(uiInfo.uiDC.realTime / PULSE_DIVISOR));
     // NERVE - SMF
     serverCount = trap_LAN_GetServerCount(ui_netSource.integer);
     if (serverCount >= 0) {
-      Text_Paint(rect->x, rect->y, scale, newColor,
-                 va("Getting info for %d servers (ESC to cancel)", serverCount),
-                 0, 0, textStyle);
+      Text_Paint(rect->x, rect->y, scale, newColor, va("Getting info for %d servers (ESC to cancel)", serverCount), 0,
+                 0, textStyle);
     } else {
-      Text_Paint(rect->x, rect->y, scale, newColor,
-                 "Waiting for response from Master Server", 0, 0, textStyle);
+      Text_Paint(rect->x, rect->y, scale, newColor, "Waiting for response from Master Server", 0, 0, textStyle);
     }
   } else {
     char buff[64];
-    Q_strncpyz(buff,
-               UI_Cvar_VariableString(
-                   va("ui_lastServerRefresh_%i", ui_netSource.integer)),
-               64);
-    Text_Paint(rect->x, rect->y, scale, color, va("Refresh Time: %s", buff), 0,
-               0, textStyle);
+    Q_strncpyz(buff, UI_Cvar_VariableString(va("ui_lastServerRefresh_%i", ui_netSource.integer)), 64);
+    Text_Paint(rect->x, rect->y, scale, color, va("Refresh Time: %s", buff), 0, 0, textStyle);
   }
 }
 
@@ -2064,14 +1915,14 @@ static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vec4_t color) {
     float maxX;
 
     if (uiInfo.serverStatus.motdWidth == -1) {
-      uiInfo.serverStatus.motdWidth = 0;
-      uiInfo.serverStatus.motdPaintX = rect->x + 1;
+      uiInfo.serverStatus.motdWidth   = 0;
+      uiInfo.serverStatus.motdPaintX  = rect->x + 1;
       uiInfo.serverStatus.motdPaintX2 = -1;
     }
 
     if (uiInfo.serverStatus.motdOffset > uiInfo.serverStatus.motdLen) {
-      uiInfo.serverStatus.motdOffset = 0;
-      uiInfo.serverStatus.motdPaintX = rect->x + 1;
+      uiInfo.serverStatus.motdOffset  = 0;
+      uiInfo.serverStatus.motdPaintX  = rect->x + 1;
       uiInfo.serverStatus.motdPaintX2 = -1;
     }
 
@@ -2080,10 +1931,7 @@ static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vec4_t color) {
       if (uiInfo.serverStatus.motdPaintX <= rect->x + 2) {
         if (uiInfo.serverStatus.motdOffset < uiInfo.serverStatus.motdLen) {
           uiInfo.serverStatus.motdPaintX +=
-              Text_Width(
-                  &uiInfo.serverStatus.motd[uiInfo.serverStatus.motdOffset],
-                  scale, 1) -
-              1;
+            Text_Width(&uiInfo.serverStatus.motd[uiInfo.serverStatus.motdOffset], scale, 1) - 1;
           uiInfo.serverStatus.motdOffset++;
         } else {
           uiInfo.serverStatus.motdOffset = 0;
@@ -2105,13 +1953,11 @@ static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vec4_t color) {
     }
 
     maxX = rect->x + rect->w - 2;
-    Text_Paint_Limit(
-        &maxX, uiInfo.serverStatus.motdPaintX, rect->y, scale, color,
-        &uiInfo.serverStatus.motd[uiInfo.serverStatus.motdOffset], 0, 0);
+    Text_Paint_Limit(&maxX, uiInfo.serverStatus.motdPaintX, rect->y, scale, color,
+                     &uiInfo.serverStatus.motd[uiInfo.serverStatus.motdOffset], 0, 0);
     if (uiInfo.serverStatus.motdPaintX2 >= 0) {
       float maxX2 = rect->x + rect->w - 2;
-      Text_Paint_Limit(&maxX2, uiInfo.serverStatus.motdPaintX2, rect->y, scale,
-                       color, uiInfo.serverStatus.motd, 0,
+      Text_Paint_Limit(&maxX2, uiInfo.serverStatus.motdPaintX2, rect->y, scale, color, uiInfo.serverStatus.motd, 0,
                        uiInfo.serverStatus.motdOffset);
     }
     if (uiInfo.serverStatus.motdOffset && maxX > 0) {
@@ -2127,17 +1973,15 @@ static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vec4_t color) {
   }
 }
 
-static void UI_DrawKeyBindStatus(rectDef_t *rect, float scale, vec4_t color,
-                                 int textStyle, float text_x, float text_y) {
+static void UI_DrawKeyBindStatus(rectDef_t *rect, float scale, vec4_t color, int textStyle, float text_x,
+                                 float text_y) {
   // int ofs = 0; // TTimo: unused
   if (Display_KeyBindPending()) {
-    Text_Paint(rect->x + text_x, rect->y + text_y, scale, color,
-               "Waiting for new key... Press ESCAPE to cancel", 0, 0,
+    Text_Paint(rect->x + text_x, rect->y + text_y, scale, color, "Waiting for new key... Press ESCAPE to cancel", 0, 0,
                textStyle);
   } else {
     Text_Paint(rect->x + text_x, rect->y + text_y, scale, color,
-               "Press ENTER or CLICK to change, Press BACKSPACE to clear", 0, 0,
-               textStyle);
+               "Press ENTER or CLICK to change, Press BACKSPACE to clear", 0, 0, textStyle);
   }
 }
 
@@ -2149,7 +1993,8 @@ static void UI_ParseGLConfig(void) {
   eptr = uiInfo.uiDC.glconfig.extensions_string;
 
   while (*eptr) {
-    while (*eptr && *eptr == ' ') *eptr++ = '\0';
+    while (*eptr && *eptr == ' ')
+      *eptr++ = '\0';
 
     // track start of valid string
     if (*eptr && *eptr != ' ') {
@@ -2160,7 +2005,8 @@ static void UI_ParseGLConfig(void) {
       break; // Arnout: failsafe
     }
 
-    while (*eptr && *eptr != ' ') eptr++;
+    while (*eptr && *eptr != ' ')
+      eptr++;
   }
 
   uiInfo.numGlInfoLines += 4; // vendor, version and pixelformat + a whiteline
@@ -2168,10 +2014,9 @@ static void UI_ParseGLConfig(void) {
 
 // FIXME: table drive
 //
-static void UI_OwnerDraw(float x, float y, float w, float h, float text_x,
-                         float text_y, int ownerDraw, int ownerDrawFlags,
-                         int align, float special, float scale, vec4_t color,
-                         qhandle_t shader, int textStyle) {
+static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw,
+                         int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader,
+                         int textStyle) {
   rectDef_t rect;
 
   rect.x = x + text_x;
@@ -2202,8 +2047,7 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x,
       UI_DrawMapDescription(&rect, scale, color, text_x, textStyle, align);
       break;
     case UI_GAMETYPEDESCRIPTION:
-      UI_DrawGametypeDescription(&rect, scale, color, text_x, text_y, textStyle,
-                                 align, qtrue);
+      UI_DrawGametypeDescription(&rect, scale, color, text_x, text_y, textStyle, align, qtrue);
       break;
     case UI_MB_MAP:
       UI_DrawMissionBriefingMap(&rect);
@@ -2212,8 +2056,7 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x,
       UI_DrawMissionBriefingTitle(&rect, scale, color, textStyle);
       break;
     case UI_MB_OBJECTIVES:
-      UI_DrawMissionBriefingObjectives(&rect, scale, color, text_x, text_y,
-                                       textStyle, align);
+      UI_DrawMissionBriefingObjectives(&rect, scale, color, text_x, text_y, textStyle, align);
       break;
     case UI_BLUETEAMNAME:
       UI_DrawTeamName(&rect, scale, color, qtrue, textStyle);
@@ -2226,16 +2069,14 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x,
     case UI_BLUETEAM3:
     case UI_BLUETEAM4:
     case UI_BLUETEAM5:
-      UI_DrawTeamMember(&rect, scale, color, qtrue,
-                        ownerDraw - UI_BLUETEAM1 + 1, textStyle);
+      UI_DrawTeamMember(&rect, scale, color, qtrue, ownerDraw - UI_BLUETEAM1 + 1, textStyle);
       break;
     case UI_REDTEAM1:
     case UI_REDTEAM2:
     case UI_REDTEAM3:
     case UI_REDTEAM4:
     case UI_REDTEAM5:
-      UI_DrawTeamMember(&rect, scale, color, qfalse,
-                        ownerDraw - UI_REDTEAM1 + 1, textStyle);
+      UI_DrawTeamMember(&rect, scale, color, qfalse, ownerDraw - UI_REDTEAM1 + 1, textStyle);
       break;
     case UI_NETFILTER:
       UI_DrawNetFilter(&rect, scale, color, textStyle);
@@ -2304,8 +2145,7 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x,
       ETJump::ui.colorPicker->drawPreviewNew(&rect);
       break;
     case UI_MAPNAME:
-      ETJump::Utilities::drawMapname(rect, scale, color, text_x, textStyle,
-                                     align);
+      ETJump::Utilities::drawMapname(rect, scale, color, text_x, textStyle, align);
       break;
     case UI_LEVELSHOT_PREVIEW:
       ETJump::Utilities::drawLevelshotPreview(rect);
@@ -2319,13 +2159,12 @@ qboolean UI_OwnerDrawVisible(int flags) {
   qboolean vis = qtrue;
 
   while (flags) {
-
     if (flags & UI_SHOW_FFA) {
       flags &= ~UI_SHOW_FFA;
     }
 
     if (flags & UI_SHOW_NOTFFA) {
-      vis = qfalse;
+      vis    = qfalse;
       flags &= ~UI_SHOW_NOTFFA;
     }
 
@@ -2337,8 +2176,7 @@ qboolean UI_OwnerDrawVisible(int flags) {
       } else {
         // if showing yourself
         if (ui_selectedPlayer.integer < uiInfo.myTeamCount &&
-            uiInfo.teamClientNums[ui_selectedPlayer.integer] ==
-                uiInfo.playerNumber) {
+            uiInfo.teamClientNums[ui_selectedPlayer.integer] == uiInfo.playerNumber) {
           vis = qfalse;
         }
       }
@@ -2351,8 +2189,7 @@ qboolean UI_OwnerDrawVisible(int flags) {
       if (uiInfo.teamLeader) {
         // if not showing yourself
         if (!(ui_selectedPlayer.integer < uiInfo.myTeamCount &&
-              uiInfo.teamClientNums[ui_selectedPlayer.integer] ==
-                  uiInfo.playerNumber)) {
+              uiInfo.teamClientNums[ui_selectedPlayer.integer] == uiInfo.playerNumber)) {
           vis = qfalse;
         }
       }
@@ -2378,14 +2215,14 @@ qboolean UI_OwnerDrawVisible(int flags) {
       flags &= ~UI_SHOW_ANYTEAMGAME;
     }
     if (flags & UI_SHOW_ANYNONTEAMGAME) {
-      vis = qfalse;
+      vis    = qfalse;
       flags &= ~UI_SHOW_ANYNONTEAMGAME;
     }
     if (flags & UI_SHOW_NETANYTEAMGAME) {
       flags &= ~UI_SHOW_NETANYTEAMGAME;
     }
     if (flags & UI_SHOW_NETANYNONTEAMGAME) {
-      vis = qfalse;
+      vis    = qfalse;
       flags &= ~UI_SHOW_NETANYNONTEAMGAME;
     }
     if (flags & UI_SHOW_NEWHIGHSCORE) {
@@ -2427,7 +2264,7 @@ qboolean UI_OwnerDrawVisible(int flags) {
       flags &= ~UI_SHOW_PLAYERNOREFEREE;
     }
     if (flags & UI_SHOW_PLAYERREFEREE) {
-      vis = qfalse;
+      vis    = qfalse;
       flags &= ~UI_SHOW_PLAYERREFEREE;
     }
 
@@ -2444,10 +2281,8 @@ qboolean UI_OwnerDrawVisible(int flags) {
 }
 
 static qboolean UI_Handicap_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER ||
-      key == K_KP_ENTER) {
-    int32_t h = std::clamp(
-        static_cast<int32_t>(trap_Cvar_VariableValue("handicap")), 5, 100);
+  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
+    int32_t h = std::clamp(static_cast<int32_t>(trap_Cvar_VariableValue("handicap")), 5, 100);
     if (key == K_MOUSE2) {
       h -= 5;
     } else {
@@ -2465,9 +2300,7 @@ static qboolean UI_Handicap_HandleKey(int flags, float *special, int key) {
 }
 
 static qboolean UI_Effects_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER ||
-      key == K_KP_ENTER) {
-
+  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     if (key == K_MOUSE2) {
       uiInfo.effectsColor--;
     } else {
@@ -2487,8 +2320,7 @@ static qboolean UI_Effects_HandleKey(int flags, float *special, int key) {
 }
 
 static qboolean UI_ClanName_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER ||
-      key == K_KP_ENTER) {
+  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     int i;
     i = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_teamName"));
     if (uiInfo.teamList[i].cinematic >= 0) {
@@ -2511,10 +2343,8 @@ static qboolean UI_ClanName_HandleKey(int flags, float *special, int key) {
   return qfalse;
 }
 
-static qboolean UI_GameType_HandleKey(int flags, float *special, int key,
-                                      qboolean resetMap) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER ||
-      key == K_KP_ENTER) {
+static qboolean UI_GameType_HandleKey(int flags, float *special, int key, qboolean resetMap) {
+  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     int oldCount = UI_MapCountByGameType();
 
     // hard coded mess here
@@ -2537,10 +2367,8 @@ static qboolean UI_GameType_HandleKey(int flags, float *special, int key,
     trap_Cvar_Set("ui_Q3Model", "0");
 
     trap_Cvar_Set("ui_gameType", va("%d", ui_gameType.integer));
-    UI_LoadBestScores(
-        uiInfo.mapList[ui_currentMap.integer].mapLoadName,
-        uiInfo.gameTypes[std::clamp(ui_gameType.integer, 0, MAX_GAMETYPES - 1)]
-            .gtEnum);
+    UI_LoadBestScores(uiInfo.mapList[ui_currentMap.integer].mapLoadName,
+                      uiInfo.gameTypes[std::clamp(ui_gameType.integer, 0, MAX_GAMETYPES - 1)].gtEnum);
     if (resetMap && oldCount != UI_MapCountByGameType()) {
       trap_Cvar_Set("ui_currentMap", "0");
       Menu_SetFeederSelection(nullptr, FEEDER_MAPS, 0, nullptr);
@@ -2550,13 +2378,10 @@ static qboolean UI_GameType_HandleKey(int flags, float *special, int key,
   return qfalse;
 }
 
-static qboolean UI_TeamName_HandleKey(int flags, float *special, int key,
-                                      qboolean blue) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER ||
-      key == K_KP_ENTER) {
+static qboolean UI_TeamName_HandleKey(int flags, float *special, int key, qboolean blue) {
+  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     int i;
-    i = UI_TeamIndexFromName(
-        UI_Cvar_VariableString((blue) ? "ui_blueTeam" : "ui_redTeam"));
+    i = UI_TeamIndexFromName(UI_Cvar_VariableString((blue) ? "ui_blueTeam" : "ui_redTeam"));
 
     if (key == K_MOUSE2) {
       i--;
@@ -2570,23 +2395,20 @@ static qboolean UI_TeamName_HandleKey(int flags, float *special, int key,
       i = uiInfo.teamCount - 1;
     }
 
-    trap_Cvar_Set((blue) ? "ui_blueTeam" : "ui_redTeam",
-                  uiInfo.teamList[i].teamName);
+    trap_Cvar_Set((blue) ? "ui_blueTeam" : "ui_redTeam", uiInfo.teamList[i].teamName);
 
     return qtrue;
   }
   return qfalse;
 }
 
-static qboolean UI_TeamMember_HandleKey(int flags, float *special, int key,
-                                        qboolean blue, int num) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER ||
-      key == K_KP_ENTER) {
+static qboolean UI_TeamMember_HandleKey(int flags, float *special, int key, qboolean blue, int num) {
+  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     // 0 - None
     // 1 - Human
     // 2..NumCharacters - Bot
     char *cvar = va(blue ? "ui_blueteam%i" : "ui_redteam%i", num);
-    int value = trap_Cvar_VariableValue(cvar);
+    int value  = trap_Cvar_VariableValue(cvar);
 
     if (key == K_MOUSE2) {
       value--;
@@ -2629,8 +2451,7 @@ K_KP_ENTER) { if (key == K_MOUSE2) { ui_netSource.integer--; } else {
 }*/
 
 static qboolean UI_NetFilter_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER ||
-      key == K_KP_ENTER) {
+  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     if (key == K_MOUSE2) {
       ui_serverFilterType--;
     } else {
@@ -2649,8 +2470,7 @@ static qboolean UI_NetFilter_HandleKey(int flags, float *special, int key) {
 }
 
 static qboolean UI_OpponentName_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER ||
-      key == K_KP_ENTER) {
+  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     if (key == K_MOUSE2) {
       UI_PriorOpponent();
     } else {
@@ -2662,8 +2482,7 @@ static qboolean UI_OpponentName_HandleKey(int flags, float *special, int key) {
 }
 
 static qboolean UI_BotName_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER ||
-      key == K_KP_ENTER) {
+  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     //		int game =
     // trap_Cvar_VariableValue("g_gametype");
     int value = uiInfo.botIndex;
@@ -2700,8 +2519,7 @@ static qboolean UI_BotName_HandleKey(int flags, float *special, int key) {
 }*/
 
 static qboolean UI_RedBlue_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER ||
-      key == K_KP_ENTER) {
+  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     uiInfo.redBlue ^= 1;
     return qtrue;
   }
@@ -2709,8 +2527,7 @@ static qboolean UI_RedBlue_HandleKey(int flags, float *special, int key) {
 }
 
 static qboolean UI_Crosshair_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER ||
-      key == K_KP_ENTER) {
+  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     if (key == K_MOUSE2) {
       uiInfo.currentCrosshair--;
     } else {
@@ -2728,10 +2545,8 @@ static qboolean UI_Crosshair_HandleKey(int flags, float *special, int key) {
   return qfalse;
 }
 
-static qboolean UI_SelectedPlayer_HandleKey(int flags, float *special,
-                                            int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER ||
-      key == K_KP_ENTER) {
+static qboolean UI_SelectedPlayer_HandleKey(int flags, float *special, int key) {
+  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     int selected;
 
     UI_BuildPlayerList();
@@ -2762,8 +2577,7 @@ static qboolean UI_SelectedPlayer_HandleKey(int flags, float *special,
   return qfalse;
 }
 
-static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special,
-                                      int key) {
+static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, int key) {
   switch (ownerDraw) {
     case UI_HANDICAP:
       return UI_Handicap_HandleKey(flags, special, key);
@@ -2788,16 +2602,14 @@ static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special,
     case UI_BLUETEAM3:
     case UI_BLUETEAM4:
     case UI_BLUETEAM5:
-      UI_TeamMember_HandleKey(flags, special, key, qtrue,
-                              ownerDraw - UI_BLUETEAM1 + 1);
+      UI_TeamMember_HandleKey(flags, special, key, qtrue, ownerDraw - UI_BLUETEAM1 + 1);
       break;
     case UI_REDTEAM1:
     case UI_REDTEAM2:
     case UI_REDTEAM3:
     case UI_REDTEAM4:
     case UI_REDTEAM5:
-      UI_TeamMember_HandleKey(flags, special, key, qfalse,
-                              ownerDraw - UI_REDTEAM1 + 1);
+      UI_TeamMember_HandleKey(flags, special, key, qfalse, ownerDraw - UI_REDTEAM1 + 1);
       break;
     /*		case UI_NETSOURCE:
           UI_NetSource_HandleKey(flags, special, key);
@@ -2830,7 +2642,9 @@ static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special,
   return qfalse;
 }
 
-static float UI_GetValue(int ownerDraw, int type) { return 0; }
+static float UI_GetValue(int ownerDraw, int type) {
+  return 0;
+}
 
 /*
 =================
@@ -2838,9 +2652,8 @@ UI_ServersQsortCompare
 =================
 */
 static int QDECL UI_ServersQsortCompare(const void *arg1, const void *arg2) {
-  return trap_LAN_CompareServers(
-      ui_netSource.integer, uiInfo.serverStatus.sortKey,
-      uiInfo.serverStatus.sortDir, *(const int *)arg1, *(const int *)arg2);
+  return trap_LAN_CompareServers(ui_netSource.integer, uiInfo.serverStatus.sortKey, uiInfo.serverStatus.sortDir,
+                                 *(const int *)arg1, *(const int *)arg2);
 }
 
 /*
@@ -2849,7 +2662,6 @@ UI_ServersSort
 =================
 */
 void UI_ServersSort(int column, qboolean force) {
-
   if (!force) {
     if (uiInfo.serverStatus.sortKey == column) {
       return;
@@ -2857,8 +2669,7 @@ void UI_ServersSort(int column, qboolean force) {
   }
 
   uiInfo.serverStatus.sortKey = column;
-  qsort(&uiInfo.serverStatus.displayServers[0],
-        uiInfo.serverStatus.numDisplayServers, sizeof(int),
+  qsort(&uiInfo.serverStatus.displayServers[0], uiInfo.serverStatus.numDisplayServers, sizeof(int),
         UI_ServersQsortCompare);
 }
 
@@ -2876,14 +2687,14 @@ static void UI_LoadMods() {
   int dirlen;
 
   uiInfo.modCount = 0;
-  numdirs = trap_FS_GetFileList("$modlist", "", dirlist, sizeof(dirlist));
-  dirptr = dirlist;
+  numdirs         = trap_FS_GetFileList("$modlist", "", dirlist, sizeof(dirlist));
+  dirptr          = dirlist;
   for (i = 0; i < numdirs; i++) {
-    dirlen = strlen(dirptr) + 1;
-    descptr = dirptr + dirlen;
-    uiInfo.modList[uiInfo.modCount].modName = String_Alloc(dirptr);
-    uiInfo.modList[uiInfo.modCount].modDescr = String_Alloc(descptr);
-    dirptr += dirlen + strlen(descptr) + 1;
+    dirlen                                    = strlen(dirptr) + 1;
+    descptr                                   = dirptr + dirlen;
+    uiInfo.modList[uiInfo.modCount].modName   = String_Alloc(dirptr);
+    uiInfo.modList[uiInfo.modCount].modDescr  = String_Alloc(descptr);
+    dirptr                                   += dirlen + strlen(descptr) + 1;
     uiInfo.modCount++;
     if (uiInfo.modCount >= MAX_MODS) {
       break;
@@ -2906,8 +2717,8 @@ static void UI_LoadProfiles() {
 
   uiInfo.profileCount = 0;
   uiInfo.profileIndex = -1;
-  numdirs = trap_FS_GetFileList("profiles", "/", dirlist, sizeof(dirlist));
-  dirptr = dirlist;
+  numdirs             = trap_FS_GetFileList("profiles", "/", dirlist, sizeof(dirlist));
+  dirptr              = dirlist;
 
   for (i = 0; i < numdirs; i++) {
     dirlen = strlen(dirptr) + 1;
@@ -2916,8 +2727,7 @@ static void UI_LoadProfiles() {
       int handle;
       pc_token_t token;
 
-      if (!(handle =
-                trap_PC_LoadSource(va("profiles/%s/profile.dat", dirptr)))) {
+      if (!(handle = trap_PC_LoadSource(va("profiles/%s/profile.dat", dirptr)))) {
         dirptr += dirlen;
         continue;
       }
@@ -2956,8 +2766,7 @@ static void UI_LoadProfiles() {
           trap_Cvar_Update(&ui_profile);
 
           for (j = 0; j < Menu_Count(); j++) {
-            Menu_SetFeederSelection(Menu_Get(j), FEEDER_PROFILES,
-                                    uiInfo.profileIndex, NULL);
+            Menu_SetFeederSelection(Menu_Get(j), FEEDER_PROFILES, uiInfo.profileIndex, NULL);
           }
         }
       }
@@ -3006,8 +2815,8 @@ static void UI_LoadMovies() {
         moviename[len - 4] = '\0';
       }
       Q_strupr(moviename);
-      uiInfo.movieList[i] = String_Alloc(moviename);
-      moviename += len + 1;
+      uiInfo.movieList[i]  = String_Alloc(moviename);
+      moviename           += len + 1;
     }
   }
 }
@@ -3022,25 +2831,20 @@ static void UI_LoadDemos() {
     uiInfo.currentDemoPath.emplace_back("demos");
   }
 
-  const std::string path =
-      StringUtils::join(uiInfo.currentDemoPath, PATH_SEP_STRING);
-  const std::string ext =
-      "dm_" +
-      std::to_string(static_cast<int>(trap_Cvar_VariableValue("protocol")));
+  const std::string path = StringUtils::join(uiInfo.currentDemoPath, PATH_SEP_STRING);
+  const std::string ext  = "dm_" + std::to_string(static_cast<int>(trap_Cvar_VariableValue("protocol")));
 
   // trap_FS_GetFileList doesn't understand backslashes as a file "extension",
   // so we must always send a forward slash here as the extension,
   // instead of platform-specific path separator
-  const std::vector<std::string> demoDirs =
-      FileSystem::getFileList(path, "/", true);
+  const std::vector<std::string> demoDirs = FileSystem::getFileList(path, "/", true);
   std::vector<FileSystemObjectInfo> directories;
 
   for (const auto &dir : demoDirs) {
     FileSystemObjectInfo objectInfo;
-    objectInfo.type = FileSystemObjectType::Folder;
-    objectInfo.name = dir;
-    objectInfo.displayName =
-        "^7" + StringUtils::sanitize(objectInfo.name, false);
+    objectInfo.type        = FileSystemObjectType::Folder;
+    objectInfo.name        = dir;
+    objectInfo.displayName = "^7" + StringUtils::sanitize(objectInfo.name, false);
 
     if (dir == "." || dir == "..") {
       continue;
@@ -3049,18 +2853,16 @@ static void UI_LoadDemos() {
     directories.emplace_back(objectInfo);
   }
 
-  const std::vector<std::string> demoFiles =
-      FileSystem::getFileList(path, ext, true);
+  const std::vector<std::string> demoFiles = FileSystem::getFileList(path, ext, true);
   std::vector<FileSystemObjectInfo> files;
 
   for (const auto &demo : demoFiles) {
     FileSystemObjectInfo objectInfo;
-    objectInfo.type = FileSystemObjectType::Item;
-    objectInfo.name = demo;
+    objectInfo.type        = FileSystemObjectType::Item;
+    objectInfo.name        = demo;
     objectInfo.displayName = demo;
     StringUtils::stripExtension(objectInfo.displayName);
-    objectInfo.displayName =
-        StringUtils::sanitize(objectInfo.displayName) + "^*." + ext;
+    objectInfo.displayName = StringUtils::sanitize(objectInfo.displayName) + "^*." + ext;
     files.emplace_back(objectInfo);
   }
 
@@ -3081,18 +2883,16 @@ static void UI_LoadDemos() {
     currentPath.pop_back();
     back.displayName = "^7" + StringUtils::sanitize(currentPath, false);
     FileSystemObjectInfo beginning;
-    beginning.type = FileSystemObjectType::Folder;
-    beginning.name = "..";
+    beginning.type        = FileSystemObjectType::Folder;
+    beginning.name        = "..";
     beginning.displayName = "^7demos";
 
     uiInfo.demoObjects.push_back(std::move(beginning));
     uiInfo.demoObjects.push_back(std::move(back));
   }
 
-  std::copy(std::begin(directories), std::end(directories),
-            std::back_inserter(uiInfo.demoObjects));
-  std::copy(std::begin(files), std::end(files),
-            std::back_inserter(uiInfo.demoObjects));
+  std::copy(std::begin(directories), std::end(directories), std::back_inserter(uiInfo.demoObjects));
+  std::copy(std::begin(files), std::end(files), std::back_inserter(uiInfo.demoObjects));
 }
 
 /*
@@ -3187,11 +2987,12 @@ void WM_ActivateLimboChat() {
 
   if (itemdef) {
     itemdef->cursorPos = 0;
-    g_editingField = qtrue;
-    g_editItem = itemdef;
+    g_editingField     = qtrue;
+    g_editItem         = itemdef;
     DC->setOverstrikeMode(qtrue);
   }
 }
+
 // -NERVE - SMF
 
 /*
@@ -3284,7 +3085,6 @@ void UI_RunMenuScript(const char **args) {
   menuDef_t *menu;
 
   if (String_Parse(args, &name)) {
-
     if (Q_stricmp(name, "StartServer") == 0) {
       int pb_sv, pb_cl;
 
@@ -3294,10 +3094,9 @@ void UI_RunMenuScript(const char **args) {
         pb_cl = static_cast<int>(trap_Cvar_VariableValue("cl_punkbuster"));
 
         if (pb_sv && !pb_cl) {
-          trap_Cvar_Set("com_errorMessage",
-                        "You must either disable PunkBuster on the Server, or "
-                        "enable PunkBuster on the Client before starting a "
-                        "non-dedicated server.");
+          trap_Cvar_Set("com_errorMessage", "You must either disable PunkBuster on the Server, or "
+                                            "enable PunkBuster on the Client before starting a "
+                                            "non-dedicated server.");
           Menus_ActivateByName("hostGamePopupError", qtrue);
           return;
         }
@@ -3307,15 +3106,11 @@ void UI_RunMenuScript(const char **args) {
       trap_Cvar_Set("ui_connecting", "1");
       trap_Cvar_Set("cg_thirdPerson", "0");
       trap_Cvar_Set("cg_cameraOrbit", "0");
-      trap_Cvar_SetValue("dedicated", static_cast<float>(std::clamp(
-                                          ui_dedicated.integer, 0, 2)));
-      trap_Cvar_SetValue("g_gametype", static_cast<float>(std::clamp(
-                                           ui_netGameType.integer, 0, 8)));
+      trap_Cvar_SetValue("dedicated", static_cast<float>(std::clamp(ui_dedicated.integer, 0, 2)));
+      trap_Cvar_SetValue("g_gametype", static_cast<float>(std::clamp(ui_netGameType.integer, 0, 8)));
 
-      trap_Cmd_ExecuteText(
-          EXEC_APPEND,
-          va("wait ; wait ; map %s\n",
-             uiInfo.mapList[ui_currentNetMap.integer].mapLoadName));
+      trap_Cmd_ExecuteText(EXEC_APPEND,
+                           va("wait ; wait ; map %s\n", uiInfo.mapList[ui_currentNetMap.integer].mapLoadName));
 
       // NERVE - SMF - set user cvars here
       // set timelimit
@@ -3337,8 +3132,7 @@ void UI_RunMenuScript(const char **args) {
       }
 
       // set allied respawn time
-      val =
-          static_cast<int>(trap_Cvar_VariableValue("ui_userAlliedRespawnTime"));
+      val = static_cast<int>(trap_Cvar_VariableValue("ui_userAlliedRespawnTime"));
 
       if (val && val != uiInfo.mapList[ui_mapIndex.integer].AlliedRespawnTime) {
         trap_Cvar_Set("g_userAlliedRespawnTime", va("%i", val));
@@ -3367,8 +3161,7 @@ void UI_RunMenuScript(const char **args) {
       return;
     }
     if (Q_stricmp(name, "updateNetMap") == 0) {
-      Menu_SetFeederSelection(nullptr, FEEDER_ALLMAPS, ui_currentNetMap.integer,
-                              nullptr);
+      Menu_SetFeederSelection(nullptr, FEEDER_ALLMAPS, ui_currentNetMap.integer, nullptr);
       return;
     }
     if (Q_stricmp(name, "saveControls") == 0) {
@@ -3401,8 +3194,7 @@ void UI_RunMenuScript(const char **args) {
     if (Q_stricmp(name, "RefreshFilter") == 0) {
       // if we don't have any valid servers,
       // it's kinda safe to assume we would like to get a full new list
-      UI_StartServerRefresh(uiInfo.serverStatus.numDisplayServers ? qfalse
-                                                                  : qtrue);
+      UI_StartServerRefresh(uiInfo.serverStatus.numDisplayServers ? qfalse : qtrue);
       UI_BuildServerDisplayList(qtrue);
       return;
     }
@@ -3424,9 +3216,7 @@ void UI_RunMenuScript(const char **args) {
       if (uiInfo.previewMovie >= 0) {
         trap_CIN_StopCinematic(uiInfo.previewMovie);
       }
-      trap_Cmd_ExecuteText(
-          EXEC_APPEND,
-          va("cinematic %s.roq 2\n", uiInfo.movieList[uiInfo.movieIndex]));
+      trap_Cmd_ExecuteText(EXEC_APPEND, va("cinematic %s.roq 2\n", uiInfo.movieList[uiInfo.movieIndex]));
       return;
     }
     if (Q_stricmp(name, "RunMod") == 0) {
@@ -3435,8 +3225,7 @@ void UI_RunMenuScript(const char **args) {
       return;
     }
     if (Q_stricmp(name, "RunDemo") == 0) {
-      if (uiInfo.demoIndex >= 0 &&
-          uiInfo.demoIndex < static_cast<int>(uiInfo.demoObjects.size())) {
+      if (uiInfo.demoIndex >= 0 && uiInfo.demoIndex < static_cast<int>(uiInfo.demoObjects.size())) {
         const auto &selected = uiInfo.demoObjects[uiInfo.demoIndex];
         if (selected.type == FileSystemObjectType::Folder) {
           if (selected.name == ".") {
@@ -3463,22 +3252,19 @@ void UI_RunMenuScript(const char **args) {
           if (uiInfo.currentDemoPath.empty()) {
             demoPath = uiInfo.demoObjects[uiInfo.demoIndex].name;
           } else {
-            demoPath = StringUtils::join(uiInfo.currentDemoPath, "/") + "/" +
-                       uiInfo.demoObjects[uiInfo.demoIndex].name;
+            demoPath = StringUtils::join(uiInfo.currentDemoPath, "/") + "/" + uiInfo.demoObjects[uiInfo.demoIndex].name;
           }
 
           uiInfo.currentDemoPath.push_front(front);
-          trap_Cmd_ExecuteText(EXEC_APPEND,
-                               va("demo \"%s\"\n", demoPath.c_str()));
+          trap_Cmd_ExecuteText(EXEC_APPEND, va("demo \"%s\"\n", demoPath.c_str()));
         }
       }
       return;
     }
     if (Q_stricmp(name, "deleteDemo") == 0) {
-      if (uiInfo.demoIndex >= 0 &&
-          uiInfo.demoIndex < static_cast<int>(uiInfo.demoObjects.size())) {
-        auto demoPath = StringUtils::join(uiInfo.currentDemoPath, "/") + "/" +
-                        uiInfo.demoObjects[uiInfo.demoIndex].name;
+      if (uiInfo.demoIndex >= 0 && uiInfo.demoIndex < static_cast<int>(uiInfo.demoObjects.size())) {
+        auto demoPath =
+          StringUtils::join(uiInfo.currentDemoPath, "/") + "/" + uiInfo.demoObjects[uiInfo.demoIndex].name;
         trap_FS_Delete(demoPath.c_str());
       }
       return;
@@ -3487,8 +3273,8 @@ void UI_RunMenuScript(const char **args) {
       if (uiInfo.serverStatus.refreshActive) {
         UI_StopServerRefresh();
         uiInfo.serverStatus.nextDisplayRefresh = 0;
-        uiInfo.nextServerStatusRefresh = 0;
-        uiInfo.nextFindPlayerRefresh = 0;
+        uiInfo.nextServerStatusRefresh         = 0;
+        uiInfo.nextFindPlayerRefresh           = 0;
         UI_BuildServerDisplayList(qtrue);
       } else {
         Menus_CloseByName("joinserver");
@@ -3499,14 +3285,13 @@ void UI_RunMenuScript(const char **args) {
     if (Q_stricmp(name, "StopRefresh") == 0) {
       UI_StopServerRefresh();
       uiInfo.serverStatus.nextDisplayRefresh = 0;
-      uiInfo.nextServerStatusRefresh = 0;
-      uiInfo.nextFindPlayerRefresh = 0;
+      uiInfo.nextServerStatusRefresh         = 0;
+      uiInfo.nextFindPlayerRefresh           = 0;
       return;
     }
     if (Q_stricmp(name, "UpdateFilter") == 0) {
       trap_Cvar_Update(&ui_netSource);
-      if (ui_netSource.integer == AS_LOCAL ||
-          !uiInfo.serverStatus.numDisplayServers) {
+      if (ui_netSource.integer == AS_LOCAL || !uiInfo.serverStatus.numDisplayServers) {
         UI_StartServerRefresh(qtrue);
       }
       UI_BuildServerDisplayList(qtrue);
@@ -3514,7 +3299,7 @@ void UI_RunMenuScript(const char **args) {
       return;
     }
     if (Q_stricmp(name, "check_ServerStatus") == 0) {
-      s = UI_Cvar_VariableString("com_errorDiagnoseIP");
+      s    = UI_Cvar_VariableString("com_errorDiagnoseIP");
       menu = Menus_FindByName("ingame_options");
       if (strlen(s) && strcmp(s, "localhost") != 0) {
         if (menu) {
@@ -3534,19 +3319,16 @@ void UI_RunMenuScript(const char **args) {
           // it can be called in several situations
           if (trap_Cvar_VariableValue("ui_serverBrowser") == 1) {
             // legacy, from the server browser
-            trap_LAN_GetServerAddressString(
-                ui_netSource.integer,
-                uiInfo.serverStatus
-                    .displayServers[uiInfo.serverStatus.currentServer],
-                uiInfo.serverStatusAddress, sizeof(uiInfo.serverStatusAddress));
+            trap_LAN_GetServerAddressString(ui_netSource.integer,
+                                            uiInfo.serverStatus.displayServers[uiInfo.serverStatus.currentServer],
+                                            uiInfo.serverStatusAddress, sizeof(uiInfo.serverStatusAddress));
             UI_BuildServerStatus(qtrue);
           } else {
             // use com_errorDiagnoseIP otherwise
             s = UI_Cvar_VariableString("com_errorDiagnoseIP");
             if (strlen(s) && strcmp(s, "localhost") != 0) {
-              trap_Cvar_VariableStringBuffer(
-                  "com_errorDiagnoseIP", uiInfo.serverStatusAddress,
-                  sizeof(uiInfo.serverStatusAddress));
+              trap_Cvar_VariableStringBuffer("com_errorDiagnoseIP", uiInfo.serverStatusAddress,
+                                             sizeof(uiInfo.serverStatusAddress));
               // this is ugly, have to force a non-zero display server count
               // to emit the query
               uiInfo.serverStatus.numDisplayServers = 1;
@@ -3554,8 +3336,7 @@ void UI_RunMenuScript(const char **args) {
             } else {
               // we can't close the menu from here, it's not open yet...
               // (that's the onOpen script)
-              Com_Printf(
-                  "Can't show Server Info (not found, or local server)\n");
+              Com_Printf("Can't show Server Info (not found, or local server)\n");
             }
           }
 
@@ -3565,7 +3346,7 @@ void UI_RunMenuScript(const char **args) {
 
           if (String_Parse(args, &name2)) {
             // menu variables are 1-indexed
-            index = Q_atoi(name2) - 1;
+            index                                   = Q_atoi(name2) - 1;
             ETJump::ui.quickConnect->selectedServer = index;
           } else {
             index = ETJump::ui.quickConnect->selectedServer;
@@ -3574,8 +3355,7 @@ void UI_RunMenuScript(const char **args) {
           std::string addr = ETJump::ui.quickConnect->getServerAddress(index);
 
           if (!addr.empty()) {
-            Q_strncpyz(uiInfo.serverStatusAddress, addr.c_str(),
-                       sizeof(uiInfo.serverStatusAddress));
+            Q_strncpyz(uiInfo.serverStatusAddress, addr.c_str(), sizeof(uiInfo.serverStatusAddress));
             UI_BuildServerStatus(qtrue);
           }
 
@@ -3584,15 +3364,13 @@ void UI_RunMenuScript(const char **args) {
         case SERVERSTATUS_INGAME:
           uiClientState_t cstate;
           trap_GetClientState(&cstate);
-          Q_strncpyz(uiInfo.serverStatusAddress, cstate.servername,
-                     sizeof(uiInfo.serverStatusAddress));
+          Q_strncpyz(uiInfo.serverStatusAddress, cstate.servername, sizeof(uiInfo.serverStatusAddress));
           UI_BuildServerStatus(qtrue);
           break;
 
         default:
           // time to panic, don't do anything unexpected
-          uiInfo.uiDC.Error(ERR_FATAL, "%s: bad server status type '%i'",
-                            __func__, ETJump::ui.serverAction.statusType);
+          uiInfo.uiDC.Error(ERR_FATAL, "%s: bad server status type '%i'", __func__, ETJump::ui.serverAction.statusType);
           break;
       }
 
@@ -3602,11 +3380,10 @@ void UI_RunMenuScript(const char **args) {
       // query server and display the URL buttons if the
       // error happened during a server connection
       // situation
-      s = UI_Cvar_VariableString("com_errorDiagnoseIP");
+      s    = UI_Cvar_VariableString("com_errorDiagnoseIP");
       menu = Menus_FindByName("error_popmenu_diagnose");
       if (strlen(s) && strcmp(s, "localhost") != 0) {
-        trap_Cvar_VariableStringBuffer("com_errorDiagnoseIP",
-                                       uiInfo.serverStatusAddress,
+        trap_Cvar_VariableStringBuffer("com_errorDiagnoseIP", uiInfo.serverStatusAddress,
                                        sizeof(uiInfo.serverStatusAddress));
         // this is ugly, have to force a non-zero display server count
         // to emit the query toggle the "Server Info" button
@@ -3625,10 +3402,8 @@ void UI_RunMenuScript(const char **args) {
       return;
     }
     if (Q_stricmp(name, "FoundPlayerServerStatus") == 0) {
-      Q_strncpyz(
-          uiInfo.serverStatusAddress,
-          uiInfo.foundPlayerServerAddresses[uiInfo.currentFoundPlayerServer],
-          sizeof(uiInfo.serverStatusAddress));
+      Q_strncpyz(uiInfo.serverStatusAddress, uiInfo.foundPlayerServerAddresses[uiInfo.currentFoundPlayerServer],
+                 sizeof(uiInfo.serverStatusAddress));
       UI_BuildServerStatus(qtrue);
       Menu_SetFeederSelection(nullptr, FEEDER_FINDPLAYER, 0, nullptr);
       return;
@@ -3644,17 +3419,13 @@ void UI_RunMenuScript(const char **args) {
       switch (ETJump::ui.serverAction.joinType) {
         case JOINSERVER_PLAYONLINE:
           if (uiInfo.serverStatus.currentServer >= 0 &&
-              uiInfo.serverStatus.currentServer <
-                  uiInfo.serverStatus.numDisplayServers) {
+              uiInfo.serverStatus.currentServer < uiInfo.serverStatus.numDisplayServers) {
             Menus_CloseAll();
             trap_Cvar_Set("ui_connecting", "1");
             trap_Cvar_Set("cg_thirdPerson", "0 ");
             trap_Cvar_Set("cg_cameraOrbit", "0");
             trap_LAN_GetServerAddressString(
-                ui_netSource.integer,
-                uiInfo.serverStatus
-                    .displayServers[uiInfo.serverStatus.currentServer],
-                buff, 1024);
+              ui_netSource.integer, uiInfo.serverStatus.displayServers[uiInfo.serverStatus.currentServer], buff, 1024);
             trap_Cmd_ExecuteText(EXEC_APPEND, va("connect %s\n", buff));
           }
 
@@ -3664,14 +3435,13 @@ void UI_RunMenuScript(const char **args) {
 
           if (String_Parse(args, &name2)) {
             // menu variables are 1-indexed
-            index = Q_atoi(name2) - 1;
+            index                                   = Q_atoi(name2) - 1;
             ETJump::ui.quickConnect->selectedServer = index;
           } else {
             index = ETJump::ui.quickConnect->selectedServer;
           }
 
-          std::string command =
-              ETJump::ui.quickConnect->buildConnectCommand(index);
+          std::string command = ETJump::ui.quickConnect->buildConnectCommand(index);
 
           if (!command.empty()) {
             trap_Cmd_ExecuteText(EXEC_APPEND, command.c_str());
@@ -3681,8 +3451,7 @@ void UI_RunMenuScript(const char **args) {
         }
         default:
           // time to panic, don't do anything unexpected
-          uiInfo.uiDC.Error(ERR_FATAL, "%s: bad server join type '%i'",
-                            __func__, ETJump::ui.serverAction.joinType);
+          uiInfo.uiDC.Error(ERR_FATAL, "%s: bad server join type '%i'", __func__, ETJump::ui.serverAction.joinType);
           break;
       }
       return;
@@ -3692,18 +3461,13 @@ void UI_RunMenuScript(const char **args) {
       trap_Cvar_Set("ui_connecting", "1");
       trap_Cvar_Set("cg_thirdPerson", "0");
       trap_Cvar_Set("cg_cameraOrbit", "0");
-      trap_Cmd_ExecuteText(
-          EXEC_APPEND,
-          va("connect %s\n", UI_Cvar_VariableString("ui_connectToIPAddress")));
+      trap_Cmd_ExecuteText(EXEC_APPEND, va("connect %s\n", UI_Cvar_VariableString("ui_connectToIPAddress")));
       return;
     }
     if (Q_stricmp(name, "FoundPlayerJoinServer") == 0) {
-      if (uiInfo.currentFoundPlayerServer >= 0 &&
-          uiInfo.currentFoundPlayerServer < uiInfo.numFoundPlayerServers) {
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND,
-            va("connect %s\n", uiInfo.foundPlayerServerAddresses
-                                   [uiInfo.currentFoundPlayerServer]));
+      if (uiInfo.currentFoundPlayerServer >= 0 && uiInfo.currentFoundPlayerServer < uiInfo.numFoundPlayerServers) {
+        trap_Cmd_ExecuteText(EXEC_APPEND,
+                             va("connect %s\n", uiInfo.foundPlayerServerAddresses[uiInfo.currentFoundPlayerServer]));
       }
       return;
     }
@@ -3772,130 +3536,96 @@ void UI_RunMenuScript(const char **args) {
       return;
     }
     if (Q_stricmp(name, "voteMap") == 0) {
-      if (ui_currentNetMap.integer >= 0 &&
-          ui_currentNetMap.integer < uiInfo.mapCount) {
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND,
-            va("callvote %s %s\n", ui_voteCheats.integer ? "devmap" : "map",
-               uiInfo.mapList[ui_currentNetMap.integer].mapLoadName));
+      if (ui_currentNetMap.integer >= 0 && ui_currentNetMap.integer < uiInfo.mapCount) {
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("callvote %s %s\n", ui_voteCheats.integer ? "devmap" : "map",
+                                             uiInfo.mapList[ui_currentNetMap.integer].mapLoadName));
       }
       return;
     }
     if (Q_stricmp(name, "voteKick") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(EXEC_APPEND,
-                             va("callvote kick \"%s\"\n",
-                                uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("callvote kick \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "voteMute") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(EXEC_APPEND,
-                             va("callvote mute \"%s\"\n",
-                                uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("callvote mute \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "voteUnMute") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(EXEC_APPEND,
-                             va("callvote unmute \"%s\"\n",
-                                uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("callvote unmute \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "voteReferee") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(EXEC_APPEND,
-                             va("callvote referee \"%s\"\n",
-                                uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("callvote referee \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "voteUnReferee") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(EXEC_APPEND,
-                             va("callvote unreferee \"%s\"\n",
-                                uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("callvote unreferee \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "voteGame") == 0) {
-      int ui_voteGameType =
-          static_cast<int>(trap_Cvar_VariableValue("ui_voteGameType"));
+      int ui_voteGameType = static_cast<int>(trap_Cvar_VariableValue("ui_voteGameType"));
       if (ui_voteGameType >= 0 && ui_voteGameType < uiInfo.numGameTypes) {
-        trap_Cmd_ExecuteText(EXEC_APPEND,
-                             va("callvote gametype %i\n", ui_voteGameType));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("callvote gametype %i\n", ui_voteGameType));
       }
       return;
     }
     if (Q_stricmp(name, "refGame") == 0) {
-      int ui_voteGameType =
-          static_cast<int>(trap_Cvar_VariableValue("ui_voteGameType"));
+      int ui_voteGameType = static_cast<int>(trap_Cvar_VariableValue("ui_voteGameType"));
       if (ui_voteGameType >= 0 && ui_voteGameType < uiInfo.numGameTypes) {
-        trap_Cmd_ExecuteText(EXEC_APPEND,
-                             va("ref gametype %i\n", ui_voteGameType));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("ref gametype %i\n", ui_voteGameType));
       }
       return;
     }
     if (Q_stricmp(name, "voteTimelimit") == 0) {
-      trap_Cmd_ExecuteText(EXEC_APPEND,
-                           va("callvote timelimit %f\n",
-                              trap_Cvar_VariableValue("ui_voteTimelimit")));
+      trap_Cmd_ExecuteText(EXEC_APPEND, va("callvote timelimit %f\n", trap_Cvar_VariableValue("ui_voteTimelimit")));
       return;
     }
     if (Q_stricmp(name, "voteWarmupDamage") == 0) {
-      trap_Cmd_ExecuteText(
-          EXEC_APPEND,
-          va("callvote warmupdamage %d\n",
-             static_cast<int>(trap_Cvar_VariableValue("ui_voteWarmupDamage"))));
+      trap_Cmd_ExecuteText(EXEC_APPEND, va("callvote warmupdamage %d\n",
+                                           static_cast<int>(trap_Cvar_VariableValue("ui_voteWarmupDamage"))));
       return;
     }
     if (Q_stricmp(name, "refTimelimit") == 0) {
-      trap_Cmd_ExecuteText(EXEC_APPEND,
-                           va("ref timelimit %f\n",
-                              trap_Cvar_VariableValue("ui_voteTimelimit")));
+      trap_Cmd_ExecuteText(EXEC_APPEND, va("ref timelimit %f\n", trap_Cvar_VariableValue("ui_voteTimelimit")));
       return;
     }
     if (Q_stricmp(name, "refWarmupDamage") == 0) {
       trap_Cmd_ExecuteText(
-          EXEC_APPEND,
-          va("ref warmupdamage %d\n",
-             static_cast<int>(trap_Cvar_VariableValue("ui_voteWarmupDamage"))));
+        EXEC_APPEND, va("ref warmupdamage %d\n", static_cast<int>(trap_Cvar_VariableValue("ui_voteWarmupDamage"))));
       return;
     }
     if (Q_stricmp(name, "voteInitToggles") == 0) {
       char info[MAX_INFO_STRING];
 
       trap_GetConfigString(CS_SERVERTOGGLES, info, sizeof(info));
-      trap_Cvar_Set("ui_voteWarmupDamage",
-                    va("%d", ((Q_atoi(info) & CV_SVS_WARMUPDMG) >> 2)));
+      trap_Cvar_Set("ui_voteWarmupDamage", va("%d", ((Q_atoi(info) & CV_SVS_WARMUPDMG) >> 2)));
 
       trap_GetConfigString(CS_SERVERINFO, info, sizeof(info));
-      trap_Cvar_Set("ui_voteTimelimit",
-                    va("%i", Q_atoi(Info_ValueForKey(info, "timelimit"))));
-      trap_Cvar_Set("ui_voteAutoRtv",
-                    va("%i", Q_atoi(Info_ValueForKey(info, "g_autoRtv"))));
-      trap_Cvar_Set(
-          "ui_votePortalPredict",
-          va("%i", Q_atoi(Info_ValueForKey(info, "g_portalPredict"))));
+      trap_Cvar_Set("ui_voteTimelimit", va("%i", Q_atoi(Info_ValueForKey(info, "timelimit"))));
+      trap_Cvar_Set("ui_voteAutoRtv", va("%i", Q_atoi(Info_ValueForKey(info, "g_autoRtv"))));
+      trap_Cvar_Set("ui_votePortalPredict", va("%i", Q_atoi(Info_ValueForKey(info, "g_portalPredict"))));
 
       return;
     }
     if (Q_stricmp(name, "voteLeader") == 0) {
       if (uiInfo.teamIndex >= 0 && uiInfo.teamIndex < uiInfo.myTeamCount) {
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND,
-            va("callteamvote leader %s\n", uiInfo.teamNames[uiInfo.teamIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("callteamvote leader %s\n", uiInfo.teamNames[uiInfo.teamIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "addBot") == 0) {
-      trap_Cmd_ExecuteText(
-          EXEC_APPEND,
-          va("addbot %s %i %s\n", uiInfo.characterList[uiInfo.botIndex].name,
-             uiInfo.skillIndex + 1, (uiInfo.redBlue == 0) ? "Red" : "Blue"));
+      trap_Cmd_ExecuteText(EXEC_APPEND, va("addbot %s %i %s\n", uiInfo.characterList[uiInfo.botIndex].name,
+                                           uiInfo.skillIndex + 1, (uiInfo.redBlue == 0) ? "Red" : "Blue"));
       return;
     }
     if (Q_stricmp(name, "addFavorite") == 0) {
@@ -3904,14 +3634,11 @@ void UI_RunMenuScript(const char **args) {
         char addr[MAX_NAME_LENGTH];
         int res;
 
-        trap_LAN_GetServerInfo(
-            ui_netSource.integer,
-            uiInfo.serverStatus
-                .displayServers[uiInfo.serverStatus.currentServer],
-            buff, MAX_STRING_CHARS);
+        trap_LAN_GetServerInfo(ui_netSource.integer,
+                               uiInfo.serverStatus.displayServers[uiInfo.serverStatus.currentServer], buff,
+                               MAX_STRING_CHARS);
         serverName[0] = addr[0] = '\0';
-        Q_strncpyz(serverName, Info_ValueForKey(buff, "hostname"),
-                   MAX_NAME_LENGTH);
+        Q_strncpyz(serverName, Info_ValueForKey(buff, "hostname"), MAX_NAME_LENGTH);
         Q_strncpyz(addr, Info_ValueForKey(buff, "addr"), MAX_NAME_LENGTH);
         if (strlen(serverName) > 0 && strlen(addr) > 0) {
           res = trap_LAN_AddServer(AS_FAVORITES, serverName, addr);
@@ -3932,11 +3659,9 @@ void UI_RunMenuScript(const char **args) {
     if (Q_stricmp(name, "deleteFavorite") == 0) {
       if (ui_netSource.integer == AS_FAVORITES) {
         char addr[MAX_NAME_LENGTH];
-        trap_LAN_GetServerInfo(
-            ui_netSource.integer,
-            uiInfo.serverStatus
-                .displayServers[uiInfo.serverStatus.currentServer],
-            buff, MAX_STRING_CHARS);
+        trap_LAN_GetServerInfo(ui_netSource.integer,
+                               uiInfo.serverStatus.displayServers[uiInfo.serverStatus.currentServer], buff,
+                               MAX_STRING_CHARS);
         addr[0] = '\0';
         Q_strncpyz(addr, Info_ValueForKey(buff, "addr"), MAX_NAME_LENGTH);
         if (strlen(addr) > 0) {
@@ -3952,10 +3677,8 @@ void UI_RunMenuScript(const char **args) {
         int res;
 
         serverName[0] = addr[0] = '\0';
-        Q_strncpyz(serverName, UI_Cvar_VariableString("ui_favoriteName"),
-                   MAX_NAME_LENGTH);
-        Q_strncpyz(addr, UI_Cvar_VariableString("ui_favoriteAddress"),
-                   MAX_NAME_LENGTH);
+        Q_strncpyz(serverName, UI_Cvar_VariableString("ui_favoriteName"), MAX_NAME_LENGTH);
+        Q_strncpyz(addr, UI_Cvar_VariableString("ui_favoriteAddress"), MAX_NAME_LENGTH);
         if (strlen(serverName) > 0 && strlen(addr) > 0) {
           res = trap_LAN_AddServer(AS_FAVORITES, serverName, addr);
           if (res == 0) {
@@ -3980,7 +3703,7 @@ void UI_RunMenuScript(const char **args) {
 
       trap_GetClientState(&cstate);
 
-      addr[0] = '\0';
+      addr[0]       = '\0';
       serverName[0] = '\0';
       Q_strncpyz(addr, cstate.servername, MAX_NAME_LENGTH);
       Q_strncpyz(serverName, cstate.servername, MAX_NAME_LENGTH);
@@ -4002,18 +3725,15 @@ void UI_RunMenuScript(const char **args) {
     if (Q_stricmp(name, "orders") == 0) {
       const char *orders;
       if (String_Parse(args, &orders)) {
-        int selectedPlayer =
-            static_cast<int>(trap_Cvar_VariableValue("cg_selectedPlayer"));
+        int selectedPlayer = static_cast<int>(trap_Cvar_VariableValue("cg_selectedPlayer"));
         if (selectedPlayer < uiInfo.myTeamCount) {
           Q_strncpyz(buff, orders, sizeof(buff));
-          trap_Cmd_ExecuteText(EXEC_APPEND,
-                               va(buff, uiInfo.teamClientNums[selectedPlayer]));
+          trap_Cmd_ExecuteText(EXEC_APPEND, va(buff, uiInfo.teamClientNums[selectedPlayer]));
           trap_Cmd_ExecuteText(EXEC_APPEND, "\n");
         } else {
           int i;
           for (i = 0; i < uiInfo.myTeamCount; i++) {
-            if (Q_stricmp(UI_Cvar_VariableString("name"),
-                          uiInfo.teamNames[i]) == 0) {
+            if (Q_stricmp(UI_Cvar_VariableString("name"), uiInfo.teamNames[i]) == 0) {
               continue;
             }
             Q_strncpyz(buff, orders, sizeof(buff));
@@ -4031,8 +3751,7 @@ void UI_RunMenuScript(const char **args) {
     if (Q_stricmp(name, "voiceOrdersTeam") == 0) {
       const char *orders;
       if (String_Parse(args, &orders)) {
-        int selectedPlayer =
-            static_cast<int>(trap_Cvar_VariableValue("cg_selectedPlayer"));
+        int selectedPlayer = static_cast<int>(trap_Cvar_VariableValue("cg_selectedPlayer"));
         if (selectedPlayer == uiInfo.myTeamCount) {
           trap_Cmd_ExecuteText(EXEC_APPEND, orders);
           trap_Cmd_ExecuteText(EXEC_APPEND, "\n");
@@ -4047,12 +3766,10 @@ void UI_RunMenuScript(const char **args) {
     if (Q_stricmp(name, "voiceOrders") == 0) {
       const char *orders;
       if (String_Parse(args, &orders)) {
-        int selectedPlayer =
-            static_cast<int>(trap_Cvar_VariableValue("cg_selectedPlayer"));
+        int selectedPlayer = static_cast<int>(trap_Cvar_VariableValue("cg_selectedPlayer"));
         if (selectedPlayer < uiInfo.myTeamCount) {
           Q_strncpyz(buff, orders, sizeof(buff));
-          trap_Cmd_ExecuteText(EXEC_APPEND,
-                               va(buff, uiInfo.teamClientNums[selectedPlayer]));
+          trap_Cmd_ExecuteText(EXEC_APPEND, va(buff, uiInfo.teamClientNums[selectedPlayer]));
           trap_Cmd_ExecuteText(EXEC_APPEND, "\n");
         }
         trap_Key_SetCatcher(trap_Key_GetCatcher() & ~KEYCATCH_UI);
@@ -4089,142 +3806,104 @@ void UI_RunMenuScript(const char **args) {
       return;
     }
     if (Q_stricmp(name, "rconGame") == 0) {
-      if (ui_netGameType.integer >= 0 &&
-          ui_netGameType.integer < uiInfo.numGameTypes) {
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND, va("rcon g_gametype %i\n", ui_netGameType.integer));
+      if (ui_netGameType.integer >= 0 && ui_netGameType.integer < uiInfo.numGameTypes) {
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("rcon g_gametype %i\n", ui_netGameType.integer));
       }
       return;
     }
     if (Q_stricmp(name, "rconMap") == 0) {
-      if (ui_currentNetMap.integer >= 0 &&
-          ui_currentNetMap.integer < uiInfo.mapCount) {
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND,
-            va("rcon map %s\n",
-               uiInfo.mapList[ui_currentNetMap.integer].mapLoadName));
+      if (ui_currentNetMap.integer >= 0 && ui_currentNetMap.integer < uiInfo.mapCount) {
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("rcon map %s\n", uiInfo.mapList[ui_currentNetMap.integer].mapLoadName));
       }
       return;
     }
     if (Q_stricmp(name, "refMap") == 0) {
-      if (ui_currentNetMap.integer >= 0 &&
-          ui_currentNetMap.integer < uiInfo.mapCount) {
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND,
-            va("ref map %s\n",
-               uiInfo.mapList[ui_currentNetMap.integer].mapLoadName));
+      if (ui_currentNetMap.integer >= 0 && ui_currentNetMap.integer < uiInfo.mapCount) {
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("ref map %s\n", uiInfo.mapList[ui_currentNetMap.integer].mapLoadName));
       }
       return;
     }
     if (Q_stricmp(name, "rconKick") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND,
-            va("rcon kick \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("rcon kick \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "refKick") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND,
-            va("ref kick \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("ref kick \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "rconBan") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND,
-            va("rcon ban \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("rcon ban \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "refMute") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND,
-            va("ref mute \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("ref mute \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "refUnMute") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND,
-            va("ref unmute \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("ref unmute \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "refMakeAxis") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND,
-            va("ref putaxis \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("ref putaxis \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "refMakeAllied") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(EXEC_APPEND,
-                             va("ref putallies \"%s\"\n",
-                                uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("ref putallies \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "refMakeSpec") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND,
-            va("ref remove \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("ref remove \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "refUnReferee") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(EXEC_APPEND,
-                             va("ref unreferee \"%s\"\n",
-                                uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("ref unreferee \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "refMakeReferee") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND,
-            va("ref referee \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("ref referee \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "rconMakeReferee") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(EXEC_APPEND,
-                             va("rcon makeReferee \"%s\"\n",
-                                uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("rcon makeReferee \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "rconRemoveReferee") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(EXEC_APPEND,
-                             va("rcon removeReferee \"%s\"\n",
-                                uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("rcon removeReferee \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "rconMute") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND,
-            va("rcon mute \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("rcon mute \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "rconUnMute") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND,
-            va("rcon unmute \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("rcon unmute \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
@@ -4233,9 +3912,8 @@ void UI_RunMenuScript(const char **args) {
         char buffer[128];
         trap_Cvar_VariableStringBuffer("ui_warnreason", buffer, 128);
 
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND, va("ref warn \"%s\" \"%s\"\n",
-                            uiInfo.playerNames[uiInfo.playerIndex], buffer));
+        trap_Cmd_ExecuteText(EXEC_APPEND,
+                             va("ref warn \"%s\" \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex], buffer));
       }
       return;
     }
@@ -4248,17 +3926,13 @@ void UI_RunMenuScript(const char **args) {
     }
     if (Q_stricmp(name, "ignorePlayer") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND,
-            va("ignore \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("ignore \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
     if (Q_stricmp(name, "unIgnorePlayer") == 0) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText(
-            EXEC_APPEND,
-            va("unignore \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("unignore \"%s\"\n", uiInfo.playerNames[uiInfo.playerIndex]));
       }
       return;
     }
@@ -4277,10 +3951,8 @@ void UI_RunMenuScript(const char **args) {
       Q_CleanStr(profileName);
       Q_CleanDirName(profileName);
 
-      if (trap_FS_FOpenFile(va("profiles/%s/profile.dat", profileName), &f,
-                            FS_WRITE) >= 0) {
-        trap_FS_Write(va("\"%s\"", ui_profile.string),
-                      static_cast<int>(strlen(ui_profile.string)) + 2, f);
+      if (trap_FS_FOpenFile(va("profiles/%s/profile.dat", profileName), &f, FS_WRITE) >= 0) {
+        trap_FS_Write(va("\"%s\"", ui_profile.string), static_cast<int>(strlen(ui_profile.string)) + 2, f);
         trap_FS_FCloseFile(f);
       }
       trap_Cvar_Set("name", ui_profile.string);
@@ -4290,16 +3962,14 @@ void UI_RunMenuScript(const char **args) {
       fileHandle_t f;
 
       // delete profile.pid from current profile
-      if (trap_FS_FOpenFile(va("profiles/%s/profile.pid", cl_profile.string),
-                            &f, FS_READ) >= 0) {
+      if (trap_FS_FOpenFile(va("profiles/%s/profile.pid", cl_profile.string), &f, FS_READ) >= 0) {
         trap_FS_FCloseFile(f);
         trap_FS_Delete(va("profiles/%s/profile.pid", cl_profile.string));
       }
       return;
     }
     if (Q_stricmp(name, "applyProfile") == 0) {
-      Q_strncpyz(cl_profile.string, ui_profile.string,
-                 sizeof(cl_profile.string));
+      Q_strncpyz(cl_profile.string, ui_profile.string, sizeof(cl_profile.string));
       Q_CleanStr(cl_profile.string);
       Q_CleanDirName(cl_profile.string);
       trap_Cvar_Set("cl_profile", cl_profile.string);
@@ -4308,15 +3978,13 @@ void UI_RunMenuScript(const char **args) {
     if (Q_stricmp(name, "setDefaultProfile") == 0) {
       fileHandle_t f;
 
-      Q_strncpyz(cl_defaultProfile.string, ui_profile.string,
-                 sizeof(cl_profile.string));
+      Q_strncpyz(cl_defaultProfile.string, ui_profile.string, sizeof(cl_profile.string));
       Q_CleanStr(cl_defaultProfile.string);
       Q_CleanDirName(cl_defaultProfile.string);
       trap_Cvar_Set("cl_defaultProfile", cl_defaultProfile.string);
 
       if (trap_FS_FOpenFile("profiles/defaultprofile.dat", &f, FS_WRITE) >= 0) {
-        trap_FS_Write(va("\"%s\"", cl_defaultProfile.string),
-                      static_cast<int>(strlen(cl_defaultProfile.string)) + 2,
+        trap_FS_Write(va("\"%s\"", cl_defaultProfile.string), static_cast<int>(strlen(cl_defaultProfile.string)) + 2,
                       f);
         trap_FS_FCloseFile(f);
       }
@@ -4337,10 +4005,8 @@ void UI_RunMenuScript(const char **args) {
           fileHandle_t f;
 
           trap_Cvar_Set("cl_defaultProfile", cl_profile.string);
-          if (trap_FS_FOpenFile("profiles/defaultprofile.dat", &f, FS_WRITE) >=
-              0) {
-            trap_FS_Write(va("\"%s\"", cl_profile.string),
-                          static_cast<int>(strlen(cl_profile.string)) + 2, f);
+          if (trap_FS_FOpenFile("profiles/defaultprofile.dat", &f, FS_WRITE) >= 0) {
+            trap_FS_Write(va("\"%s\"", cl_profile.string), static_cast<int>(strlen(cl_profile.string)) + 2, f);
             trap_FS_FCloseFile(f);
           }
         }
@@ -4360,8 +4026,7 @@ void UI_RunMenuScript(const char **args) {
       char ui_renameprofileto[MAX_CVAR_VALUE_STRING];
       char uiprofile[MAX_CVAR_VALUE_STRING];
 
-      trap_Cvar_VariableStringBuffer("ui_profile_renameto", ui_renameprofileto,
-                                     sizeof(ui_renameprofileto));
+      trap_Cvar_VariableStringBuffer("ui_profile_renameto", ui_renameprofileto, sizeof(ui_renameprofileto));
       Q_strncpyz(profileName, ui_renameprofileto, sizeof(profileName));
       Q_CleanStr(profileName);
       Q_CleanDirName(profileName);
@@ -4370,20 +4035,15 @@ void UI_RunMenuScript(const char **args) {
       Q_CleanStr(uiprofile);
       Q_CleanDirName(uiprofile);
 
-      if (trap_FS_FOpenFile(va("profiles/%s/profile.dat", profileName), &f,
-                            FS_WRITE) >= 0) {
-        trap_FS_Write(va("\"%s\"", ui_renameprofileto),
-                      static_cast<int>(strlen(ui_renameprofileto)) + 2, f);
+      if (trap_FS_FOpenFile(va("profiles/%s/profile.dat", profileName), &f, FS_WRITE) >= 0) {
+        trap_FS_Write(va("\"%s\"", ui_renameprofileto), static_cast<int>(strlen(ui_renameprofileto)) + 2, f);
         trap_FS_FCloseFile(f);
       }
 
       // FIXME: make this copying handle all files in the profiles directory
       if (Q_stricmp(uiprofile, profileName)) {
-        if (trap_FS_FOpenFile(va("profiles/%s/%s", profileName, CONFIG_NAME),
-                              &f, FS_WRITE) >= 0) {
-          if ((len = trap_FS_FOpenFile(
-                   va("profiles/%s/%s", uiprofile, CONFIG_NAME), &f2,
-                   FS_READ)) >= 0) {
+        if (trap_FS_FOpenFile(va("profiles/%s/%s", profileName, CONFIG_NAME), &f, FS_WRITE) >= 0) {
+          if ((len = trap_FS_FOpenFile(va("profiles/%s/%s", uiprofile, CONFIG_NAME), &f2, FS_READ)) >= 0) {
             int i;
 
             for (i = 0; i < len; i++) {
@@ -4397,11 +4057,8 @@ void UI_RunMenuScript(const char **args) {
           trap_FS_FCloseFile(f);
         }
 
-        if (trap_FS_FOpenFile(va("profiles/%s/servercache.dat", profileName),
-                              &f, FS_WRITE) >= 0) {
-          if ((len = trap_FS_FOpenFile(
-                   va("profiles/%s/servercache.dat", cl_profile.string), &f2,
-                   FS_READ)) >= 0) {
+        if (trap_FS_FOpenFile(va("profiles/%s/servercache.dat", profileName), &f, FS_WRITE) >= 0) {
+          if ((len = trap_FS_FOpenFile(va("profiles/%s/servercache.dat", cl_profile.string), &f2, FS_READ)) >= 0) {
             int i;
 
             for (i = 0; i < len; i++) {
@@ -4418,10 +4075,8 @@ void UI_RunMenuScript(const char **args) {
         if (!Q_stricmp(uiprofile, cl_defaultProfile.string)) {
           // if renaming the default profile, set the default to the new profile
           trap_Cvar_Set("cl_defaultProfile", profileName);
-          if (trap_FS_FOpenFile("profiles/defaultprofile.dat", &f, FS_WRITE) >=
-              0) {
-            trap_FS_Write(va("\"%s\"", profileName),
-                          static_cast<int>(strlen(profileName)) + 2, f);
+          if (trap_FS_FOpenFile("profiles/defaultprofile.dat", &f, FS_WRITE) >= 0) {
+            trap_FS_Write(va("\"%s\"", profileName), static_cast<int>(strlen(profileName)) + 2, f);
             trap_FS_FCloseFile(f);
           }
         }
@@ -4546,30 +4201,28 @@ void UI_RunMenuScript(const char **args) {
       return;
     }
     if (Q_stricmp(name, "systemCvarsGet") == 0) {
-      int ui_r_mode = trap_Cvar_VariableValue("r_mode");
-      float ui_r_gamma = trap_Cvar_VariableValue("r_gamma");
-      int ui_rate = trap_Cvar_VariableValue("rate");
-      int ui_cl_maxpackets = trap_Cvar_VariableValue("cl_maxpackets");
-      int ui_cl_packetdup = trap_Cvar_VariableValue("cl_packetdup");
-      float ui_sensitivity = trap_Cvar_VariableValue("sensitivity");
-      int ui_r_colorbits = trap_Cvar_VariableValue("r_colorbits");
-      int ui_r_fullscreen = trap_Cvar_VariableValue("r_fullscreen");
-      int ui_r_lodbias = trap_Cvar_VariableValue("r_lodbias");
-      int ui_r_subdivisions = trap_Cvar_VariableValue("r_subdivisions");
-      int ui_r_picmip = trap_Cvar_VariableValue("r_picmip");
-      int ui_r_texturebits = trap_Cvar_VariableValue("r_texturebits");
-      int ui_r_depthbits = trap_Cvar_VariableValue("r_depthbits");
-      int ui_r_ext_compressed_textures =
-          trap_Cvar_VariableValue("r_ext_compressed_textures");
-      int ui_r_finish = trap_Cvar_VariableValue("r_finish");
-      int ui_r_dynamiclight = trap_Cvar_VariableValue("r_dynamiclight");
-      int ui_r_allowextensions = trap_Cvar_VariableValue("r_allowextensions");
-      int ui_m_filter = trap_Cvar_VariableValue("m_filter");
-      int ui_s_khz = trap_Cvar_VariableValue("s_khz");
-      int ui_r_detailtextures = trap_Cvar_VariableValue("r_detailtextures");
+      int ui_r_mode                    = trap_Cvar_VariableValue("r_mode");
+      float ui_r_gamma                 = trap_Cvar_VariableValue("r_gamma");
+      int ui_rate                      = trap_Cvar_VariableValue("rate");
+      int ui_cl_maxpackets             = trap_Cvar_VariableValue("cl_maxpackets");
+      int ui_cl_packetdup              = trap_Cvar_VariableValue("cl_packetdup");
+      float ui_sensitivity             = trap_Cvar_VariableValue("sensitivity");
+      int ui_r_colorbits               = trap_Cvar_VariableValue("r_colorbits");
+      int ui_r_fullscreen              = trap_Cvar_VariableValue("r_fullscreen");
+      int ui_r_lodbias                 = trap_Cvar_VariableValue("r_lodbias");
+      int ui_r_subdivisions            = trap_Cvar_VariableValue("r_subdivisions");
+      int ui_r_picmip                  = trap_Cvar_VariableValue("r_picmip");
+      int ui_r_texturebits             = trap_Cvar_VariableValue("r_texturebits");
+      int ui_r_depthbits               = trap_Cvar_VariableValue("r_depthbits");
+      int ui_r_ext_compressed_textures = trap_Cvar_VariableValue("r_ext_compressed_textures");
+      int ui_r_finish                  = trap_Cvar_VariableValue("r_finish");
+      int ui_r_dynamiclight            = trap_Cvar_VariableValue("r_dynamiclight");
+      int ui_r_allowextensions         = trap_Cvar_VariableValue("r_allowextensions");
+      int ui_m_filter                  = trap_Cvar_VariableValue("m_filter");
+      int ui_s_khz                     = trap_Cvar_VariableValue("s_khz");
+      int ui_r_detailtextures          = trap_Cvar_VariableValue("r_detailtextures");
       char ui_r_texturemode[MAX_CVAR_VALUE_STRING];
-      trap_Cvar_VariableStringBuffer("r_texturemode", ui_r_texturemode,
-                                     sizeof(ui_r_texturemode));
+      trap_Cvar_VariableStringBuffer("r_texturemode", ui_r_texturemode, sizeof(ui_r_texturemode));
 
       trap_Cvar_Set("ui_r_mode", va("%i", ui_r_mode));
       trap_Cvar_Set("ui_r_gamma", va("%f", ui_r_gamma));
@@ -4584,8 +4237,7 @@ void UI_RunMenuScript(const char **args) {
       trap_Cvar_Set("ui_r_picmip", va("%i", ui_r_picmip));
       trap_Cvar_Set("ui_r_texturebits", va("%i", ui_r_texturebits));
       trap_Cvar_Set("ui_r_depthbits", va("%i", ui_r_depthbits));
-      trap_Cvar_Set("ui_r_ext_compressed_textures",
-                    va("%i", ui_r_ext_compressed_textures));
+      trap_Cvar_Set("ui_r_ext_compressed_textures", va("%i", ui_r_ext_compressed_textures));
       trap_Cvar_Set("ui_r_finish", va("%i", ui_r_finish));
       trap_Cvar_Set("ui_r_dynamiclight", va("%i", ui_r_dynamiclight));
       trap_Cvar_Set("ui_r_allowextensions", va("%i", ui_r_allowextensions));
@@ -4620,50 +4272,34 @@ void UI_RunMenuScript(const char **args) {
       return;
     }
     if (Q_stricmp(name, "systemCvarsApply") == 0) {
-      int ui_r_mode = static_cast<int>(trap_Cvar_VariableValue("ui_r_mode"));
-      float ui_r_gamma = trap_Cvar_VariableValue("ui_r_gamma");
-      int ui_rate = static_cast<int>(trap_Cvar_VariableValue("ui_rate"));
-      int ui_cl_maxpackets =
-          static_cast<int>(trap_Cvar_VariableValue("ui_cl_maxpackets"));
-      int ui_cl_packetdup =
-          static_cast<int>(trap_Cvar_VariableValue("ui_cl_packetdup"));
-      float ui_sensitivity = trap_Cvar_VariableValue("ui_sensitivity");
-      int ui_r_colorbits =
-          static_cast<int>(trap_Cvar_VariableValue("ui_r_colorbits"));
-      int ui_r_fullscreen =
-          static_cast<int>(trap_Cvar_VariableValue("ui_r_fullscreen"));
-      int ui_r_lodbias =
-          static_cast<int>(trap_Cvar_VariableValue("ui_r_lodbias"));
-      int ui_r_subdivisions =
-          static_cast<int>(trap_Cvar_VariableValue("ui_r_subdivisions"));
-      int ui_r_picmip =
-          static_cast<int>(trap_Cvar_VariableValue("ui_r_picmip"));
-      int ui_r_texturebits =
-          static_cast<int>(trap_Cvar_VariableValue("ui_r_texturebits"));
-      int ui_r_depthbits =
-          static_cast<int>(trap_Cvar_VariableValue("ui_r_depthbits"));
-      int ui_r_ext_compressed_textures = static_cast<int>(
-          trap_Cvar_VariableValue("ui_r_ext_compressed_textures"));
-      int ui_r_finish =
-          static_cast<int>(trap_Cvar_VariableValue("ui_r_finish"));
-      int ui_r_dynamiclight =
-          static_cast<int>(trap_Cvar_VariableValue("ui_r_dynamiclight"));
-      int ui_r_allowextensions =
-          static_cast<int>(trap_Cvar_VariableValue("ui_r_allowextensions"));
-      int ui_m_filter =
-          static_cast<int>(trap_Cvar_VariableValue("ui_m_filter"));
-      int ui_s_khz = static_cast<int>(trap_Cvar_VariableValue("ui_s_khz"));
-      int ui_r_detailtextures =
-          static_cast<int>(trap_Cvar_VariableValue("ui_r_detailtextures"));
+      int ui_r_mode                    = static_cast<int>(trap_Cvar_VariableValue("ui_r_mode"));
+      float ui_r_gamma                 = trap_Cvar_VariableValue("ui_r_gamma");
+      int ui_rate                      = static_cast<int>(trap_Cvar_VariableValue("ui_rate"));
+      int ui_cl_maxpackets             = static_cast<int>(trap_Cvar_VariableValue("ui_cl_maxpackets"));
+      int ui_cl_packetdup              = static_cast<int>(trap_Cvar_VariableValue("ui_cl_packetdup"));
+      float ui_sensitivity             = trap_Cvar_VariableValue("ui_sensitivity");
+      int ui_r_colorbits               = static_cast<int>(trap_Cvar_VariableValue("ui_r_colorbits"));
+      int ui_r_fullscreen              = static_cast<int>(trap_Cvar_VariableValue("ui_r_fullscreen"));
+      int ui_r_lodbias                 = static_cast<int>(trap_Cvar_VariableValue("ui_r_lodbias"));
+      int ui_r_subdivisions            = static_cast<int>(trap_Cvar_VariableValue("ui_r_subdivisions"));
+      int ui_r_picmip                  = static_cast<int>(trap_Cvar_VariableValue("ui_r_picmip"));
+      int ui_r_texturebits             = static_cast<int>(trap_Cvar_VariableValue("ui_r_texturebits"));
+      int ui_r_depthbits               = static_cast<int>(trap_Cvar_VariableValue("ui_r_depthbits"));
+      int ui_r_ext_compressed_textures = static_cast<int>(trap_Cvar_VariableValue("ui_r_ext_compressed_textures"));
+      int ui_r_finish                  = static_cast<int>(trap_Cvar_VariableValue("ui_r_finish"));
+      int ui_r_dynamiclight            = static_cast<int>(trap_Cvar_VariableValue("ui_r_dynamiclight"));
+      int ui_r_allowextensions         = static_cast<int>(trap_Cvar_VariableValue("ui_r_allowextensions"));
+      int ui_m_filter                  = static_cast<int>(trap_Cvar_VariableValue("ui_m_filter"));
+      int ui_s_khz                     = static_cast<int>(trap_Cvar_VariableValue("ui_s_khz"));
+      int ui_r_detailtextures          = static_cast<int>(trap_Cvar_VariableValue("ui_r_detailtextures"));
       char ui_r_texturemode[MAX_CVAR_VALUE_STRING];
-      trap_Cvar_VariableStringBuffer("ui_r_texturemode", ui_r_texturemode,
-                                     sizeof(ui_r_texturemode));
+      trap_Cvar_VariableStringBuffer("ui_r_texturemode", ui_r_texturemode, sizeof(ui_r_texturemode));
 
       // failsafe
       if (ui_rate == 0) {
-        ui_rate = 5000;
+        ui_rate          = 5000;
         ui_cl_maxpackets = 30;
-        ui_cl_packetdup = 1;
+        ui_cl_packetdup  = 1;
       }
 
       trap_Cvar_Set("r_mode", va("%i", ui_r_mode));
@@ -4679,8 +4315,7 @@ void UI_RunMenuScript(const char **args) {
       trap_Cvar_Set("r_picmip", va("%i", ui_r_picmip));
       trap_Cvar_Set("r_texturebits", va("%i", ui_r_texturebits));
       trap_Cvar_Set("r_depthbits", va("%i", ui_r_depthbits));
-      trap_Cvar_Set("r_ext_compressed_textures",
-                    va("%i", ui_r_ext_compressed_textures));
+      trap_Cvar_Set("r_ext_compressed_textures", va("%i", ui_r_ext_compressed_textures));
       trap_Cvar_Set("r_finish", va("%i", ui_r_finish));
       trap_Cvar_Set("r_dynamiclight", va("%i", ui_r_dynamiclight));
       trap_Cvar_Set("r_allowextensions", va("%i", ui_r_allowextensions));
@@ -4713,17 +4348,14 @@ void UI_RunMenuScript(const char **args) {
       return;
     }
     if (Q_stricmp(name, "profileCvarsGet") == 0) {
-      int ui_profile_mousePitch =
-          static_cast<int>(trap_Cvar_VariableValue("ui_mousePitch"));
+      int ui_profile_mousePitch = static_cast<int>(trap_Cvar_VariableValue("ui_mousePitch"));
 
       trap_Cvar_Set("ui_profile_mousePitch", va("%i", ui_profile_mousePitch));
       return;
     }
     if (Q_stricmp(name, "profileCvarsApply") == 0) {
-      int ui_handedness =
-          static_cast<int>(trap_Cvar_VariableValue("ui_handedness"));
-      int ui_profile_mousePitch =
-          static_cast<int>(trap_Cvar_VariableValue("ui_profile_mousePitch"));
+      int ui_handedness         = static_cast<int>(trap_Cvar_VariableValue("ui_handedness"));
+      int ui_profile_mousePitch = static_cast<int>(trap_Cvar_VariableValue("ui_profile_mousePitch"));
 
       trap_Cvar_Set("ui_mousePitch", va("%i", ui_profile_mousePitch));
 
@@ -4753,8 +4385,7 @@ void UI_RunMenuScript(const char **args) {
       return;
     }
     if (Q_stricmp(name, "defaultControls") == 0) {
-      int ui_handedness =
-          static_cast<int>(trap_Cvar_VariableValue("ui_handedness"));
+      int ui_handedness = static_cast<int>(trap_Cvar_VariableValue("ui_handedness"));
 
       if (ui_handedness == 0) {
         // exec default.cfg
@@ -4768,10 +4399,8 @@ void UI_RunMenuScript(const char **args) {
       return;
     }
     if (!Q_stricmp(name, "voteAutoRtv")) {
-      trap_Cmd_ExecuteText(
-          EXEC_APPEND,
-          va("callvote autoRtv %i\n",
-             static_cast<int>(trap_Cvar_VariableValue("ui_voteAutoRtv"))));
+      trap_Cmd_ExecuteText(EXEC_APPEND,
+                           va("callvote autoRtv %i\n", static_cast<int>(trap_Cvar_VariableValue("ui_voteAutoRtv"))));
       return;
     }
 
@@ -4784,9 +4413,7 @@ void UI_RunMenuScript(const char **args) {
         }
       } else {
         uiPreviousMenu[0] = '\0';
-        Com_Printf(S_COLOR_YELLOW
-                   "WARNING: uiScript '%s' called with no arguments\n",
-                   name);
+        Com_Printf(S_COLOR_YELLOW "WARNING: uiScript '%s' called with no arguments\n", name);
       }
 
       return;
@@ -4813,8 +4440,7 @@ void UI_RunMenuScript(const char **args) {
 
     if (!Q_stricmp(name, "loadCustomvotes")) {
       // don't re-request custom votes if we already have everything processed
-      if (static_cast<int>(uiInfo.customVotes.size()) !=
-          uiInfo.numCustomvotes) {
+      if (static_cast<int>(uiInfo.customVotes.size()) != uiInfo.numCustomvotes) {
         uiInfo.customVotes.clear();
         // cgame handles this as a console command and sends request to qagame
         trap_Cmd_ExecuteText(EXEC_APPEND, "uiRequestCustomvotes\n");
@@ -4825,37 +4451,31 @@ void UI_RunMenuScript(const char **args) {
     }
 
     if (!Q_stricmp(name, "voteCustomvote")) {
-      if (uiInfo.customvoteIndex < 0 ||
-          uiInfo.customvoteIndex > uiInfo.numCustomvotes) {
+      if (uiInfo.customvoteIndex < 0 || uiInfo.customvoteIndex > uiInfo.numCustomvotes) {
         return;
       }
 
       const std::string list = uiInfo.customVotes[uiInfo.customvoteIndex].type;
       trap_Cmd_ExecuteText(EXEC_APPEND,
-                           va("callvote %s %s\n",
-                              ui_voteCustomRTV.integer ? "rtv" : "randommap",
-                              list.c_str()));
+                           va("callvote %s %s\n", ui_voteCustomRTV.integer ? "rtv" : "randommap", list.c_str()));
       return;
     }
 
     if (!Q_stricmp(name, "resetCustomvoteDetailsIndex")) {
       uiInfo.customvoteMapsOnServerIndex = 0;
-      uiInfo.customvoteOtherMapsIndex = 0;
+      uiInfo.customvoteOtherMapsIndex    = 0;
 
       const char *menuName = COM_ParseExt(args, qfalse);
 
       // if menuName is nullptr (called without args), active menu name is used
-      Menu_SetFeederSelection(nullptr, FEEDER_CUSTOMVOTES_MAPS_ONSERVER, 0,
-                              menuName);
-      Menu_SetFeederSelection(nullptr, FEEDER_CUSTOMVOTES_MAPS_UNAVAILABLE, 0,
-                              menuName);
+      Menu_SetFeederSelection(nullptr, FEEDER_CUSTOMVOTES_MAPS_ONSERVER, 0, menuName);
+      Menu_SetFeederSelection(nullptr, FEEDER_CUSTOMVOTES_MAPS_UNAVAILABLE, 0, menuName);
       return;
     }
 
     if (!Q_stricmp(name, "setActiveChangelog")) {
       if (ui_currentChangelog.string[0] == '\0') {
-        trap_Cvar_Set("ui_currentChangelog",
-                      va(std::prev(uiInfo.changelogs.end())->first.c_str()));
+        trap_Cvar_Set("ui_currentChangelog", va(std::prev(uiInfo.changelogs.end())->first.c_str()));
       }
 
       trap_Cvar_Update(&ui_currentChangelog);
@@ -4866,22 +4486,18 @@ void UI_RunMenuScript(const char **args) {
       const char *itemName = COM_ParseExt(args, qfalse);
 
       if (!itemName || itemName[0] == '\0') {
-        Com_Printf(
-            S_COLOR_RED
-            "%s: 'setActiveChangelog' called without a changelog item!\n",
-            __func__);
+        Com_Printf(S_COLOR_RED "%s: 'setActiveChangelog' called without a changelog item!\n", __func__);
         return;
       }
 
       const itemDef_t *item = Menu_FindItemByName(Menu_GetFocused(), itemName);
 
       if (!item) {
-        Com_Printf(S_COLOR_RED "%s: failed to find changelog item to parse!\n",
-                   __func__);
+        Com_Printf(S_COLOR_RED "%s: failed to find changelog item to parse!\n", __func__);
         return;
       }
 
-      fontInfo_t *font = &uiInfo.uiDC.Assets.fonts[item->font];
+      fontInfo_t *font     = &uiInfo.uiDC.Assets.fonts[item->font];
       std::string contents = uiInfo.changelogs[ui_currentChangelog.string];
 
       uiInfo.formattedChangelog = StringUtils::split(contents, "\n");
@@ -4889,9 +4505,7 @@ void UI_RunMenuScript(const char **args) {
       // because for that we need to get the number of lines... when formatted,
       // so we'd need to format everything twice
       uiInfo.formattedChangelog = ETJump::Utilities::fitChangelogLinesToWidth(
-          uiInfo.formattedChangelog,
-          static_cast<int>(item->window.rect.w - SCROLLBAR_SIZE - 10),
-          item->textscale, font);
+        uiInfo.formattedChangelog, static_cast<int>(item->window.rect.w - SCROLLBAR_SIZE - 10), item->textscale, font);
 
       Menu_SetFeederSelection(nullptr, FEEDER_CHANGELOG, 0, nullptr);
 
@@ -4909,12 +4523,10 @@ void UI_RunMenuScript(const char **args) {
       trap_Cvar_VariableStringBuffer("ui_quickconnect_ip", buf, sizeof(buf));
       const std::string address = buf;
 
-      trap_Cvar_VariableStringBuffer("ui_quickconnect_password", buf,
-                                     sizeof(buf));
+      trap_Cvar_VariableStringBuffer("ui_quickconnect_password", buf, sizeof(buf));
       const std::string password = buf;
 
-      trap_Cvar_VariableStringBuffer("ui_quickconnect_customname", buf,
-                                     sizeof(buf));
+      trap_Cvar_VariableStringBuffer("ui_quickconnect_customname", buf, sizeof(buf));
       const std::string customName = buf;
 
       ETJump::ui.quickConnect->addServer(address, password, customName);
@@ -4925,8 +4537,7 @@ void UI_RunMenuScript(const char **args) {
       if (String_Parse(args, &name2)) {
         ETJump::ui.serverAction.statusType = static_cast<int8_t>(Q_atoi(name2));
       } else {
-        Com_Printf(S_COLOR_RED "%s: '%s' called with no arguments!\n", __func__,
-                   name);
+        Com_Printf(S_COLOR_RED "%s: '%s' called with no arguments!\n", __func__, name);
       }
 
       return;
@@ -4936,8 +4547,7 @@ void UI_RunMenuScript(const char **args) {
       if (String_Parse(args, &name2)) {
         ETJump::ui.serverAction.joinType = static_cast<int8_t>(Q_atoi(name2));
       } else {
-        Com_Printf(S_COLOR_RED "%s: '%s' called with no arguments!\n", __func__,
-                   name);
+        Com_Printf(S_COLOR_RED "%s: '%s' called with no arguments!\n", __func__, name);
       }
 
       return;
@@ -4949,8 +4559,7 @@ void UI_RunMenuScript(const char **args) {
         const int index = Q_atoi(name2) - 1;
         ETJump::ui.quickConnect->setEditData(index);
       } else {
-        Com_Printf(S_COLOR_YELLOW "%s: '%s' called with no arguments!\n",
-                   __func__, name);
+        Com_Printf(S_COLOR_YELLOW "%s: '%s' called with no arguments!\n", __func__, name);
       }
 
       return;
@@ -4970,19 +4579,15 @@ void UI_RunMenuScript(const char **args) {
       menu = Menus_FindByName("main");
 
       if (!menu) {
-        Com_Printf(
-            S_COLOR_RED
-            "%s: failure while executing '%s' - unable to find 'main.menu'!\n",
-            __func__, name);
+        Com_Printf(S_COLOR_RED "%s: failure while executing '%s' - unable to find 'main.menu'!\n", __func__, name);
         return;
       }
 
-      const auto toggleButtonState = [&menu](const int index,
-                                             const qboolean show) {
+      const auto toggleButtonState = [&menu](const int index, const qboolean show) {
         // menu entries are 1-indexed
-        const char *joinBtn = va("btnQuickConnectServer%iJoin", index + 1);
-        const char *infoBtn = va("btnQuickConnectServer%iInfo", index + 1);
-        const char *editBtn = va("btnQuickConnectServer%iEdit", index + 1);
+        const char *joinBtn   = va("btnQuickConnectServer%iJoin", index + 1);
+        const char *infoBtn   = va("btnQuickConnectServer%iInfo", index + 1);
+        const char *editBtn   = va("btnQuickConnectServer%iEdit", index + 1);
         const char *deleteBtn = va("btnQuickConnectServer%iDelete", index + 1);
 
         Menu_ShowItemByName(menu, joinBtn, show);
@@ -5015,13 +4620,11 @@ void UI_RunMenuScript(const char **args) {
     }
 
     if (!Q_stricmp(name, "votePortalPredict")) {
-      const auto value =
-          static_cast<int32_t>(trap_Cvar_VariableValue("ui_votePortalPredict"));
+      const auto value = static_cast<int32_t>(trap_Cvar_VariableValue("ui_votePortalPredict"));
 
       // the cvar is the current value of 'g_portalPredict',
       // so we wanna vote the opposing value here to toggle the setting
-      trap_Cmd_ExecuteText(
-          EXEC_APPEND, va("callvote portalpredict %i\n", value == 0 ? 1 : 0));
+      trap_Cmd_ExecuteText(EXEC_APPEND, va("callvote portalpredict %i\n", value == 0 ? 1 : 0));
 
       return;
     }
@@ -5064,8 +4667,7 @@ static void UI_InsertServerIntoDisplayList(int num, int position) {
   //
   uiInfo.serverStatus.numDisplayServers++;
   for (i = uiInfo.serverStatus.numDisplayServers; i > position; i--) {
-    uiInfo.serverStatus.displayServers[i] =
-        uiInfo.serverStatus.displayServers[i - 1];
+    uiInfo.serverStatus.displayServers[i] = uiInfo.serverStatus.displayServers[i - 1];
   }
   uiInfo.serverStatus.displayServers[position] = num;
 }
@@ -5082,8 +4684,7 @@ static void UI_RemoveServerFromDisplayList(int num) {
     if (uiInfo.serverStatus.displayServers[i] == num) {
       uiInfo.serverStatus.numDisplayServers--;
       for (j = i; j < uiInfo.serverStatus.numDisplayServers; j++) {
-        uiInfo.serverStatus.displayServers[j] =
-            uiInfo.serverStatus.displayServers[j + 1];
+        uiInfo.serverStatus.displayServers[j] = uiInfo.serverStatus.displayServers[j + 1];
       }
       return;
     }
@@ -5099,17 +4700,15 @@ static void UI_BinaryServerInsertion(int num) {
   int mid, offset, res, len;
 
   // use binary search to insert server
-  len = uiInfo.serverStatus.numDisplayServers;
-  mid = len;
+  len    = uiInfo.serverStatus.numDisplayServers;
+  mid    = len;
   offset = 0;
-  res = 0;
+  res    = 0;
   while (mid > 0) {
     mid = len >> 1;
     //
-    res = trap_LAN_CompareServers(
-        ui_netSource.integer, uiInfo.serverStatus.sortKey,
-        uiInfo.serverStatus.sortDir, num,
-        uiInfo.serverStatus.displayServers[offset + mid]);
+    res = trap_LAN_CompareServers(ui_netSource.integer, uiInfo.serverStatus.sortKey, uiInfo.serverStatus.sortDir, num,
+                                  uiInfo.serverStatus.displayServers[offset + mid]);
     // if equal
     if (res == 0) {
       UI_InsertServerIntoDisplayList(num, offset + mid);
@@ -5118,7 +4717,7 @@ static void UI_BinaryServerInsertion(int num) {
     // if larger
     else if (res == 1) {
       offset += mid;
-      len -= mid;
+      len    -= mid;
     }
     // if smaller
     else {
@@ -5137,15 +4736,14 @@ UI_BuildServerDisplayList
 ==================
 */
 static void UI_BuildServerDisplayList(int force) {
-  int i, count, clients, maxClients, ping, game, len, friendlyFire, maxlives,
-      punkbuster, antilag, password, weaponrestricted, balancedteams;
+  int i, count, clients, maxClients, ping, game, len, friendlyFire, maxlives, punkbuster, antilag, password,
+    weaponrestricted, balancedteams;
   char info[MAX_STRING_CHARS];
   // qboolean startRefresh = qtrue; // TTimo: unused
 
   game = 0; // NERVE - SMF - shut up compiler warning
 
-  if (!(force ||
-        uiInfo.uiDC.realTime > uiInfo.serverStatus.nextDisplayRefresh)) {
+  if (!(force || uiInfo.uiDC.realTime > uiInfo.serverStatus.nextDisplayRefresh)) {
     return;
   }
 
@@ -5155,23 +4753,21 @@ static void UI_BuildServerDisplayList(int force) {
   }
 
   // do motd updates here too
-  trap_Cvar_VariableStringBuffer("cl_motdString", uiInfo.serverStatus.motd,
-                                 sizeof(uiInfo.serverStatus.motd));
+  trap_Cvar_VariableStringBuffer("cl_motdString", uiInfo.serverStatus.motd, sizeof(uiInfo.serverStatus.motd));
   len = static_cast<int>(strlen(uiInfo.serverStatus.motd));
   if (len == 0) {
-    Q_strncpyz(uiInfo.serverStatus.motd,
-               va("Enemy Territory - Version: %s", Q3_VERSION),
+    Q_strncpyz(uiInfo.serverStatus.motd, va("Enemy Territory - Version: %s", Q3_VERSION),
                sizeof(uiInfo.serverStatus.motd));
     len = static_cast<int>(strlen(uiInfo.serverStatus.motd));
   }
   if (len != uiInfo.serverStatus.motdLen) {
-    uiInfo.serverStatus.motdLen = len;
+    uiInfo.serverStatus.motdLen   = len;
     uiInfo.serverStatus.motdWidth = -1;
   }
 
   if (force) {
     // clear number of displayed servers
-    uiInfo.serverStatus.numDisplayServers = 0;
+    uiInfo.serverStatus.numDisplayServers   = 0;
     uiInfo.serverStatus.numPlayersOnServers = 0;
     // set list box index to zero
     Menu_SetFeederSelection(nullptr, FEEDER_SERVERS, 0, nullptr);
@@ -5183,9 +4779,9 @@ static void UI_BuildServerDisplayList(int force) {
   count = trap_LAN_GetServerCount(ui_netSource.integer);
   if (count == -1 || (ui_netSource.integer == AS_LOCAL && count == 0)) {
     // still waiting on a response from the master
-    uiInfo.serverStatus.numDisplayServers = 0;
-    uiInfo.serverStatus.numPlayersOnServers = 0;
-    uiInfo.serverStatus.nextDisplayRefresh = uiInfo.uiDC.realTime + 500;
+    uiInfo.serverStatus.numDisplayServers    = 0;
+    uiInfo.serverStatus.numPlayersOnServers  = 0;
+    uiInfo.serverStatus.nextDisplayRefresh   = uiInfo.uiDC.realTime + 500;
     uiInfo.serverStatus.currentServerPreview = 0;
     return;
   }
@@ -5202,27 +4798,23 @@ static void UI_BuildServerDisplayList(int force) {
     // get the ping for this server
     ping = trap_LAN_GetServerPing(ui_netSource.integer, i);
     if (ping > 0 || ui_netSource.integer == AS_FAVORITES) {
-
       trap_LAN_GetServerInfo(ui_netSource.integer, i, info, MAX_STRING_CHARS);
 
-      clients = Q_atoi(Info_ValueForKey(info, "clients"));
+      clients                                  = Q_atoi(Info_ValueForKey(info, "clients"));
       uiInfo.serverStatus.numPlayersOnServers += clients;
 
       trap_Cvar_Update(&ui_browserShowEmptyOrFull);
       if (ui_browserShowEmptyOrFull.integer) {
         maxClients = Q_atoi(Info_ValueForKey(info, "sv_maxclients"));
 
-        if (clients != maxClients &&
-            ((!clients && ui_browserShowEmptyOrFull.integer == 2) ||
-             (clients && ui_browserShowEmptyOrFull.integer == 1))) {
+        if (clients != maxClients && ((!clients && ui_browserShowEmptyOrFull.integer == 2) ||
+                                      (clients && ui_browserShowEmptyOrFull.integer == 1))) {
           trap_LAN_MarkServerVisible(ui_netSource.integer, i, qfalse);
           continue;
         }
 
-        if (clients && ((clients == maxClients &&
-                         ui_browserShowEmptyOrFull.integer == 2) ||
-                        (clients != maxClients &&
-                         ui_browserShowEmptyOrFull.integer == 1))) {
+        if (clients && ((clients == maxClients && ui_browserShowEmptyOrFull.integer == 2) ||
+                        (clients != maxClients && ui_browserShowEmptyOrFull.integer == 1))) {
           trap_LAN_MarkServerVisible(ui_netSource.integer, i, qfalse);
           continue;
         }
@@ -5252,8 +4844,7 @@ static void UI_BuildServerDisplayList(int force) {
       trap_Cvar_Update(&ui_browserShowMaxlives);
       if (ui_browserShowMaxlives.integer) {
         maxlives = Q_atoi(Info_ValueForKey(info, "maxlives"));
-        if ((maxlives && ui_browserShowMaxlives.integer == 2) ||
-            (!maxlives && ui_browserShowMaxlives.integer == 1)) {
+        if ((maxlives && ui_browserShowMaxlives.integer == 2) || (!maxlives && ui_browserShowMaxlives.integer == 1)) {
           trap_LAN_MarkServerVisible(ui_netSource.integer, i, qfalse);
           continue;
         }
@@ -5274,8 +4865,7 @@ static void UI_BuildServerDisplayList(int force) {
       if (ui_browserShowAntilag.integer) {
         antilag = Q_atoi(Info_ValueForKey(info, "g_antilag"));
 
-        if ((antilag && ui_browserShowAntilag.integer == 2) ||
-            (!antilag && ui_browserShowAntilag.integer == 1)) {
+        if ((antilag && ui_browserShowAntilag.integer == 2) || (!antilag && ui_browserShowAntilag.integer == 1)) {
           trap_LAN_MarkServerVisible(ui_netSource.integer, i, qfalse);
           continue;
         }
@@ -5285,10 +4875,8 @@ static void UI_BuildServerDisplayList(int force) {
       if (ui_browserShowWeaponsRestricted.integer) {
         weaponrestricted = Q_atoi(Info_ValueForKey(info, "weaprestrict"));
 
-        if ((weaponrestricted != 100 &&
-             ui_browserShowWeaponsRestricted.integer == 2) ||
-            (weaponrestricted == 100 &&
-             ui_browserShowWeaponsRestricted.integer == 1)) {
+        if ((weaponrestricted != 100 && ui_browserShowWeaponsRestricted.integer == 2) ||
+            (weaponrestricted == 100 && ui_browserShowWeaponsRestricted.integer == 1)) {
           trap_LAN_MarkServerVisible(ui_netSource.integer, i, qfalse);
           continue;
         }
@@ -5316,10 +4904,8 @@ static void UI_BuildServerDisplayList(int force) {
 
       trap_Cvar_Update(&ui_browserShowETJump);
       if (ui_browserShowETJump.integer > 0) {
-        bool isETJump =
-            Q_stricmpn(Info_ValueForKey(info, "game"), GAME_NAME, 6) == 0;
-        if ((isETJump && ui_browserShowETJump.integer == 2) ||
-            (!isETJump && ui_browserShowETJump.integer == 1)) {
+        bool isETJump = Q_stricmpn(Info_ValueForKey(info, "game"), GAME_NAME, 6) == 0;
+        if ((isETJump && ui_browserShowETJump.integer == 2) || (!isETJump && ui_browserShowETJump.integer == 1)) {
           trap_LAN_MarkServerVisible(ui_netSource.integer, i, qfalse);
           continue;
         }
@@ -5334,11 +4920,10 @@ static void UI_BuildServerDisplayList(int force) {
         char *s = Info_ValueForKey(info, "mapname");
 
         if (s && *s) {
-          uiInfo.serverStatus.currentServerPreview = trap_R_RegisterShaderNoMip(
-              va("levelshots/%s", Info_ValueForKey(info, "mapname")));
-        } else {
           uiInfo.serverStatus.currentServerPreview =
-              trap_R_RegisterShaderNoMip("levelshots/unknownmap");
+            trap_R_RegisterShaderNoMip(va("levelshots/%s", Info_ValueForKey(info, "mapname")));
+        } else {
+          uiInfo.serverStatus.currentServerPreview = trap_R_RegisterShaderNoMip("levelshots/unknownmap");
         }
       }
 
@@ -5358,11 +4943,17 @@ typedef struct {
 } serverStatusCvar_t;
 
 serverStatusCvar_t serverStatusCvars[] = {
-    {"sv_hostname", "Name"},   {"Address", ""},
-    {"gamename", "Game name"}, {"g_gametype", "Game type"},
-    {"mapname", "Map"},        {"version", ""},
-    {"protocol", ""},          {"timelimit", ""},
-    {"fraglimit", ""},         {NULL, NULL}};
+  {"sv_hostname", "Name"     },
+  {"Address",     ""         },
+  {"gamename",    "Game name"},
+  {"g_gametype",  "Game type"},
+  {"mapname",     "Map"      },
+  {"version",     ""         },
+  {"protocol",    ""         },
+  {"timelimit",   ""         },
+  {"fraglimit",   ""         },
+  {NULL,          NULL       }
+};
 
 /*
 ==================
@@ -5384,12 +4975,12 @@ static void UI_SortServerStatusInfo(serverStatusInfo_t *info) {
       }
       if (!Q_stricmp(serverStatusCvars[i].name, info->lines[j][0])) {
         // swap lines
-        tmp1 = info->lines[index][0];
-        tmp2 = info->lines[index][3];
+        tmp1                  = info->lines[index][0];
+        tmp2                  = info->lines[index][3];
         info->lines[index][0] = info->lines[j][0];
         info->lines[index][3] = info->lines[j][3];
-        info->lines[j][0] = tmp1;
-        info->lines[j][3] = tmp2;
+        info->lines[j][0]     = tmp1;
+        info->lines[j][3]     = tmp2;
         //
         if (strlen(serverStatusCvars[i].altName)) {
           info->lines[index][0] = serverStatusCvars[i].altName;
@@ -5405,8 +4996,7 @@ static void UI_SortServerStatusInfo(serverStatusInfo_t *info) {
 UI_GetServerStatusInfo
 ==================
 */
-static int UI_GetServerStatusInfo(const char *serverAddress,
-                                  serverStatusInfo_t *info) {
+static int UI_GetServerStatusInfo(const char *serverAddress, serverStatusInfo_t *info) {
   char *p, *score, *ping, *name, *p_val = nullptr, *p_name = nullptr;
   menuDef_t *menu, *menu2; // we use the URL buttons in several menus
   int i, len;
@@ -5417,13 +5007,12 @@ static int UI_GetServerStatusInfo(const char *serverAddress,
   }
   memset(info, 0, sizeof(*info));
   if (trap_LAN_ServerStatus(serverAddress, info->text, sizeof(info->text))) {
-
-    menu = Menus_FindByName("serverinfo_popmenu");
+    menu  = Menus_FindByName("serverinfo_popmenu");
     menu2 = Menus_FindByName("popupError");
 
     Q_strncpyz(info->address, serverAddress, sizeof(info->address));
-    p = info->text;
-    info->numLines = 0;
+    p                              = info->text;
+    info->numLines                 = 0;
     info->lines[info->numLines][0] = "Address";
     info->lines[info->numLines][1] = "";
     info->lines[info->numLines][2] = "";
@@ -5434,7 +5023,7 @@ static int UI_GetServerStatusInfo(const char *serverAddress,
     trap_Cvar_Set("ui_modURL", "");
     // get the cvars
     while (p && *p) {
-      p = strchr(p, '\\');
+      p    = strchr(p, '\\');
       *p++ = '\0';
       if (p_name) {
         if (!Q_stricmp(p_name, "url")) {
@@ -5458,16 +5047,16 @@ static int UI_GetServerStatusInfo(const char *serverAddress,
       if (*p == '\\') {
         break;
       }
-      p_name = p;
+      p_name                         = p;
       info->lines[info->numLines][0] = p;
       info->lines[info->numLines][1] = "";
       info->lines[info->numLines][2] = "";
-      p = strchr(p, '\\');
+      p                              = strchr(p, '\\');
       if (!p) {
         break;
       }
-      *p++ = '\0';
-      p_val = p;
+      *p++                           = '\0';
+      p_val                          = p;
       info->lines[info->numLines][3] = p;
 
       info->numLines++;
@@ -5490,7 +5079,7 @@ static int UI_GetServerStatusInfo(const char *serverAddress,
       info->lines[info->numLines][3] = "name";
       info->numLines++;
       // parse players
-      i = 0;
+      i   = 0;
       len = 0;
       while (p && *p) {
         if (*p == '\\') {
@@ -5500,13 +5089,13 @@ static int UI_GetServerStatusInfo(const char *serverAddress,
           break;
         }
         score = p;
-        p = strchr(p, ' ');
+        p     = strchr(p, ' ');
         if (!p) {
           break;
         }
         *p++ = '\0';
         ping = p;
-        p = strchr(p, ' ');
+        p    = strchr(p, ' ');
         if (!p) {
           break;
         }
@@ -5516,32 +5105,28 @@ static int UI_GetServerStatusInfo(const char *serverAddress,
         if (*p == '"') {
           ++p; // skip opening quote
           name = p;
-          p = strchr(p, '"');
+          p    = strchr(p, '"');
 
           if (!p) {
-            uiInfo.uiDC.Print(
-                S_COLOR_YELLOW
-                "WARNING: failed to parse players from server info - malformed "
-                "response format, no closing quote on player name!\n");
+            uiInfo.uiDC.Print(S_COLOR_YELLOW "WARNING: failed to parse players from server info - malformed "
+                                             "response format, no closing quote on player name!\n");
             break;
           }
 
           *p++ = '\0'; // strip the closing quote
         } else {
           // shouldn't happen, names should always be quoted
-          uiInfo.uiDC.Print(S_COLOR_YELLOW
-                            "WARNING: non-standard server info response - no "
-                            "surrounding quotes in player name!\n");
+          uiInfo.uiDC.Print(S_COLOR_YELLOW "WARNING: non-standard server info response - no "
+                                           "surrounding quotes in player name!\n");
           name = p;
         }
 
-        Com_sprintf(&info->pings[len],
-                    static_cast<int>(sizeof(info->pings)) - len, "%d", i);
-        info->lines[info->numLines][0] = &info->pings[len];
-        len += static_cast<int>(strlen(&info->pings[len])) + 1;
-        info->lines[info->numLines][1] = score;
-        info->lines[info->numLines][2] = ping;
-        info->lines[info->numLines][3] = name;
+        Com_sprintf(&info->pings[len], static_cast<int>(sizeof(info->pings)) - len, "%d", i);
+        info->lines[info->numLines][0]  = &info->pings[len];
+        len                            += static_cast<int>(strlen(&info->pings[len])) + 1;
+        info->lines[info->numLines][1]  = score;
+        info->lines[info->numLines][2]  = ping;
+        info->lines[info->numLines][3]  = name;
         info->numLines++;
         if (info->numLines >= MAX_SERVERSTATUS_LINES) {
           break;
@@ -5596,16 +5181,14 @@ static void UI_BuildFindPlayerList(qboolean force) {
   char infoString[MAX_STRING_CHARS];
 
   if (!force) {
-    if (!uiInfo.nextFindPlayerRefresh ||
-        uiInfo.nextFindPlayerRefresh > uiInfo.uiDC.realTime) {
+    if (!uiInfo.nextFindPlayerRefresh || uiInfo.nextFindPlayerRefresh > uiInfo.uiDC.realTime) {
       return;
     }
   } else {
     memset(&uiInfo.pendingServerStatus, 0, sizeof(uiInfo.pendingServerStatus));
-    uiInfo.numFoundPlayerServers = 0;
+    uiInfo.numFoundPlayerServers    = 0;
     uiInfo.currentFoundPlayerServer = 0;
-    trap_Cvar_VariableStringBuffer("ui_findPlayer", uiInfo.findPlayerName,
-                                   sizeof(uiInfo.findPlayerName));
+    trap_Cvar_VariableStringBuffer("ui_findPlayer", uiInfo.findPlayerName, sizeof(uiInfo.findPlayerName));
     Q_CleanStr(uiInfo.findPlayerName);
     // should have a string of some length
     if (!strlen(uiInfo.findPlayerName)) {
@@ -5622,18 +5205,16 @@ static void UI_BuildFindPlayerList(qboolean force) {
     trap_LAN_ServerStatus(NULL, NULL, 0);
     //
     uiInfo.numFoundPlayerServers = 1;
-    Com_sprintf(
-        uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers - 1],
-        sizeof(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers - 1]),
-        "searching %d...", uiInfo.pendingServerStatus.num);
+    Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers - 1],
+                sizeof(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers - 1]), "searching %d...",
+                uiInfo.pendingServerStatus.num);
     numFound = 0;
   }
   for (i = 0; i < MAX_SERVERSTATUSREQUESTS; i++) {
     // if this pending server is valid
     if (uiInfo.pendingServerStatus.server[i].valid) {
       // try to get the server status for this server
-      if (UI_GetServerStatusInfo(uiInfo.pendingServerStatus.server[i].adrstr,
-                                 &info)) {
+      if (UI_GetServerStatusInfo(uiInfo.pendingServerStatus.server[i].adrstr, &info)) {
         //
         numFound++;
         // parse through the server status lines
@@ -5657,17 +5238,10 @@ static void UI_BuildFindPlayerList(qboolean force) {
             // found)
             if (uiInfo.numFoundPlayerServers < MAX_FOUNDPLAYER_SERVERS - 1) {
               //
-              Q_strncpyz(
-                  uiInfo
-                      .foundPlayerServerAddresses[uiInfo.numFoundPlayerServers -
-                                                  1],
-                  uiInfo.pendingServerStatus.server[i].adrstr,
-                  sizeof(uiInfo.foundPlayerServerAddresses[0]));
-              Q_strncpyz(
-                  uiInfo
-                      .foundPlayerServerNames[uiInfo.numFoundPlayerServers - 1],
-                  uiInfo.pendingServerStatus.server[i].name,
-                  sizeof(uiInfo.foundPlayerServerNames[0]));
+              Q_strncpyz(uiInfo.foundPlayerServerAddresses[uiInfo.numFoundPlayerServers - 1],
+                         uiInfo.pendingServerStatus.server[i].adrstr, sizeof(uiInfo.foundPlayerServerAddresses[0]));
+              Q_strncpyz(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers - 1],
+                         uiInfo.pendingServerStatus.server[i].name, sizeof(uiInfo.foundPlayerServerNames[0]));
               uiInfo.numFoundPlayerServers++;
             } else {
               // can't
@@ -5675,16 +5249,13 @@ static void UI_BuildFindPlayerList(qboolean force) {
               // more so
               // we're
               // done
-              uiInfo.pendingServerStatus.num =
-                  uiInfo.serverStatus.numDisplayServers;
+              uiInfo.pendingServerStatus.num = uiInfo.serverStatus.numDisplayServers;
             }
           }
         }
-        Com_sprintf(
-            uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers - 1],
-            sizeof(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers -
-                                                 1]),
-            "searching %d/%d...", uiInfo.pendingServerStatus.num, numFound);
+        Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers - 1],
+                    sizeof(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers - 1]), "searching %d/%d...",
+                    uiInfo.pendingServerStatus.num, numFound);
         // retrieved the server status so reuse
         // this spot
         uiInfo.pendingServerStatus.server[i].valid = qfalse;
@@ -5692,36 +5263,27 @@ static void UI_BuildFindPlayerList(qboolean force) {
     }
     // if empty pending slot or timed out
     if (!uiInfo.pendingServerStatus.server[i].valid ||
-        uiInfo.pendingServerStatus.server[i].startTime <
-            uiInfo.uiDC.realTime - ui_serverStatusTimeOut.integer) {
+        uiInfo.pendingServerStatus.server[i].startTime < uiInfo.uiDC.realTime - ui_serverStatusTimeOut.integer) {
       // reset server status request for this address
       UI_GetServerStatusInfo(uiInfo.pendingServerStatus.server[i].adrstr, NULL);
       // reuse pending slot
       uiInfo.pendingServerStatus.server[i].valid = qfalse;
       // if we didn't try to get the status of all
       // servers in the main browser yet
-      if (uiInfo.pendingServerStatus.num <
-          uiInfo.serverStatus.numDisplayServers) {
+      if (uiInfo.pendingServerStatus.num < uiInfo.serverStatus.numDisplayServers) {
         uiInfo.pendingServerStatus.server[i].startTime = uiInfo.uiDC.realTime;
         trap_LAN_GetServerAddressString(
-            ui_netSource.integer,
-            uiInfo.serverStatus.displayServers[uiInfo.pendingServerStatus.num],
-            uiInfo.pendingServerStatus.server[i].adrstr,
-            sizeof(uiInfo.pendingServerStatus.server[i].adrstr));
-        trap_LAN_GetServerInfo(
-            ui_netSource.integer,
-            uiInfo.serverStatus.displayServers[uiInfo.pendingServerStatus.num],
-            infoString, sizeof(infoString));
-        Q_strncpyz(uiInfo.pendingServerStatus.server[i].name,
-                   Info_ValueForKey(infoString, "hostname"),
+          ui_netSource.integer, uiInfo.serverStatus.displayServers[uiInfo.pendingServerStatus.num],
+          uiInfo.pendingServerStatus.server[i].adrstr, sizeof(uiInfo.pendingServerStatus.server[i].adrstr));
+        trap_LAN_GetServerInfo(ui_netSource.integer, uiInfo.serverStatus.displayServers[uiInfo.pendingServerStatus.num],
+                               infoString, sizeof(infoString));
+        Q_strncpyz(uiInfo.pendingServerStatus.server[i].name, Info_ValueForKey(infoString, "hostname"),
                    sizeof(uiInfo.pendingServerStatus.server[0].name));
         uiInfo.pendingServerStatus.server[i].valid = qtrue;
         uiInfo.pendingServerStatus.num++;
-        Com_sprintf(
-            uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers - 1],
-            sizeof(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers -
-                                                 1]),
-            "searching %d/%d...", uiInfo.pendingServerStatus.num, numFound);
+        Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers - 1],
+                    sizeof(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers - 1]), "searching %d/%d...",
+                    uiInfo.pendingServerStatus.num, numFound);
       }
     }
   }
@@ -5736,15 +5298,13 @@ static void UI_BuildFindPlayerList(qboolean force) {
   } else {
     // add a line that shows the number of servers found
     if (!uiInfo.numFoundPlayerServers) {
-      Com_sprintf(
-          uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers - 1],
-          sizeof(uiInfo.foundPlayerServerAddresses[0]), "no servers found");
+      Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers - 1],
+                  sizeof(uiInfo.foundPlayerServerAddresses[0]), "no servers found");
     } else {
-      Com_sprintf(
-          uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers - 1],
-          sizeof(uiInfo.foundPlayerServerAddresses[0]),
-          "%d server%s found with player %s", uiInfo.numFoundPlayerServers - 1,
-          uiInfo.numFoundPlayerServers == 2 ? "" : "s", uiInfo.findPlayerName);
+      Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers - 1],
+                  sizeof(uiInfo.foundPlayerServerAddresses[0]), "%d server%s found with player %s",
+                  uiInfo.numFoundPlayerServers - 1, uiInfo.numFoundPlayerServers == 2 ? "" : "s",
+                  uiInfo.findPlayerName);
     }
     uiInfo.nextFindPlayerRefresh = 0;
     // show the server status info for the selected server
@@ -5766,8 +5326,7 @@ static void UI_BuildServerStatus(qboolean force) {
     return;
   }
   if (!force) {
-    if (!uiInfo.nextServerStatusRefresh ||
-        uiInfo.nextServerStatusRefresh > uiInfo.uiDC.realTime) {
+    if (!uiInfo.nextServerStatusRefresh || uiInfo.nextServerStatusRefresh > uiInfo.uiDC.realTime) {
       return;
     }
   } else {
@@ -5790,17 +5349,14 @@ static void UI_BuildServerStatus(qboolean force) {
     trap_LAN_ServerStatus(NULL, NULL, 0);
   }
 
-  if (cstate.connState < CA_CONNECTED &&
-      ETJump::ui.serverAction.statusType == SERVERSTATUS_PLAYONLINE) {
+  if (cstate.connState < CA_CONNECTED && ETJump::ui.serverAction.statusType == SERVERSTATUS_PLAYONLINE) {
     if (uiInfo.serverStatus.currentServer < 0 ||
-        uiInfo.serverStatus.currentServer >
-            uiInfo.serverStatus.numDisplayServers ||
+        uiInfo.serverStatus.currentServer > uiInfo.serverStatus.numDisplayServers ||
         uiInfo.serverStatus.numDisplayServers == 0) {
       return;
     }
   }
-  if (UI_GetServerStatusInfo(uiInfo.serverStatusAddress,
-                             &uiInfo.serverStatusInfo)) {
+  if (UI_GetServerStatusInfo(uiInfo.serverStatusAddress, &uiInfo.serverStatusInfo)) {
     uiInfo.nextServerStatusRefresh = 0;
     UI_GetServerStatusInfo(uiInfo.serverStatusAddress, NULL);
   } else {
@@ -5855,18 +5411,15 @@ static int UI_FeederCount(const float feederID) {
       return static_cast<int>(uiInfo.demoObjects.size());
     case FEEDER_CUSTOMVOTES:
       // for displaying "Loading..." while we're still receiving custom votes
-      if (static_cast<int>(uiInfo.customVotes.size()) !=
-          uiInfo.numCustomvotes) {
+      if (static_cast<int>(uiInfo.customVotes.size()) != uiInfo.numCustomvotes) {
         return 1;
       }
 
       return uiInfo.numCustomvotes;
     case FEEDER_CUSTOMVOTES_MAPS_ONSERVER:
-      return static_cast<int>(
-          uiInfo.customVotes[uiInfo.customvoteIndex].mapsOnServer.size());
+      return static_cast<int>(uiInfo.customVotes[uiInfo.customvoteIndex].mapsOnServer.size());
     case FEEDER_CUSTOMVOTES_MAPS_UNAVAILABLE:
-      return static_cast<int>(
-          uiInfo.customVotes[uiInfo.customvoteIndex].otherMaps.size());
+      return static_cast<int>(uiInfo.customVotes[uiInfo.customvoteIndex].otherMaps.size());
     case FEEDER_CHANGELOG:
       return static_cast<int>(uiInfo.formattedChangelog.size());
     default:
@@ -5876,7 +5429,7 @@ static int UI_FeederCount(const float feederID) {
 
 static const char *UI_SelectedMap(int index, int *actual) {
   int i, c;
-  c = 0;
+  c       = 0;
   *actual = 0;
 
   for (i = 0; i < uiInfo.mapCount; i++) {
@@ -5896,11 +5449,12 @@ static const char *UI_SelectedMap(int index, int *actual) {
 static void UI_UpdatePendingPings() {
   trap_LAN_ResetPings(ui_netSource.integer);
   uiInfo.serverStatus.refreshActive = qtrue;
-  uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 1000;
+  uiInfo.serverStatus.refreshtime   = uiInfo.uiDC.realTime + 1000;
 }
 
 // NERVE - SMF
 static void UI_FeederAddItem(float feederID, const char *name, int index) {}
+
 // -NERVE - SMF
 
 //----(SA)	added (whoops, this got nuked in a check-in...)
@@ -5921,23 +5475,24 @@ static const char *UI_FileText(char *fileName) {
   trap_FS_FCloseFile(f);
   return &buf[0];
 }
+
 //----(SA)	end
 
 static char *trimLeadingWiteSpace(char *str) {
-  while (isspace((unsigned char)*str)) str++;
+  while (isspace((unsigned char)*str))
+    str++;
 
   return str;
 }
 
-const char *UI_FeederItemText(float feederID, int index, int column,
-                              qhandle_t *handles, int *numhandles) {
+const char *UI_FeederItemText(float feederID, int index, int column, qhandle_t *handles, int *numhandles) {
   static char info[MAX_STRING_CHARS];
   static char hostname[1024];
   static char clientBuff[32];
   static char pingstr[10];
   static int lastColumn = -1;
-  static int lastTime = 0;
-  *numhandles = 0;
+  static int lastTime   = 0;
+  *numhandles           = 0;
   if (feederID == FEEDER_HEADS) {
     if (index >= 0 && index < uiInfo.characterCount) {
       return uiInfo.characterList[index].name;
@@ -5953,13 +5508,11 @@ const char *UI_FeederItemText(float feederID, int index, int column,
     if (index == 0) {
       return (va("Vendor: %s", uiInfo.uiDC.glconfig.vendor_string));
     } else if (index == 1) {
-      return va("Version: %s: %s", uiInfo.uiDC.glconfig.version_string,
-                uiInfo.uiDC.glconfig.renderer_string);
+      return va("Version: %s: %s", uiInfo.uiDC.glconfig.version_string, uiInfo.uiDC.glconfig.renderer_string);
     } else if (index == 2) {
       return va("Pixelformat: color(%d-bits) "
                 "Z(%d-bits) stencil(%d-bits)",
-                uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits,
-                uiInfo.uiDC.glconfig.stencilBits);
+                uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits);
     } else if (index >= 4 && index < uiInfo.numGlInfoLines) {
       return uiInfo.glInfoLines[index - 4];
     } else {
@@ -5967,14 +5520,12 @@ const char *UI_FeederItemText(float feederID, int index, int column,
     }
   } else if (feederID == FEEDER_SERVERS) {
     if (index >= 0 && index < uiInfo.serverStatus.numDisplayServers) {
-      int ping, game, antilag, needpass, friendlyfire, maxlives, punkbuster,
-          weaponrestrictions, balancedteams, serverload;
+      int ping, game, antilag, needpass, friendlyfire, maxlives, punkbuster, weaponrestrictions, balancedteams,
+        serverload;
       if (lastColumn != column || lastTime > uiInfo.uiDC.realTime + 5000) {
-        trap_LAN_GetServerInfo(ui_netSource.integer,
-                               uiInfo.serverStatus.displayServers[index], info,
-                               MAX_STRING_CHARS);
+        trap_LAN_GetServerInfo(ui_netSource.integer, uiInfo.serverStatus.displayServers[index], info, MAX_STRING_CHARS);
         lastColumn = column;
-        lastTime = uiInfo.uiDC.realTime;
+        lastTime   = uiInfo.uiDC.realTime;
       }
       ping = Q_atoi(Info_ValueForKey(info, "ping"));
       if (ping == -1) {
@@ -5993,8 +5544,7 @@ const char *UI_FeederItemText(float feederID, int index, int column,
                           "%s "
                           "[%"
                           "s]",
-                          Info_ValueForKey(info, "hostname"),
-                          netnames[Q_atoi(Info_ValueForKey(info, "nettype"))]);
+                          Info_ValueForKey(info, "hostname"), netnames[Q_atoi(Info_ValueForKey(info, "nettype"))]);
               return hostname;
             } else {
               return trimLeadingWiteSpace(Info_ValueForKey(info, "hostname"));
@@ -6003,8 +5553,7 @@ const char *UI_FeederItemText(float feederID, int index, int column,
         case SORT_MAP:
           return Info_ValueForKey(info, "mapname");
         case SORT_CLIENTS:
-          Com_sprintf(clientBuff, sizeof(clientBuff), "%s/%s",
-                      Info_ValueForKey(info, "clients"),
+          Com_sprintf(clientBuff, sizeof(clientBuff), "%s/%s", Info_ValueForKey(info, "clients"),
                       Info_ValueForKey(info, "sv_maxclients"));
           return clientBuff;
         case SORT_GAME:
@@ -6068,14 +5617,14 @@ const char *UI_FeederItemText(float feederID, int index, int column,
             *numhandles = 0;
             return "";
           } else {
-            *numhandles = 7;
-            needpass = Q_atoi(Info_ValueForKey(info, "needpass"));
-            friendlyfire = Q_atoi(Info_ValueForKey(info, "friendlyFire"));
-            maxlives = Q_atoi(Info_ValueForKey(info, "maxlives"));
-            punkbuster = Q_atoi(Info_ValueForKey(info, "punkbuster"));
+            *numhandles        = 7;
+            needpass           = Q_atoi(Info_ValueForKey(info, "needpass"));
+            friendlyfire       = Q_atoi(Info_ValueForKey(info, "friendlyFire"));
+            maxlives           = Q_atoi(Info_ValueForKey(info, "maxlives"));
+            punkbuster         = Q_atoi(Info_ValueForKey(info, "punkbuster"));
             weaponrestrictions = Q_atoi(Info_ValueForKey(info, "weaprestrict"));
-            antilag = Q_atoi(Info_ValueForKey(info, "g_antilag"));
-            balancedteams = Q_atoi(Info_ValueForKey(info, "balancedteams"));
+            antilag            = Q_atoi(Info_ValueForKey(info, "g_antilag"));
+            balancedteams      = Q_atoi(Info_ValueForKey(info, "balancedteams"));
 
             if (needpass) {
               handles[0] = uiInfo.passwordFilter;
@@ -6118,9 +5667,7 @@ const char *UI_FeederItemText(float feederID, int index, int column,
         case SORT_FAVOURITES:
           *numhandles = 1;
 
-          if (trap_LAN_ServerIsInFavoriteList(
-                  ui_netSource.integer,
-                  uiInfo.serverStatus.displayServers[index])) {
+          if (trap_LAN_ServerIsInFavoriteList(ui_netSource.integer, uiInfo.serverStatus.displayServers[index])) {
             handles[0] = uiInfo.uiDC.Assets.checkboxCheck;
           } else {
             handles[0] = uiInfo.uiDC.Assets.checkboxCheckNot;
@@ -6206,17 +5753,13 @@ const char *UI_FeederItemText(float feederID, int index, int column,
     if (static_cast<int>(uiInfo.customVotes.size()) != uiInfo.numCustomvotes) {
       return "Loading...";
     } else {
-      return uiInfo.customVotes[uiInfo.customvoteIndex]
-          .mapsOnServer[index]
-          .c_str();
+      return uiInfo.customVotes[uiInfo.customvoteIndex].mapsOnServer[index].c_str();
     }
   } else if (feederID == FEEDER_CUSTOMVOTES_MAPS_UNAVAILABLE) {
     if (static_cast<int>(uiInfo.customVotes.size()) != uiInfo.numCustomvotes) {
       return "Loading...";
     } else {
-      return uiInfo.customVotes[uiInfo.customvoteIndex]
-          .otherMaps[index]
-          .c_str();
+      return uiInfo.customVotes[uiInfo.customvoteIndex].otherMaps[index].c_str();
     }
   } else if (feederID == FEEDER_CHANGELOG) {
     return uiInfo.formattedChangelog[index].c_str();
@@ -6229,8 +5772,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
   if (feederID == FEEDER_HEADS) {
     if (index >= 0 && index < uiInfo.characterCount) {
       if (uiInfo.characterList[index].headImage == -1) {
-        uiInfo.characterList[index].headImage =
-            trap_R_RegisterShaderNoMip(uiInfo.characterList[index].imageName);
+        uiInfo.characterList[index].headImage = trap_R_RegisterShaderNoMip(uiInfo.characterList[index].imageName);
       }
       return uiInfo.characterList[index].headImage;
     }
@@ -6246,8 +5788,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 
     if (index >= 0 && index < uiInfo.mapCount) {
       if (uiInfo.mapList[index].levelShot == -1) {
-        uiInfo.mapList[index].levelShot =
-            trap_R_RegisterShaderNoMip(uiInfo.mapList[index].imageName);
+        uiInfo.mapList[index].levelShot = trap_R_RegisterShaderNoMip(uiInfo.mapList[index].imageName);
       }
       return uiInfo.mapList[index].levelShot;
     }
@@ -6260,10 +5801,8 @@ void UI_FeederSelection(float feederID, int index) {
   static char info[MAX_STRING_CHARS];
   if (feederID == FEEDER_HEADS) {
     if (index >= 0 && index < uiInfo.characterCount) {
-      trap_Cvar_Set("team_model",
-                    uiInfo.characterList[index].female ? "janet" : "james");
-      trap_Cvar_Set("team_headmodel",
-                    va("*%s", uiInfo.characterList[index].name));
+      trap_Cvar_Set("team_model", uiInfo.characterList[index].female ? "janet" : "james");
+      trap_Cvar_Set("team_headmodel", va("*%s", uiInfo.characterList[index].name));
     }
   } else if (feederID == FEEDER_Q3HEADS) {
     if (index >= 0 && index < uiInfo.q3HeadCount) {
@@ -6295,18 +5834,15 @@ void UI_FeederSelection(float feederID, int index) {
     const char *mapName = NULL;
 
     uiInfo.serverStatus.currentServer = index;
-    trap_LAN_GetServerInfo(ui_netSource.integer,
-                           uiInfo.serverStatus.displayServers[index], info,
-                           MAX_STRING_CHARS);
+    trap_LAN_GetServerInfo(ui_netSource.integer, uiInfo.serverStatus.displayServers[index], info, MAX_STRING_CHARS);
 
     mapName = Info_ValueForKey(info, "mapname");
 
     if (mapName && *mapName) {
-      uiInfo.serverStatus.currentServerPreview = trap_R_RegisterShaderNoMip(
-          va("levelshots/%s", Info_ValueForKey(info, "mapname")));
-    } else {
       uiInfo.serverStatus.currentServerPreview =
-          trap_R_RegisterShaderNoMip("levelshots/unknownmap");
+        trap_R_RegisterShaderNoMip(va("levelshots/%s", Info_ValueForKey(info, "mapname")));
+    } else {
+      uiInfo.serverStatus.currentServerPreview = trap_R_RegisterShaderNoMip("levelshots/unknownmap");
     }
   } else if (feederID == FEEDER_SERVERSTATUS) {
     //
@@ -6315,10 +5851,8 @@ void UI_FeederSelection(float feederID, int index) {
     //
     if (index < uiInfo.numFoundPlayerServers - 1) {
       // build a new server status for this server
-      Q_strncpyz(
-          uiInfo.serverStatusAddress,
-          uiInfo.foundPlayerServerAddresses[uiInfo.currentFoundPlayerServer],
-          sizeof(uiInfo.serverStatusAddress));
+      Q_strncpyz(uiInfo.serverStatusAddress, uiInfo.foundPlayerServerAddresses[uiInfo.currentFoundPlayerServer],
+                 sizeof(uiInfo.serverStatusAddress));
       Menu_SetFeederSelection(NULL, FEEDER_SERVERSTATUS, 0, NULL);
       UI_BuildServerStatus(qtrue);
     }
@@ -6350,8 +5884,8 @@ void UI_FeederSelection(float feederID, int index) {
   }
 }
 
-extern void Item_ListBox_MouseEnter(itemDef_t *item, float x, float y,
-                                    bool click);
+extern void Item_ListBox_MouseEnter(itemDef_t *item, float x, float y, bool click);
+
 qboolean UI_FeederSelectionClick(itemDef_t *item) {
   listBoxDef_t *listPtr = (listBoxDef_t *)item->typeData;
 
@@ -6362,8 +5896,7 @@ qboolean UI_FeederSelectionClick(itemDef_t *item) {
     Item_ListBox_MouseEnter(item, DC->cursor.virtX, DC->cursor.virtY, qtrue);
 
     rect.x = item->window.rect.x + listPtr->columnInfo[SORT_FAVOURITES].pos;
-    rect.y = item->window.rect.y +
-             (listPtr->cursorPos - listPtr->startPos) * listPtr->elementHeight;
+    rect.y = item->window.rect.y + (listPtr->cursorPos - listPtr->startPos) * listPtr->elementHeight;
     rect.w = listPtr->columnInfo[SORT_FAVOURITES].width;
     rect.h = listPtr->columnInfo[SORT_FAVOURITES].width;
 
@@ -6371,14 +5904,11 @@ qboolean UI_FeederSelectionClick(itemDef_t *item) {
       char buff[MAX_STRING_CHARS];
       char addr[MAX_NAME_LENGTH];
 
-      if (trap_LAN_ServerIsInFavoriteList(
-              ui_netSource.integer,
-              uiInfo.serverStatus.displayServers[listPtr->cursorPos])) {
-        trap_LAN_GetServerInfo(
-            ui_netSource.integer,
-            uiInfo.serverStatus
-                .displayServers[uiInfo.serverStatus.currentServer],
-            buff, MAX_STRING_CHARS);
+      if (trap_LAN_ServerIsInFavoriteList(ui_netSource.integer,
+                                          uiInfo.serverStatus.displayServers[listPtr->cursorPos])) {
+        trap_LAN_GetServerInfo(ui_netSource.integer,
+                               uiInfo.serverStatus.displayServers[uiInfo.serverStatus.currentServer], buff,
+                               MAX_STRING_CHARS);
         addr[0] = '\0';
         Q_strncpyz(addr, Info_ValueForKey(buff, "addr"), MAX_NAME_LENGTH);
         if (strlen(addr) > 0) {
@@ -6391,11 +5921,9 @@ qboolean UI_FeederSelectionClick(itemDef_t *item) {
       } else {
         char name[MAX_NAME_LENGTH];
 
-        trap_LAN_GetServerInfo(
-            ui_netSource.integer,
-            uiInfo.serverStatus
-                .displayServers[uiInfo.serverStatus.currentServer],
-            buff, MAX_STRING_CHARS);
+        trap_LAN_GetServerInfo(ui_netSource.integer,
+                               uiInfo.serverStatus.displayServers[uiInfo.serverStatus.currentServer], buff,
+                               MAX_STRING_CHARS);
         addr[0] = '\0';
         name[0] = '\0';
         Q_strncpyz(addr, Info_ValueForKey(buff, "addr"), MAX_NAME_LENGTH);
@@ -6667,10 +6195,8 @@ static qboolean GameType_Parse(const char **p, qboolean join) {
 
     if (token[0] == '{') {
       if (join) {
-        if (!String_Parse(
-                p, &uiInfo.joinGameTypes[uiInfo.numJoinGameTypes].gameType) ||
-            !Int_Parse(p,
-                       &uiInfo.joinGameTypes[uiInfo.numJoinGameTypes].gtEnum)) {
+        if (!String_Parse(p, &uiInfo.joinGameTypes[uiInfo.numJoinGameTypes].gameType) ||
+            !Int_Parse(p, &uiInfo.joinGameTypes[uiInfo.numJoinGameTypes].gtEnum)) {
           return qfalse;
         }
       } else {
@@ -6682,14 +6208,11 @@ static qboolean GameType_Parse(const char **p, qboolean join) {
           return qfalse;
         }
 
-        if (!String_Parse(
-                p, &uiInfo.gameTypes[uiInfo.numGameTypes].gameTypeShort)) {
+        if (!String_Parse(p, &uiInfo.gameTypes[uiInfo.numGameTypes].gameTypeShort)) {
           return qfalse;
         }
 
-        if (!String_Parse(
-                p,
-                &uiInfo.gameTypes[uiInfo.numGameTypes].gameTypeDescription)) {
+        if (!String_Parse(p, &uiInfo.gameTypes[uiInfo.numGameTypes].gameTypeDescription)) {
           return qfalse;
         }
       }
@@ -6826,7 +6349,6 @@ static void UI_ParseGameInfo(const char *teamFile) {
     }
 
     if (Q_stricmp(token, "gametypes") == 0) {
-
       if (GameType_Parse(&p, qfalse)) {
         continue;
       } else {
@@ -6861,8 +6383,7 @@ static int UI_OwnerDraw_Width(int ownerDraw) {
 }
 */
 
-static int UI_PlayCinematic(const char *name, float x, float y, float w,
-                            float h) {
+static int UI_PlayCinematic(const char *name, float x, float y, float w, float h) {
   return trap_CIN_PlayCinematic(name, x, y, w, h, (CIN_loop | CIN_silent));
 }
 
@@ -6898,7 +6419,9 @@ static void UI_DrawCinematic(int handle, float x, float y, float w, float h) {
   trap_CIN_DrawCinematic(handle);
 }
 
-static void UI_RunCinematicFrame(int handle) { trap_CIN_RunCinematic(handle); }
+static void UI_RunCinematicFrame(int handle) {
+  trap_CIN_RunCinematic(handle);
+}
 
 static void UI_RegisterConsoleCommands() {
   trap_AddCommand("ui_report");
@@ -6916,9 +6439,7 @@ void _UI_Init(int legacyClient, int clientVersion) {
   // uiInfo.inGameLoad = inGameLoad;
   Com_Printf(S_COLOR_LTGREY GAME_HEADER);
   Com_Printf(S_COLOR_LTGREY "____________________________\n");
-  Com_Printf(S_COLOR_LTGREY GAME_NAME " " S_COLOR_GREEN GAME_VERSION
-                                      " " S_COLOR_LTGREY GAME_BINARY_NAME
-                                      " init...\n");
+  Com_Printf(S_COLOR_LTGREY GAME_NAME " " S_COLOR_GREEN GAME_VERSION " " S_COLOR_LTGREY GAME_BINARY_NAME " init...\n");
 
   UI_RegisterCvars();
   UI_InitMemory();
@@ -6932,21 +6453,16 @@ void _UI_Init(int legacyClient, int clientVersion) {
   UI_ParseGLConfig();
 
   // for 640x480 virtualized screen
-  int width = static_cast<int>(ceil(uiInfo.uiDC.glconfig.vidWidth * 480.0 /
-                                    uiInfo.uiDC.glconfig.vidHeight));
-  uiInfo.uiDC.screenWidth = width > 640 ? width : 640;
+  int width = static_cast<int>(ceil(uiInfo.uiDC.glconfig.vidWidth * 480.0 / uiInfo.uiDC.glconfig.vidHeight));
+  uiInfo.uiDC.screenWidth  = width > 640 ? width : 640;
   uiInfo.uiDC.screenHeight = 480;
 
   uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight / 480.0;
-  uiInfo.uiDC.xscale =
-      uiInfo.uiDC.glconfig.vidWidth / (float)uiInfo.uiDC.screenWidth;
+  uiInfo.uiDC.xscale = uiInfo.uiDC.glconfig.vidWidth / (float)uiInfo.uiDC.screenWidth;
 
-  if (uiInfo.uiDC.glconfig.vidWidth * 480 >
-      uiInfo.uiDC.glconfig.vidHeight * 640) {
+  if (uiInfo.uiDC.glconfig.vidWidth * 480 > uiInfo.uiDC.glconfig.vidHeight * 640) {
     // wide screen
-    uiInfo.uiDC.bias =
-        0.5 * (uiInfo.uiDC.glconfig.vidWidth -
-               (uiInfo.uiDC.glconfig.vidHeight * (640.0 / 480.0)));
+    uiInfo.uiDC.bias = 0.5 * (uiInfo.uiDC.glconfig.vidWidth - (uiInfo.uiDC.glconfig.vidHeight * (640.0 / 480.0)));
   } else {
     // no wide screen
     uiInfo.uiDC.bias = 0;
@@ -6957,78 +6473,78 @@ void _UI_Init(int legacyClient, int clientVersion) {
   uiInfo.fsGame = buf;
 
   // UI_Load();
-  uiInfo.uiDC.registerShaderNoMip = &trap_R_RegisterShaderNoMip;
-  uiInfo.uiDC.setColor = &UI_SetColor;
-  uiInfo.uiDC.drawHandlePic = &UI_DrawHandlePic;
-  uiInfo.uiDC.drawStretchPic = &trap_R_DrawStretchPic;
-  uiInfo.uiDC.drawText = &Text_Paint;
-  uiInfo.uiDC.drawTextExt = &Text_Paint_Ext;
-  uiInfo.uiDC.textWidth = &Text_Width;
-  uiInfo.uiDC.textWidthExt = &Text_Width_Ext;
-  uiInfo.uiDC.multiLineTextWidth = &Multiline_Text_Width;
-  uiInfo.uiDC.textHeight = &Text_Height;
-  uiInfo.uiDC.textHeightExt = &Text_Height_Ext;
-  uiInfo.uiDC.multiLineTextHeight = &Multiline_Text_Height;
-  uiInfo.uiDC.textFont = &Text_SetActiveFont;
-  uiInfo.uiDC.registerModel = &trap_R_RegisterModel;
-  uiInfo.uiDC.modelBounds = &trap_R_ModelBounds;
-  uiInfo.uiDC.fillRect = &UI_FillRect;
-  uiInfo.uiDC.drawRect = &_UI_DrawRect;
-  uiInfo.uiDC.drawRectFixed = &_UI_DrawRect_DrawRect_FixedBorder;
-  uiInfo.uiDC.drawSides = &_UI_DrawSides;
-  uiInfo.uiDC.drawTopBottom = &_UI_DrawTopBottom;
-  uiInfo.uiDC.drawSidesNoScale = &_UI_DrawSides_NoScale;
+  uiInfo.uiDC.registerShaderNoMip  = &trap_R_RegisterShaderNoMip;
+  uiInfo.uiDC.setColor             = &UI_SetColor;
+  uiInfo.uiDC.drawHandlePic        = &UI_DrawHandlePic;
+  uiInfo.uiDC.drawStretchPic       = &trap_R_DrawStretchPic;
+  uiInfo.uiDC.drawText             = &Text_Paint;
+  uiInfo.uiDC.drawTextExt          = &Text_Paint_Ext;
+  uiInfo.uiDC.textWidth            = &Text_Width;
+  uiInfo.uiDC.textWidthExt         = &Text_Width_Ext;
+  uiInfo.uiDC.multiLineTextWidth   = &Multiline_Text_Width;
+  uiInfo.uiDC.textHeight           = &Text_Height;
+  uiInfo.uiDC.textHeightExt        = &Text_Height_Ext;
+  uiInfo.uiDC.multiLineTextHeight  = &Multiline_Text_Height;
+  uiInfo.uiDC.textFont             = &Text_SetActiveFont;
+  uiInfo.uiDC.registerModel        = &trap_R_RegisterModel;
+  uiInfo.uiDC.modelBounds          = &trap_R_ModelBounds;
+  uiInfo.uiDC.fillRect             = &UI_FillRect;
+  uiInfo.uiDC.drawRect             = &_UI_DrawRect;
+  uiInfo.uiDC.drawRectFixed        = &_UI_DrawRect_DrawRect_FixedBorder;
+  uiInfo.uiDC.drawSides            = &_UI_DrawSides;
+  uiInfo.uiDC.drawTopBottom        = &_UI_DrawTopBottom;
+  uiInfo.uiDC.drawSidesNoScale     = &_UI_DrawSides_NoScale;
   uiInfo.uiDC.drawTopBottomNoScale = &_UI_DrawTopBottom_NoScale;
-  uiInfo.uiDC.clearScene = &trap_R_ClearScene;
-  uiInfo.uiDC.drawSides = &_UI_DrawSides;
-  uiInfo.uiDC.addRefEntityToScene = &trap_R_AddRefEntityToScene;
-  uiInfo.uiDC.renderScene = &trap_R_RenderScene;
-  uiInfo.uiDC.registerFont = &trap_R_RegisterFont;
-  uiInfo.uiDC.ownerDrawItem = &UI_OwnerDraw;
-  uiInfo.uiDC.getValue = &UI_GetValue;
-  uiInfo.uiDC.ownerDrawVisible = &UI_OwnerDrawVisible;
-  uiInfo.uiDC.runScript = &UI_RunMenuScript;
-  uiInfo.uiDC.getTeamColor = &UI_GetTeamColor;
-  uiInfo.uiDC.setCVar = trap_Cvar_Set;
-  uiInfo.uiDC.getCVarString = trap_Cvar_VariableStringBuffer;
-  uiInfo.uiDC.getCVarValue = trap_Cvar_VariableValue;
-  uiInfo.uiDC.drawTextWithCursor = &Text_PaintWithCursor;
-  uiInfo.uiDC.setOverstrikeMode = &trap_Key_SetOverstrikeMode;
-  uiInfo.uiDC.getOverstrikeMode = &trap_Key_GetOverstrikeMode;
-  uiInfo.uiDC.startLocalSound = &trap_S_StartLocalSound;
-  uiInfo.uiDC.ownerDrawHandleKey = &UI_OwnerDrawHandleKey;
-  uiInfo.uiDC.feederCount = &UI_FeederCount;
-  uiInfo.uiDC.feederItemImage = &UI_FeederItemImage;
-  uiInfo.uiDC.feederItemText = &UI_FeederItemText;
-  uiInfo.uiDC.fileText = &UI_FileText; //----(SA)	re-added
-  uiInfo.uiDC.feederSelection = &UI_FeederSelection;
+  uiInfo.uiDC.clearScene           = &trap_R_ClearScene;
+  uiInfo.uiDC.drawSides            = &_UI_DrawSides;
+  uiInfo.uiDC.addRefEntityToScene  = &trap_R_AddRefEntityToScene;
+  uiInfo.uiDC.renderScene          = &trap_R_RenderScene;
+  uiInfo.uiDC.registerFont         = &trap_R_RegisterFont;
+  uiInfo.uiDC.ownerDrawItem        = &UI_OwnerDraw;
+  uiInfo.uiDC.getValue             = &UI_GetValue;
+  uiInfo.uiDC.ownerDrawVisible     = &UI_OwnerDrawVisible;
+  uiInfo.uiDC.runScript            = &UI_RunMenuScript;
+  uiInfo.uiDC.getTeamColor         = &UI_GetTeamColor;
+  uiInfo.uiDC.setCVar              = trap_Cvar_Set;
+  uiInfo.uiDC.getCVarString        = trap_Cvar_VariableStringBuffer;
+  uiInfo.uiDC.getCVarValue         = trap_Cvar_VariableValue;
+  uiInfo.uiDC.drawTextWithCursor   = &Text_PaintWithCursor;
+  uiInfo.uiDC.setOverstrikeMode    = &trap_Key_SetOverstrikeMode;
+  uiInfo.uiDC.getOverstrikeMode    = &trap_Key_GetOverstrikeMode;
+  uiInfo.uiDC.startLocalSound      = &trap_S_StartLocalSound;
+  uiInfo.uiDC.ownerDrawHandleKey   = &UI_OwnerDrawHandleKey;
+  uiInfo.uiDC.feederCount          = &UI_FeederCount;
+  uiInfo.uiDC.feederItemImage      = &UI_FeederItemImage;
+  uiInfo.uiDC.feederItemText       = &UI_FeederItemText;
+  uiInfo.uiDC.fileText             = &UI_FileText; //----(SA)	re-added
+  uiInfo.uiDC.feederSelection      = &UI_FeederSelection;
   uiInfo.uiDC.feederSelectionClick = &UI_FeederSelectionClick;
-  uiInfo.uiDC.feederAddItem = &UI_FeederAddItem; // NERVE - SMF
-  uiInfo.uiDC.setBinding = &trap_Key_SetBinding;
-  uiInfo.uiDC.getBindingBuf = &trap_Key_GetBindingBuf;
-  uiInfo.uiDC.getKeysForBinding = &trap_Key_KeysForBinding;
-  uiInfo.uiDC.keynumToStringBuf = &trap_Key_KeynumToStringBuf;
-  uiInfo.uiDC.keyIsDown = &trap_Key_IsDown;
-  uiInfo.uiDC.executeText = &trap_Cmd_ExecuteText;
-  uiInfo.uiDC.Error = &Com_Error;
-  uiInfo.uiDC.Print = &Com_Printf;
-  uiInfo.uiDC.Pause = &UI_Pause;
-  uiInfo.uiDC.ownerDrawWidth = &UI_OwnerDrawWidth;
-  uiInfo.uiDC.registerSound = &trap_S_RegisterSound;
+  uiInfo.uiDC.feederAddItem        = &UI_FeederAddItem; // NERVE - SMF
+  uiInfo.uiDC.setBinding           = &trap_Key_SetBinding;
+  uiInfo.uiDC.getBindingBuf        = &trap_Key_GetBindingBuf;
+  uiInfo.uiDC.getKeysForBinding    = &trap_Key_KeysForBinding;
+  uiInfo.uiDC.keynumToStringBuf    = &trap_Key_KeynumToStringBuf;
+  uiInfo.uiDC.keyIsDown            = &trap_Key_IsDown;
+  uiInfo.uiDC.executeText          = &trap_Cmd_ExecuteText;
+  uiInfo.uiDC.Error                = &Com_Error;
+  uiInfo.uiDC.Print                = &Com_Printf;
+  uiInfo.uiDC.Pause                = &UI_Pause;
+  uiInfo.uiDC.ownerDrawWidth       = &UI_OwnerDrawWidth;
+  uiInfo.uiDC.registerSound        = &trap_S_RegisterSound;
   uiInfo.uiDC.startBackgroundTrack = &trap_S_StartBackgroundTrack;
-  uiInfo.uiDC.stopBackgroundTrack = &trap_S_StopBackgroundTrack;
-  uiInfo.uiDC.playCinematic = &UI_PlayCinematic;
-  uiInfo.uiDC.stopCinematic = &UI_StopCinematic;
-  uiInfo.uiDC.drawCinematic = &UI_DrawCinematic;
-  uiInfo.uiDC.runCinematicFrame = &UI_RunCinematicFrame;
-  uiInfo.uiDC.checkAutoUpdate = &trap_CheckAutoUpdate; // DHM - Nerve
-  uiInfo.uiDC.getAutoUpdate = &trap_GetAutoUpdate;     // DHM - Nerve
+  uiInfo.uiDC.stopBackgroundTrack  = &trap_S_StopBackgroundTrack;
+  uiInfo.uiDC.playCinematic        = &UI_PlayCinematic;
+  uiInfo.uiDC.stopCinematic        = &UI_StopCinematic;
+  uiInfo.uiDC.drawCinematic        = &UI_DrawCinematic;
+  uiInfo.uiDC.runCinematicFrame    = &UI_RunCinematicFrame;
+  uiInfo.uiDC.checkAutoUpdate      = &trap_CheckAutoUpdate; // DHM - Nerve
+  uiInfo.uiDC.getAutoUpdate        = &trap_GetAutoUpdate;   // DHM - Nerve
 
-  uiInfo.uiDC.add2dPolys = &trap_R_Add2dPolys;
-  uiInfo.uiDC.updateScreen = &trap_UpdateScreen;
-  uiInfo.uiDC.getHunkData = &trap_GetHunkData;
+  uiInfo.uiDC.add2dPolys      = &trap_R_Add2dPolys;
+  uiInfo.uiDC.updateScreen    = &trap_UpdateScreen;
+  uiInfo.uiDC.getHunkData     = &trap_GetHunkData;
   uiInfo.uiDC.getConfigString = &trap_GetConfigString;
-  uiInfo.uiDC.getActiveFont = &GetActiveFont;
+  uiInfo.uiDC.getActiveFont   = &GetActiveFont;
 
   Init_Display(&uiInfo.uiDC);
 
@@ -7037,7 +6553,7 @@ void _UI_Init(int legacyClient, int clientVersion) {
   ETJump::init(legacyClient, clientVersion);
 
   uiInfo.uiDC.cursor.registerShaders = &ETJump::registerCursors;
-  uiInfo.uiDC.cursor.draw = &ETJump::drawCursor;
+  uiInfo.uiDC.cursor.draw            = &ETJump::drawCursor;
 
   uiInfo.uiDC.cursor.registerShaders();
 
@@ -7045,29 +6561,22 @@ void _UI_Init(int legacyClient, int clientVersion) {
 
   AssetCache();
 
-  uiInfo.passwordFilter =
-      trap_R_RegisterShaderNoMip("ui/assets/filter_pass.tga");
-  uiInfo.friendlyFireFilter =
-      trap_R_RegisterShaderNoMip("ui/assets/filter_ff.tga");
-  uiInfo.maxLivesFilter =
-      trap_R_RegisterShaderNoMip("ui/assets/filter_lives.tga");
-  uiInfo.punkBusterFilter =
-      trap_R_RegisterShaderNoMip("ui/assets/filter_pb.tga");
-  uiInfo.weaponRestrictionsFilter =
-      trap_R_RegisterShaderNoMip("ui/assets/filter_weap.tga");
-  uiInfo.antiLagFilter =
-      trap_R_RegisterShaderNoMip("ui/assets/filter_antilag.tga");
-  uiInfo.teamBalanceFilter =
-      trap_R_RegisterShaderNoMip("ui/assets/filter_balance.tga");
+  uiInfo.passwordFilter           = trap_R_RegisterShaderNoMip("ui/assets/filter_pass.tga");
+  uiInfo.friendlyFireFilter       = trap_R_RegisterShaderNoMip("ui/assets/filter_ff.tga");
+  uiInfo.maxLivesFilter           = trap_R_RegisterShaderNoMip("ui/assets/filter_lives.tga");
+  uiInfo.punkBusterFilter         = trap_R_RegisterShaderNoMip("ui/assets/filter_pb.tga");
+  uiInfo.weaponRestrictionsFilter = trap_R_RegisterShaderNoMip("ui/assets/filter_weap.tga");
+  uiInfo.antiLagFilter            = trap_R_RegisterShaderNoMip("ui/assets/filter_antilag.tga");
+  uiInfo.teamBalanceFilter        = trap_R_RegisterShaderNoMip("ui/assets/filter_balance.tga");
 
   uiInfo.campaignMap = trap_R_RegisterShaderNoMip("gfx/loading/camp_map.tga");
 
   trap_R_RegisterFont("ariblk", 27, &uiInfo.loadscreenfont1);
   trap_R_RegisterFont("courbd", 30, &uiInfo.loadscreenfont2);
 
-  uiInfo.teamCount = 0;
+  uiInfo.teamCount      = 0;
   uiInfo.characterCount = 0;
-  uiInfo.aliasCount = 0;
+  uiInfo.aliasCount     = 0;
 
   uiInfo.numCustomvotes = -1;
 
@@ -7091,26 +6600,22 @@ void _UI_Init(int legacyClient, int clientVersion) {
   Menus_CloseAll();
 
   trap_LAN_LoadCachedServers();
-  UI_LoadBestScores(
-      uiInfo.mapList[0].mapLoadName,
-      uiInfo.gameTypes[std::clamp(ui_gameType.integer, 0, MAX_GAMETYPES - 1)]
-          .gtEnum);
+  UI_LoadBestScores(uiInfo.mapList[0].mapLoadName,
+                    uiInfo.gameTypes[std::clamp(ui_gameType.integer, 0, MAX_GAMETYPES - 1)].gtEnum);
 
   // sets defaults for ui temp cvars
   // rain - bounds check array index, although I'm pretty sure this
   // stuff isn't used anymore...
   x = (int)trap_Cvar_VariableValue("color") - 1;
-  if (x < 0 ||
-      x >= static_cast<int>(sizeof(gamecodetoui) / sizeof(gamecodetoui[0]))) {
+  if (x < 0 || x >= static_cast<int>(sizeof(gamecodetoui) / sizeof(gamecodetoui[0]))) {
     x = 0;
   }
-  uiInfo.effectsColor = gamecodetoui[x];
+  uiInfo.effectsColor     = gamecodetoui[x];
   uiInfo.currentCrosshair = (int)trap_Cvar_VariableValue("cg_drawCrosshair");
-  trap_Cvar_Set("ui_mousePitch",
-                (trap_Cvar_VariableValue("m_pitch") >= 0) ? "0" : "1");
+  trap_Cvar_Set("ui_mousePitch", (trap_Cvar_VariableValue("m_pitch") >= 0) ? "0" : "1");
 
   uiInfo.serverStatus.currentServerCinematic = -1;
-  uiInfo.previewMovie = -1;
+  uiInfo.previewMovie                        = -1;
 
   if (trap_Cvar_VariableValue("ui_TeamArenaFirstRun") == 0) {
     trap_Cvar_Set("s_volume", "0.8");
@@ -7126,8 +6631,7 @@ void _UI_Init(int legacyClient, int clientVersion) {
 
   UI_RegisterConsoleCommands();
 
-  Com_Printf(S_COLOR_LTGREY GAME_NAME " " S_COLOR_GREEN GAME_VERSION
-                                      " " S_COLOR_LTGREY GAME_BINARY_NAME
+  Com_Printf(S_COLOR_LTGREY GAME_NAME " " S_COLOR_GREEN GAME_VERSION " " S_COLOR_LTGREY GAME_BINARY_NAME
                                       " init... " S_COLOR_GREEN "DONE\n");
 }
 
@@ -7165,11 +6669,9 @@ void _UI_KeyEvent(int key, qboolean down) {
         // the previously opened menu, so if we have either of them open,
         // we end up with a menu open after Menus_CloseAll call
         // if either is open, close them manually first
-        if (!Q_stricmp(menu->window.name,
-                       "etjump_settings_popup_colorpicker")) {
+        if (!Q_stricmp(menu->window.name, "etjump_settings_popup_colorpicker")) {
           Menus_CloseByName("etjump_settings_popup_colorpicker");
-        } else if (!Q_stricmp(menu->window.name,
-                              "etjump_settings_popup_writeconfig")) {
+        } else if (!Q_stricmp(menu->window.name, "etjump_settings_popup_writeconfig")) {
           Menus_CloseByName("etjump_settings_popup_writeconfig");
         }
 
@@ -7215,15 +6717,17 @@ void _UI_MouseEvent(int dx, int dy) {
   ETJump::computeCursorPosition(dx, dy);
 
   if (Menu_Count() > 0) {
-    Display_MouseMove(nullptr, uiInfo.uiDC.cursor.virtX,
-                      uiInfo.uiDC.cursor.virtY);
+    Display_MouseMove(nullptr, uiInfo.uiDC.cursor.virtX, uiInfo.uiDC.cursor.virtY);
   }
 }
 
 //----(SA)	added
 static uiMenuCommand_t menutype = UIMENU_NONE;
 
-uiMenuCommand_t _UI_GetActiveMenu(void) { return menutype; }
+uiMenuCommand_t _UI_GetActiveMenu(void) {
+  return menutype;
+}
+
 //----(SA)	end
 
 inline constexpr char MISSING_FILES_MSG[] = "The following packs are missing:";
@@ -7315,10 +6819,8 @@ void _UI_SetActiveMenu(const uiMenuCommand_t menu) {
             char *missing_files = UI_Cvar_VariableString("com_missingFiles");
 
             if (missing_files[0]) {
-              trap_Cvar_Set("com_errorMessage",
-                            va("%s\n\n%s\n%s",
-                               UI_Cvar_VariableString("com_errorMessage"),
-                               MISSING_FILES_MSG, missing_files));
+              trap_Cvar_Set("com_errorMessage", va("%s\n\n%s\n%s", UI_Cvar_VariableString("com_errorMessage"),
+                                                   MISSING_FILES_MSG, missing_files));
             }
           }
 
@@ -7414,9 +6916,7 @@ void _UI_SetActiveMenu(const uiMenuCommand_t menu) {
     case UIMENU_INGAME_MESSAGEMODE:
     case UIMENU_INGAME_PRIVATE_MESSAGE:
       trap_Key_SetCatcher(KEYCATCH_UI);
-      Menus_OpenByName((menu == UIMENU_INGAME_MESSAGEMODE)
-                           ? "ingame_messagemode"
-                           : "ingame_privatemessage");
+      Menus_OpenByName((menu == UIMENU_INGAME_MESSAGEMODE) ? "ingame_messagemode" : "ingame_privatemessage");
 
       // special case for chat, we don't really want the cursor to be
       // in the middle of the screen, it would be annoying to have the cursor
@@ -7438,7 +6938,9 @@ void _UI_SetActiveMenu(const uiMenuCommand_t menu) {
   }
 }
 
-qboolean _UI_IsFullscreen(void) { return Menus_AnyFullScreenVisible(); }
+qboolean _UI_IsFullscreen(void) {
+  return Menus_AnyFullScreenVisible();
+}
 
 // static connstate_t	lastConnState;
 // static char			lastLoadingText[MAX_INFO_VALUE];
@@ -7452,8 +6954,7 @@ void UI_ReadableSize(char *buf, int bufsize, int value) {
   } else if (value > 1024 * 1024) // megs
   {
     Com_sprintf(buf, bufsize, "%d", value / (1024 * 1024));
-    Com_sprintf(buf + strlen(buf), bufsize - strlen(buf), ".%02d MB",
-                (value % (1024 * 1024)) * 100 / (1024 * 1024));
+    Com_sprintf(buf + strlen(buf), bufsize - strlen(buf), ".%02d MB", (value % (1024 * 1024)) * 100 / (1024 * 1024));
   } else if (value > 1024) // kilos
   {
     Com_sprintf(buf, bufsize, "%d KB", value / 1024);
@@ -7479,8 +6980,7 @@ void UI_PrintTime(char *buf, int bufsize, int time) {
   }
 }
 
-void Text_PaintCenter(float x, float y, float scale, vec4_t color,
-                      const char *text, float adjust) {
+void Text_PaintCenter(float x, float y, float scale, vec4_t color, const char *text, float adjust) {
   int len = Text_Width(text, scale, 0);
   Text_Paint(x - len / 2, y, scale, color, text, 0, 0, ITEM_TEXTSTYLE_SHADOWED);
 }
@@ -7672,250 +7172,241 @@ vmCvar_t g_portalPredict;
 
 cvarTable_t cvarTable[] = {
 
-    {&ui_glCustom, "ui_glCustom", "4",
-     CVAR_ARCHIVE}, // JPW NERVE missing from q3ta
-    {&ui_ffa_fraglimit, "ui_ffa_fraglimit", "20", CVAR_ARCHIVE},
-    {&ui_ffa_timelimit, "ui_ffa_timelimit", "0", CVAR_ARCHIVE},
+  {&ui_glCustom,                     "ui_glCustom",                     "4",                          CVAR_ARCHIVE                  }, // JPW NERVE missing from q3ta
+  {&ui_ffa_fraglimit,                "ui_ffa_fraglimit",                "20",                         CVAR_ARCHIVE                  },
+  {&ui_ffa_timelimit,                "ui_ffa_timelimit",                "0",                          CVAR_ARCHIVE                  },
 
-    {&ui_team_fraglimit, "ui_team_fraglimit", "0", CVAR_ARCHIVE},
-    {&ui_team_timelimit, "ui_team_timelimit", "20", CVAR_ARCHIVE},
-    {&ui_team_friendly, "ui_team_friendly", "1", CVAR_ARCHIVE},
+  {&ui_team_fraglimit,               "ui_team_fraglimit",               "0",                          CVAR_ARCHIVE                  },
+  {&ui_team_timelimit,               "ui_team_timelimit",               "20",                         CVAR_ARCHIVE                  },
+  {&ui_team_friendly,                "ui_team_friendly",                "1",                          CVAR_ARCHIVE                  },
 
-    {&ui_ctf_capturelimit, "ui_ctf_capturelimit", "8", CVAR_ARCHIVE},
-    {&ui_ctf_timelimit, "ui_ctf_timelimit", "30", CVAR_ARCHIVE},
-    {&ui_ctf_friendly, "ui_ctf_friendly", "0", CVAR_ARCHIVE},
+  {&ui_ctf_capturelimit,             "ui_ctf_capturelimit",             "8",                          CVAR_ARCHIVE                  },
+  {&ui_ctf_timelimit,                "ui_ctf_timelimit",                "30",                         CVAR_ARCHIVE                  },
+  {&ui_ctf_friendly,                 "ui_ctf_friendly",                 "0",                          CVAR_ARCHIVE                  },
 
-    {&ui_arenasFile, "g_arenasFile", "", CVAR_INIT | CVAR_ROM},
-    {&ui_botsFile, "g_botsFile", "", CVAR_INIT | CVAR_ROM},
-    {&ui_spScores1, "g_spScores1", "", CVAR_ARCHIVE | CVAR_ROM},
-    {&ui_spScores2, "g_spScores2", "", CVAR_ARCHIVE | CVAR_ROM},
-    {&ui_spScores3, "g_spScores3", "", CVAR_ARCHIVE | CVAR_ROM},
-    {&ui_spScores4, "g_spScores4", "", CVAR_ARCHIVE | CVAR_ROM},
-    {&ui_spScores5, "g_spScores5", "", CVAR_ARCHIVE | CVAR_ROM},
-    {&ui_spAwards, "g_spAwards", "", CVAR_ARCHIVE | CVAR_ROM},
-    {&ui_spVideos, "g_spVideos", "", CVAR_ARCHIVE | CVAR_ROM},
-    {&ui_spSkill, "g_spSkill", "2", CVAR_ARCHIVE | CVAR_LATCH},
+  {&ui_arenasFile,                   "g_arenasFile",                    "",                           CVAR_INIT | CVAR_ROM          },
+  {&ui_botsFile,                     "g_botsFile",                      "",                           CVAR_INIT | CVAR_ROM          },
+  {&ui_spScores1,                    "g_spScores1",                     "",                           CVAR_ARCHIVE | CVAR_ROM       },
+  {&ui_spScores2,                    "g_spScores2",                     "",                           CVAR_ARCHIVE | CVAR_ROM       },
+  {&ui_spScores3,                    "g_spScores3",                     "",                           CVAR_ARCHIVE | CVAR_ROM       },
+  {&ui_spScores4,                    "g_spScores4",                     "",                           CVAR_ARCHIVE | CVAR_ROM       },
+  {&ui_spScores5,                    "g_spScores5",                     "",                           CVAR_ARCHIVE | CVAR_ROM       },
+  {&ui_spAwards,                     "g_spAwards",                      "",                           CVAR_ARCHIVE | CVAR_ROM       },
+  {&ui_spVideos,                     "g_spVideos",                      "",                           CVAR_ARCHIVE | CVAR_ROM       },
+  {&ui_spSkill,                      "g_spSkill",                       "2",                          CVAR_ARCHIVE | CVAR_LATCH     },
 
-    // NERVE - SMF
-    {&ui_friendlyFire, "g_friendlyFire", "1", CVAR_ARCHIVE},
+  // NERVE - SMF
+  {&ui_friendlyFire,                 "g_friendlyFire",                  "1",                          CVAR_ARCHIVE                  },
 
-    {&ui_userTimeLimit, "ui_userTimeLimit", "0", 0},
-    {&ui_userAlliedRespawnTime, "ui_userAlliedRespawnTime", "0", 0},
-    {&ui_userAxisRespawnTime, "ui_userAxisRespawnTime", "0", 0},
-    // -NERVE - SMF
+  {&ui_userTimeLimit,                "ui_userTimeLimit",                "0",                          0                             },
+  {&ui_userAlliedRespawnTime,        "ui_userAlliedRespawnTime",        "0",                          0                             },
+  {&ui_userAxisRespawnTime,          "ui_userAxisRespawnTime",          "0",                          0                             },
+  // -NERVE - SMF
 
-    // JPW NERVE
-    {&ui_teamArenaFirstRun, "ui_teamArenaFirstRun", "0",
-     CVAR_ARCHIVE}, // so sound stuff latches, strange as that seems
-                    // jpw
+  // JPW NERVE
+  {&ui_teamArenaFirstRun,            "ui_teamArenaFirstRun",            "0",                          CVAR_ARCHIVE                  }, // so sound stuff latches, strange as that seems
+                                                                      // jpw
 
-    {&ui_spSelection, "ui_spSelection", "", CVAR_ROM},
-    {&ui_master, "ui_master", "0", CVAR_ARCHIVE},
+  {&ui_spSelection,                  "ui_spSelection",                  "",                           CVAR_ROM                      },
+  {&ui_master,                       "ui_master",                       "0",                          CVAR_ARCHIVE                  },
 
-    {&ui_brassTime, "cg_brassTime", "2500", CVAR_ARCHIVE}, // JPW NERVE
-    {&ui_drawCrosshair, "cg_drawCrosshair", "5", CVAR_ARCHIVE},
-    {&ui_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE},
-    {&ui_drawCrosshairPickups, "cg_drawCrosshairPickups", "1",
-     CVAR_ARCHIVE}, //----(SA) added
-    {&ui_marks, "cg_marktime", "20000", CVAR_ARCHIVE},
-    // JOSEPH 12-2-99
-    {&ui_autoactivate, "cg_autoactivate", "1", CVAR_ARCHIVE},
-    // END JOSEPH
+  {&ui_brassTime,                    "cg_brassTime",                    "2500",                       CVAR_ARCHIVE                  }, // JPW NERVE
+  {&ui_drawCrosshair,                "cg_drawCrosshair",                "5",                          CVAR_ARCHIVE                  },
+  {&ui_drawCrosshairNames,           "cg_drawCrosshairNames",           "1",                          CVAR_ARCHIVE                  },
+  {&ui_drawCrosshairPickups,         "cg_drawCrosshairPickups",         "1",                          CVAR_ARCHIVE                  }, //----(SA) added
+  {&ui_marks,                        "cg_marktime",                     "20000",                      CVAR_ARCHIVE                  },
+  // JOSEPH 12-2-99
+  {&ui_autoactivate,                 "cg_autoactivate",                 "1",                          CVAR_ARCHIVE                  },
+  // END JOSEPH
 
-    {&ui_server1, "server1", "", CVAR_ARCHIVE},
-    {&ui_server2, "server2", "", CVAR_ARCHIVE},
-    {&ui_server3, "server3", "", CVAR_ARCHIVE},
-    {&ui_server4, "server4", "", CVAR_ARCHIVE},
-    {&ui_server5, "server5", "", CVAR_ARCHIVE},
-    {&ui_server6, "server6", "", CVAR_ARCHIVE},
-    {&ui_server7, "server7", "", CVAR_ARCHIVE},
-    {&ui_server8, "server8", "", CVAR_ARCHIVE},
-    {&ui_server9, "server9", "", CVAR_ARCHIVE},
-    {&ui_server10, "server10", "", CVAR_ARCHIVE},
-    {&ui_server11, "server11", "", CVAR_ARCHIVE},
-    {&ui_server12, "server12", "", CVAR_ARCHIVE},
-    {&ui_server13, "server13", "", CVAR_ARCHIVE},
-    {&ui_server14, "server14", "", CVAR_ARCHIVE},
-    {&ui_server15, "server15", "", CVAR_ARCHIVE},
-    {&ui_server16, "server16", "", CVAR_ARCHIVE},
+  {&ui_server1,                      "server1",                         "",                           CVAR_ARCHIVE                  },
+  {&ui_server2,                      "server2",                         "",                           CVAR_ARCHIVE                  },
+  {&ui_server3,                      "server3",                         "",                           CVAR_ARCHIVE                  },
+  {&ui_server4,                      "server4",                         "",                           CVAR_ARCHIVE                  },
+  {&ui_server5,                      "server5",                         "",                           CVAR_ARCHIVE                  },
+  {&ui_server6,                      "server6",                         "",                           CVAR_ARCHIVE                  },
+  {&ui_server7,                      "server7",                         "",                           CVAR_ARCHIVE                  },
+  {&ui_server8,                      "server8",                         "",                           CVAR_ARCHIVE                  },
+  {&ui_server9,                      "server9",                         "",                           CVAR_ARCHIVE                  },
+  {&ui_server10,                     "server10",                        "",                           CVAR_ARCHIVE                  },
+  {&ui_server11,                     "server11",                        "",                           CVAR_ARCHIVE                  },
+  {&ui_server12,                     "server12",                        "",                           CVAR_ARCHIVE                  },
+  {&ui_server13,                     "server13",                        "",                           CVAR_ARCHIVE                  },
+  {&ui_server14,                     "server14",                        "",                           CVAR_ARCHIVE                  },
+  {&ui_server15,                     "server15",                        "",                           CVAR_ARCHIVE                  },
+  {&ui_server16,                     "server16",                        "",                           CVAR_ARCHIVE                  },
 
-    {&ui_dedicated, "ui_dedicated", "0", CVAR_ARCHIVE},
-    {&ui_cdkeychecked, "ui_cdkeychecked", "0", CVAR_ROM},
-    {&ui_selectedPlayer, "cg_selectedPlayer", "0", CVAR_ARCHIVE},
-    {&ui_selectedPlayerName, "cg_selectedPlayerName", "", CVAR_ARCHIVE},
-    {&ui_netSource, "ui_netSource", "1", CVAR_ARCHIVE},
-    {&ui_menuFiles, "ui_menuFiles", DEFAULT_MENU_FILE, CVAR_ARCHIVE},
-    {&ui_gameType, "ui_gametype", "2", CVAR_ARCHIVE},
-    {&ui_joinGameType, "ui_joinGametype", "-1", CVAR_ARCHIVE},
-    {&ui_netGameType, "ui_netGametype", "2", CVAR_ARCHIVE},
+  {&ui_dedicated,                    "ui_dedicated",                    "0",                          CVAR_ARCHIVE                  },
+  {&ui_cdkeychecked,                 "ui_cdkeychecked",                 "0",                          CVAR_ROM                      },
+  {&ui_selectedPlayer,               "cg_selectedPlayer",               "0",                          CVAR_ARCHIVE                  },
+  {&ui_selectedPlayerName,           "cg_selectedPlayerName",           "",                           CVAR_ARCHIVE                  },
+  {&ui_netSource,                    "ui_netSource",                    "1",                          CVAR_ARCHIVE                  },
+  {&ui_menuFiles,                    "ui_menuFiles",                    DEFAULT_MENU_FILE,            CVAR_ARCHIVE                  },
+  {&ui_gameType,                     "ui_gametype",                     "2",                          CVAR_ARCHIVE                  },
+  {&ui_joinGameType,                 "ui_joinGametype",                 "-1",                         CVAR_ARCHIVE                  },
+  {&ui_netGameType,                  "ui_netGametype",                  "2",                          CVAR_ARCHIVE                  },
 
-    {&ui_notebookCurrentPage, "ui_notebookCurrentPage", "1", CVAR_ROM},
-    {&ui_clipboardName, "cg_clipboardName", "", CVAR_ROM},
+  {&ui_notebookCurrentPage,          "ui_notebookCurrentPage",          "1",                          CVAR_ROM                      },
+  {&ui_clipboardName,                "cg_clipboardName",                "",                           CVAR_ROM                      },
 
-    // NERVE - SMF - multiplayer cvars
-    {&ui_mapIndex, "ui_mapIndex", "0", CVAR_ARCHIVE},
-    {&ui_currentMap, "ui_currentMap", "0", CVAR_ARCHIVE},
-    {&ui_currentNetMap, "ui_currentNetMap", "0", CVAR_ARCHIVE},
+  // NERVE - SMF - multiplayer cvars
+  {&ui_mapIndex,                     "ui_mapIndex",                     "0",                          CVAR_ARCHIVE                  },
+  {&ui_currentMap,                   "ui_currentMap",                   "0",                          CVAR_ARCHIVE                  },
+  {&ui_currentNetMap,                "ui_currentNetMap",                "0",                          CVAR_ARCHIVE                  },
 
-    {&ui_browserMaster, "ui_browserMaster", "0", CVAR_ARCHIVE},
-    {&ui_browserGameType, "ui_browserGameType", "0", CVAR_ARCHIVE},
-    {&ui_browserSortKey, "ui_browserSortKey", "4", CVAR_ARCHIVE},
-    {&ui_browserShowEmptyOrFull, "ui_browserShowEmptyOrFull", "0",
-     CVAR_ARCHIVE},
-    {&ui_browserShowPasswordProtected, "ui_browserShowPasswordProtected", "0",
-     CVAR_ARCHIVE},
-    {&ui_browserShowFriendlyFire, "ui_browserShowFriendlyFire", "0",
-     CVAR_ARCHIVE},
-    {&ui_browserShowMaxlives, "ui_browserShowMaxlives", "0", CVAR_ARCHIVE},
-    {&ui_browserShowPunkBuster, "ui_browserShowPunkBuster", "0", CVAR_ARCHIVE},
-    {&ui_browserShowAntilag, "ui_browserShowAntilag", "0", CVAR_ARCHIVE},
-    {&ui_browserShowWeaponsRestricted, "ui_browserShowWeaponsRestricted", "0",
-     CVAR_ARCHIVE},
-    {&ui_browserShowTeamBalanced, "ui_browserShowTeamBalanced", "0",
-     CVAR_ARCHIVE},
-    {&ui_browserShowETJump, "ui_browserShowETJump", "0", CVAR_ARCHIVE},
+  {&ui_browserMaster,                "ui_browserMaster",                "0",                          CVAR_ARCHIVE                  },
+  {&ui_browserGameType,              "ui_browserGameType",              "0",                          CVAR_ARCHIVE                  },
+  {&ui_browserSortKey,               "ui_browserSortKey",               "4",                          CVAR_ARCHIVE                  },
+  {&ui_browserShowEmptyOrFull,       "ui_browserShowEmptyOrFull",       "0",                          CVAR_ARCHIVE                  },
+  {&ui_browserShowPasswordProtected, "ui_browserShowPasswordProtected", "0",                          CVAR_ARCHIVE                  },
+  {&ui_browserShowFriendlyFire,      "ui_browserShowFriendlyFire",      "0",                          CVAR_ARCHIVE                  },
+  {&ui_browserShowMaxlives,          "ui_browserShowMaxlives",          "0",                          CVAR_ARCHIVE                  },
+  {&ui_browserShowPunkBuster,        "ui_browserShowPunkBuster",        "0",                          CVAR_ARCHIVE                  },
+  {&ui_browserShowAntilag,           "ui_browserShowAntilag",           "0",                          CVAR_ARCHIVE                  },
+  {&ui_browserShowWeaponsRestricted, "ui_browserShowWeaponsRestricted", "0",                          CVAR_ARCHIVE                  },
+  {&ui_browserShowTeamBalanced,      "ui_browserShowTeamBalanced",      "0",                          CVAR_ARCHIVE                  },
+  {&ui_browserShowETJump,            "ui_browserShowETJump",            "0",                          CVAR_ARCHIVE                  },
 
-    {&ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
+  {&ui_serverStatusTimeOut,          "ui_serverStatusTimeOut",          "7000",                       CVAR_ARCHIVE                  },
 
-    {&ui_Q3Model, "ui_Q3Model", "1", 0},
-    {&ui_headModel, "headModel", "", 0},
+  {&ui_Q3Model,                      "ui_Q3Model",                      "1",                          0                             },
+  {&ui_headModel,                    "headModel",                       "",                           0                             },
 
-    {&ui_limboOptions, "ui_limboOptions", "0", 0},
-    {&ui_limboPrevOptions, "ui_limboPrevOptions", "0", 0},
-    {&ui_limboObjective, "ui_limboObjective", "0", 0},
-    {&ui_cmd, "ui_cmd", "", 0},
+  {&ui_limboOptions,                 "ui_limboOptions",                 "0",                          0                             },
+  {&ui_limboPrevOptions,             "ui_limboPrevOptions",             "0",                          0                             },
+  {&ui_limboObjective,               "ui_limboObjective",               "0",                          0                             },
+  {&ui_cmd,                          "ui_cmd",                          "",                           0                             },
 
-    {&ui_prevTeam, "ui_prevTeam", "-1", 0},
-    {&ui_prevClass, "ui_prevClass", "-1", 0},
-    {&ui_prevWeapon, "ui_prevWeapon", "-1", 0},
+  {&ui_prevTeam,                     "ui_prevTeam",                     "-1",                         0                             },
+  {&ui_prevClass,                    "ui_prevClass",                    "-1",                         0                             },
+  {&ui_prevWeapon,                   "ui_prevWeapon",                   "-1",                         0                             },
 
-    {&ui_limboMode, "ui_limboMode", "0", 0},
-    {&ui_objective, "ui_objective", "", 0},
+  {&ui_limboMode,                    "ui_limboMode",                    "0",                          0                             },
+  {&ui_objective,                    "ui_objective",                    "",                           0                             },
 
-    {&ui_team, "ui_team", "Axis", 0},
-    {&ui_class, "ui_class", "Soldier", 0},
-    {&ui_weapon, "ui_weapon", "MP 40", 0},
+  {&ui_team,                         "ui_team",                         "Axis",                       0                             },
+  {&ui_class,                        "ui_class",                        "Soldier",                    0                             },
+  {&ui_weapon,                       "ui_weapon",                       "MP 40",                      0                             },
 
-    {&ui_isSpectator, "ui_isSpectator", "1", 0},
-    // -NERVE - SMF
+  {&ui_isSpectator,                  "ui_isSpectator",                  "1",                          0                             },
+  // -NERVE - SMF
 
-    {&g_gameType, "g_gameType", "2", CVAR_SERVERINFO | CVAR_LATCH},
-    {NULL, "cg_drawBuddies", "1", CVAR_ARCHIVE},
-    {NULL, "cg_showblood", "1", CVAR_ARCHIVE},
-    {NULL, "cg_bloodFlash", "1.0", CVAR_ARCHIVE},
-    {NULL, "cg_autoReload", "1", CVAR_ARCHIVE},
-    {NULL, "cg_noAmmoAutoSwitch", "1", CVAR_ARCHIVE},
-    {NULL, "cg_useWeapsForZoom", "1", CVAR_ARCHIVE},
-    {NULL, "cg_zoomDefaultSniper", "20", CVAR_ARCHIVE},
-    {NULL, "cg_zoomstepsniper", "2", CVAR_ARCHIVE},
-    {NULL, "cg_voicespritetime", "6000", CVAR_ARCHIVE},
-    {NULL, "cg_complaintPopUp", "1", CVAR_ARCHIVE},
-    {NULL, "cg_announcer", "1", CVAR_ARCHIVE},
-    {NULL, "cg_printObjectiveInfo", "1", CVAR_ARCHIVE},
-    {NULL, "cg_useScreenshotJPEG", "1", CVAR_ARCHIVE},
-    {NULL, "cg_drawGun", "1", CVAR_ARCHIVE},
-    {NULL, "cg_drawCompass", "1", CVAR_ARCHIVE},
-    {NULL, "cg_drawRoundTimer", "1", CVAR_ARCHIVE},
-    {NULL, "cg_drawReinforcementTime", "0", CVAR_ARCHIVE},
-    {NULL, "cg_cursorHints", "1", CVAR_ARCHIVE},
-    {NULL, "cg_crosshairPulse", "0", CVAR_ARCHIVE},
-    {NULL, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE},
-    {NULL, "cg_crosshairColor", "White", CVAR_ARCHIVE},
-    {NULL, "cg_crosshairAlpha", "1.0", CVAR_ARCHIVE},
-    {NULL, "cg_crosshairColorAlt", "White", CVAR_ARCHIVE},
-    {NULL, "cg_coronafardist", "1536", CVAR_ARCHIVE},
-    {NULL, "cg_wolfparticles", "1", CVAR_ARCHIVE},
-    {NULL, "g_password", "none", CVAR_TEMP},
-    {NULL, "g_antilag", "1", CVAR_SERVERINFO | CVAR_ARCHIVE},
-    {NULL, "g_warmup", "60", CVAR_ARCHIVE},
-    {&cl_profile, "cl_profile", "", CVAR_ROM},
-    {&cl_defaultProfile, "cl_defaultProfile", "", CVAR_ROM},
-    {&ui_profile, "ui_profile", "", CVAR_ROM},
+  {&g_gameType,                      "g_gameType",                      "2",                          CVAR_SERVERINFO | CVAR_LATCH  },
+  {NULL,                             "cg_drawBuddies",                  "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "cg_showblood",                    "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "cg_bloodFlash",                   "1.0",                        CVAR_ARCHIVE                  },
+  {NULL,                             "cg_autoReload",                   "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "cg_noAmmoAutoSwitch",             "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "cg_useWeapsForZoom",              "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "cg_zoomDefaultSniper",            "20",                         CVAR_ARCHIVE                  },
+  {NULL,                             "cg_zoomstepsniper",               "2",                          CVAR_ARCHIVE                  },
+  {NULL,                             "cg_voicespritetime",              "6000",                       CVAR_ARCHIVE                  },
+  {NULL,                             "cg_complaintPopUp",               "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "cg_announcer",                    "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "cg_printObjectiveInfo",           "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "cg_useScreenshotJPEG",            "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "cg_drawGun",                      "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "cg_drawCompass",                  "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "cg_drawRoundTimer",               "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "cg_drawReinforcementTime",        "0",                          CVAR_ARCHIVE                  },
+  {NULL,                             "cg_cursorHints",                  "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "cg_crosshairPulse",               "0",                          CVAR_ARCHIVE                  },
+  {NULL,                             "cg_drawCrosshairNames",           "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "cg_crosshairColor",               "White",                      CVAR_ARCHIVE                  },
+  {NULL,                             "cg_crosshairAlpha",               "1.0",                        CVAR_ARCHIVE                  },
+  {NULL,                             "cg_crosshairColorAlt",            "White",                      CVAR_ARCHIVE                  },
+  {NULL,                             "cg_coronafardist",                "1536",                       CVAR_ARCHIVE                  },
+  {NULL,                             "cg_wolfparticles",                "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "g_password",                      "none",                       CVAR_TEMP                     },
+  {NULL,                             "g_antilag",                       "1",                          CVAR_SERVERINFO | CVAR_ARCHIVE},
+  {NULL,                             "g_warmup",                        "60",                         CVAR_ARCHIVE                  },
+  {&cl_profile,                      "cl_profile",                      "",                           CVAR_ROM                      },
+  {&cl_defaultProfile,               "cl_defaultProfile",               "",                           CVAR_ROM                      },
+  {&ui_profile,                      "ui_profile",                      "",                           CVAR_ROM                      },
 
-    // START - TAT 9/16/2002
-    // cvar used to implement context sensitive bot menu
-    //		if this is set to "engineer", for instance, then only engineer
-    // commands will show up
-    {NULL, "cg_botMenuType", "0", CVAR_TEMP},
-    // END - TAT 9/15/2002
+  // START - TAT 9/16/2002
+  // cvar used to implement context sensitive bot menu
+  //		if this is set to "engineer", for instance, then only engineer
+  // commands will show up
+  {NULL,                             "cg_botMenuType",                  "0",                          CVAR_TEMP                     },
+  // END - TAT 9/15/2002
 
-    // OSP
-    // cgame mappings
-    {&ui_blackout, "ui_blackout", "0", CVAR_ROM},
-    {&cg_crosshairAlpha, "cg_crosshairAlpha", "1.0", CVAR_ARCHIVE},
-    {&cg_crosshairAlphaAlt, "cg_crosshairAlphaAlt", "1.0", CVAR_ARCHIVE},
-    {&cg_crosshairColor, "cg_crosshairColor", "White", CVAR_ARCHIVE},
-    {&cg_crosshairColorAlt, "cg_crosshairColorAlt", "White", CVAR_ARCHIVE},
-    {&cg_crosshairSize, "cg_crosshairSize", "40", CVAR_ARCHIVE},
-    // game mappings (for create server option)
-    {NULL, "bot_minplayers", "0", CVAR_ARCHIVE},
-    {NULL, "g_ipcomplaintlimit", "3", CVAR_ARCHIVE},
-    {NULL, "g_complaintlimit", "6", CVAR_ARCHIVE},
-    {NULL, "g_doWarmup", "0", CVAR_ARCHIVE},
-    {NULL, "g_inactivity", "180", CVAR_ARCHIVE},
-    {NULL, "g_maxLives", "0", CVAR_ARCHIVE},
-    {NULL, "refereePassword", "none", CVAR_ARCHIVE},
-    {NULL, "g_teamForceBalance", "0", CVAR_ARCHIVE},
-    {NULL, "sv_maxRate", "0", CVAR_ARCHIVE},
-    {NULL, "g_spectatorInactivity", "0", CVAR_ARCHIVE},
-    {NULL, "match_latejoin", "1", CVAR_ARCHIVE},
-    {NULL, "match_minplayers", MATCH_MINPLAYERS, CVAR_ARCHIVE},
-    {NULL, "match_readypercent", "100", CVAR_ARCHIVE},
-    {NULL, "match_timeoutcount", "3", CVAR_ARCHIVE},
-    {NULL, "match_timeoutlength", "180", CVAR_ARCHIVE},
-    {NULL, "match_warmupDamage", "1", CVAR_ARCHIVE},
-    {NULL, "server_motd0", " ^NEnemy Territory ^7MOTD ", CVAR_ARCHIVE},
-    {NULL, "server_motd1", "", CVAR_ARCHIVE},
-    {NULL, "server_motd2", "", CVAR_ARCHIVE},
-    {NULL, "server_motd3", "", CVAR_ARCHIVE},
-    {NULL, "server_motd4", "", CVAR_ARCHIVE},
-    {NULL, "server_motd5", "", CVAR_ARCHIVE},
-    {NULL, "team_maxPanzers", "-1", CVAR_ARCHIVE},
-    {NULL, "team_maxplayers", "0", CVAR_ARCHIVE},
-    {NULL, "team_nocontrols", "0", CVAR_ARCHIVE},
-    {NULL, "vote_allow_map", "1", CVAR_ARCHIVE},
-    {NULL, "vote_allow_matchreset", "1", CVAR_ARCHIVE},
-    {NULL, "vote_allow_randommap", "1", CVAR_ARCHIVE},
-    {NULL, "vote_allow_rtv", "1", CVAR_ARCHIVE},
-    {NULL, "vote_allow_autoRtv", "1", CVAR_ARCHIVE},
-    {NULL, "vote_allow_portalPredict", "1", CVAR_ARCHIVE},
-    {NULL, "vote_limit", "5", CVAR_ARCHIVE},
-    {NULL, "vote_percent", "50", CVAR_ARCHIVE},
-    // OSP
+  // OSP
+  // cgame mappings
+  {&ui_blackout,                     "ui_blackout",                     "0",                          CVAR_ROM                      },
+  {&cg_crosshairAlpha,               "cg_crosshairAlpha",               "1.0",                        CVAR_ARCHIVE                  },
+  {&cg_crosshairAlphaAlt,            "cg_crosshairAlphaAlt",            "1.0",                        CVAR_ARCHIVE                  },
+  {&cg_crosshairColor,               "cg_crosshairColor",               "White",                      CVAR_ARCHIVE                  },
+  {&cg_crosshairColorAlt,            "cg_crosshairColorAlt",            "White",                      CVAR_ARCHIVE                  },
+  {&cg_crosshairSize,                "cg_crosshairSize",                "40",                         CVAR_ARCHIVE                  },
+  // game mappings (for create server option)
+  {NULL,                             "bot_minplayers",                  "0",                          CVAR_ARCHIVE                  },
+  {NULL,                             "g_ipcomplaintlimit",              "3",                          CVAR_ARCHIVE                  },
+  {NULL,                             "g_complaintlimit",                "6",                          CVAR_ARCHIVE                  },
+  {NULL,                             "g_doWarmup",                      "0",                          CVAR_ARCHIVE                  },
+  {NULL,                             "g_inactivity",                    "180",                        CVAR_ARCHIVE                  },
+  {NULL,                             "g_maxLives",                      "0",                          CVAR_ARCHIVE                  },
+  {NULL,                             "refereePassword",                 "none",                       CVAR_ARCHIVE                  },
+  {NULL,                             "g_teamForceBalance",              "0",                          CVAR_ARCHIVE                  },
+  {NULL,                             "sv_maxRate",                      "0",                          CVAR_ARCHIVE                  },
+  {NULL,                             "g_spectatorInactivity",           "0",                          CVAR_ARCHIVE                  },
+  {NULL,                             "match_latejoin",                  "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "match_minplayers",                MATCH_MINPLAYERS,             CVAR_ARCHIVE                  },
+  {NULL,                             "match_readypercent",              "100",                        CVAR_ARCHIVE                  },
+  {NULL,                             "match_timeoutcount",              "3",                          CVAR_ARCHIVE                  },
+  {NULL,                             "match_timeoutlength",             "180",                        CVAR_ARCHIVE                  },
+  {NULL,                             "match_warmupDamage",              "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "server_motd0",                    " ^NEnemy Territory ^7MOTD ", CVAR_ARCHIVE                  },
+  {NULL,                             "server_motd1",                    "",                           CVAR_ARCHIVE                  },
+  {NULL,                             "server_motd2",                    "",                           CVAR_ARCHIVE                  },
+  {NULL,                             "server_motd3",                    "",                           CVAR_ARCHIVE                  },
+  {NULL,                             "server_motd4",                    "",                           CVAR_ARCHIVE                  },
+  {NULL,                             "server_motd5",                    "",                           CVAR_ARCHIVE                  },
+  {NULL,                             "team_maxPanzers",                 "-1",                         CVAR_ARCHIVE                  },
+  {NULL,                             "team_maxplayers",                 "0",                          CVAR_ARCHIVE                  },
+  {NULL,                             "team_nocontrols",                 "0",                          CVAR_ARCHIVE                  },
+  {NULL,                             "vote_allow_map",                  "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "vote_allow_matchreset",           "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "vote_allow_randommap",            "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "vote_allow_rtv",                  "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "vote_allow_autoRtv",              "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "vote_allow_portalPredict",        "1",                          CVAR_ARCHIVE                  },
+  {NULL,                             "vote_limit",                      "5",                          CVAR_ARCHIVE                  },
+  {NULL,                             "vote_percent",                    "50",                         CVAR_ARCHIVE                  },
+  // OSP
 
-    //{ NULL, "ui_creatingprofile", "", CVAR_ARCHIVE },
-    {NULL, "ui_r_mode", "", CVAR_ARCHIVE},
-    {NULL, "ui_r_gamma", "", CVAR_ARCHIVE},
-    {NULL, "ui_rate", "", CVAR_ARCHIVE},
-    {NULL, "ui_handedness", "", CVAR_ARCHIVE},
-    {NULL, "ui_sensitivity", "", CVAR_ARCHIVE},
-    {NULL, "ui_profile_mousePitch", "", CVAR_ARCHIVE},
+  //{ NULL, "ui_creatingprofile", "", CVAR_ARCHIVE },
+  {NULL,                             "ui_r_mode",                       "",                           CVAR_ARCHIVE                  },
+  {NULL,                             "ui_r_gamma",                      "",                           CVAR_ARCHIVE                  },
+  {NULL,                             "ui_rate",                         "",                           CVAR_ARCHIVE                  },
+  {NULL,                             "ui_handedness",                   "",                           CVAR_ARCHIVE                  },
+  {NULL,                             "ui_sensitivity",                  "",                           CVAR_ARCHIVE                  },
+  {NULL,                             "ui_profile_mousePitch",           "",                           CVAR_ARCHIVE                  },
 
-    {&cl_bypassMouseInput, "cl_bypassMouseInput", "0", CVAR_TEMP},
+  {&cl_bypassMouseInput,             "cl_bypassMouseInput",             "0",                          CVAR_TEMP                     },
 
-    {NULL, "ui_showtooltips", "1", CVAR_ARCHIVE},
+  {NULL,                             "ui_showtooltips",                 "1",                          CVAR_ARCHIVE                  },
 
-    // bani
-    {&ui_autoredirect, "ui_autoredirect", "0", CVAR_ARCHIVE},
+  // bani
+  {&ui_autoredirect,                 "ui_autoredirect",                 "0",                          CVAR_ARCHIVE                  },
 
-    {&ui_voteCheats, "ui_voteCheats", "0", CVAR_ARCHIVE},
-    {&ui_voteCustomRTV, "ui_voteCustomRTV", "0", CVAR_ARCHIVE},
+  {&ui_voteCheats,                   "ui_voteCheats",                   "0",                          CVAR_ARCHIVE                  },
+  {&ui_voteCustomRTV,                "ui_voteCustomRTV",                "0",                          CVAR_ARCHIVE                  },
 
-    {&etj_menuSensitivity, "etj_menuSensitivity", "1.0", CVAR_ARCHIVE},
-    {&etj_cursorSize, "etj_cursorSize", "32", CVAR_ARCHIVE},
-    {&etj_altCursor, "etj_altCursor", "0", CVAR_ARCHIVE},
+  {&etj_menuSensitivity,             "etj_menuSensitivity",             "1.0",                        CVAR_ARCHIVE                  },
+  {&etj_cursorSize,                  "etj_cursorSize",                  "32",                         CVAR_ARCHIVE                  },
+  {&etj_altCursor,                   "etj_altCursor",                   "0",                          CVAR_ARCHIVE                  },
 
-    {&ui_currentChangelog, "ui_currentChangelog", "", CVAR_TEMP | CVAR_ROM},
+  {&ui_currentChangelog,             "ui_currentChangelog",             "",                           CVAR_TEMP | CVAR_ROM          },
 
-    {&etj_demoQueueCurrent, "etj_demoQueueCurrent", "", CVAR_TEMP | CVAR_ROM},
-    {&etj_demoQueueDir, "etj_demoQueueDir", "demoqueue", CVAR_ARCHIVE},
+  {&etj_demoQueueCurrent,            "etj_demoQueueCurrent",            "",                           CVAR_TEMP | CVAR_ROM          },
+  {&etj_demoQueueDir,                "etj_demoQueueDir",                "demoqueue",                  CVAR_ARCHIVE                  },
 
-    {&etj_noMenuFlashing, "etj_noMenuFlashing", "0", CVAR_ARCHIVE | CVAR_LATCH},
+  {&etj_noMenuFlashing,              "etj_noMenuFlashing",              "0",                          CVAR_ARCHIVE | CVAR_LATCH     },
 
-    {&g_portalPredict, "g_portalPredict", "0", CVAR_ARCHIVE | CVAR_SERVERINFO},
+  {&g_portalPredict,                 "g_portalPredict",                 "0",                          CVAR_ARCHIVE | CVAR_SERVERINFO},
 
-    {&etj_drawQuickConnectMenu, "etj_drawQuickConnectMenu", "1",
-     CVAR_ARCHIVE | CVAR_LATCH},
+  {&etj_drawQuickConnectMenu,        "etj_drawQuickConnectMenu",        "1",                          CVAR_ARCHIVE | CVAR_LATCH     },
 };
 
 int cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);
@@ -7930,8 +7421,7 @@ void UI_RegisterCvars(void) {
   cvarTable_t *cv;
 
   for (i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++) {
-    trap_Cvar_Register(cv->vmCvar, cv->cvarName, cv->defaultString,
-                       cv->cvarFlags);
+    trap_Cvar_Register(cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags);
     if (cv->vmCvar != NULL) {
       cv->modificationCount = cv->vmCvar->modificationCount;
     }
@@ -7974,8 +7464,7 @@ static void UI_StopServerRefresh(void) {
     return;
   }
   uiInfo.serverStatus.refreshActive = qfalse;
-  Com_Printf("%d servers listed in browser with %d players.\n",
-             uiInfo.serverStatus.numDisplayServers,
+  Com_Printf("%d servers listed in browser with %d players.\n", uiInfo.serverStatus.numDisplayServers,
              uiInfo.serverStatus.numPlayersOnServers);
   count = trap_LAN_GetServerCount(ui_netSource.integer);
   if (count - uiInfo.serverStatus.numDisplayServers > 0) {
@@ -8040,8 +7529,7 @@ static void UI_StartServerRefresh(qboolean full) {
 
   qtime_t q;
   trap_RealTime(&q);
-  Com_sprintf(buff, sizeof(buff), "%s-%i, %i at %s:%s", MonthAbbrev[q.tm_mon],
-              q.tm_mday, 1900 + q.tm_year,
+  Com_sprintf(buff, sizeof(buff), "%s-%i, %i at %s:%s", MonthAbbrev[q.tm_mon], q.tm_mday, 1900 + q.tm_year,
               q.tm_hour < 10 ? va("0%i", q.tm_hour) : va("%i", q.tm_hour),
               q.tm_min < 10 ? va("0%i", q.tm_min) : va("%i", q.tm_min));
   trap_Cvar_Set(va("ui_lastServerRefresh_%i", ui_netSource.integer), buff);
@@ -8051,10 +7539,10 @@ static void UI_StartServerRefresh(qboolean full) {
     return;
   }
 
-  uiInfo.serverStatus.refreshActive = qtrue;
+  uiInfo.serverStatus.refreshActive      = qtrue;
   uiInfo.serverStatus.nextDisplayRefresh = uiInfo.uiDC.realTime + 1000;
   // clear number of displayed servers
-  uiInfo.serverStatus.numDisplayServers = 0;
+  uiInfo.serverStatus.numDisplayServers   = 0;
   uiInfo.serverStatus.numPlayersOnServers = 0;
   // mark all servers as visible so we store ping updates for them
   trap_LAN_MarkServerVisible(ui_netSource.integer, -1, qtrue);
@@ -8073,10 +7561,9 @@ static void UI_StartServerRefresh(qboolean full) {
     if (*ptr) {
       trap_Cmd_ExecuteText(EXEC_APPEND, va("globalservers %d %s\n", 0, ptr));
     } else {
-      trap_Cmd_ExecuteText(EXEC_APPEND,
-                           va("globalservers %d %d\n", 0,
-                              (int)trap_Cvar_VariableValue("protocol")));
+      trap_Cmd_ExecuteText(EXEC_APPEND, va("globalservers %d %d\n", 0, (int)trap_Cvar_VariableValue("protocol")));
     }
   }
 }
+
 // -NERVE - SMF

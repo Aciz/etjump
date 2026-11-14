@@ -54,38 +54,44 @@ public:
     bool valid;
   };
 
-  static constexpr std::array<CHSCvar, MAX_CHS_INFO> CHS1Cvars = {{
-      {&etj_CHS1Info1, false},
-      {&etj_CHS1Info2, false},
-      {&etj_CHS1Info3, false},
-      {&etj_CHS1Info4, false},
-      {&etj_CHS1Info5, false},
-      {&etj_CHS1Info6, false},
-      {&etj_CHS1Info7, false},
-      {&etj_CHS1Info8, false},
-  }};
+  static constexpr std::array<CHSCvar, MAX_CHS_INFO> CHS1Cvars = {
+    {
+     {&etj_CHS1Info1, false},
+     {&etj_CHS1Info2, false},
+     {&etj_CHS1Info3, false},
+     {&etj_CHS1Info4, false},
+     {&etj_CHS1Info5, false},
+     {&etj_CHS1Info6, false},
+     {&etj_CHS1Info7, false},
+     {&etj_CHS1Info8, false},
+     }
+  };
 
-  static constexpr std::array<CHSCvar, MAX_CHS_INFO> CHS2Cvars = {{
-      {&etj_CHS2Info1, false},
-      {&etj_CHS2Info2, false},
-      {&etj_CHS2Info3, false},
-      {&etj_CHS2Info4, false},
-      {&etj_CHS2Info5, false},
-      {&etj_CHS2Info6, false},
-      {&etj_CHS2Info7, false},
-      {&etj_CHS2Info8, false},
-  }};
+  static constexpr std::array<CHSCvar, MAX_CHS_INFO> CHS2Cvars = {
+    {
+     {&etj_CHS2Info1, false},
+     {&etj_CHS2Info2, false},
+     {&etj_CHS2Info3, false},
+     {&etj_CHS2Info4, false},
+     {&etj_CHS2Info5, false},
+     {&etj_CHS2Info6, false},
+     {&etj_CHS2Info7, false},
+     {&etj_CHS2Info8, false},
+     }
+  };
 
-  static constexpr std::array<CHSCvar, MAX_CHS_INFO> CHS3Cvars = {{
-      {&etj_CHS3Info1, false},
-      {&etj_CHS3Info2, false},
-      {&etj_CHS3Info3, false},
-      {&etj_CHS3Info4, false},
-      {&etj_CHS3Info5, false},
-      {&etj_CHS3Info6, false},
-      {&etj_CHS3Info7, false},
-      {&etj_CHS3Info8, false},
-  }};
+  static constexpr std::array<CHSCvar, MAX_CHS_INFO> CHS3Cvars = {
+    {
+     {&etj_CHS3Info1, false},
+     {&etj_CHS3Info2, false},
+     {&etj_CHS3Info3, false},
+     {&etj_CHS3Info4, false},
+     {&etj_CHS3Info5, false},
+     {&etj_CHS3Info6, false},
+     {&etj_CHS3Info7, false},
+     {&etj_CHS3Info8, false},
+     }
+  };
 
   struct CHSObject {
     const vmCvar_t *masterCvar = nullptr;
@@ -100,70 +106,69 @@ public:
   [[nodiscard]] bool needPmove() const;
   std::string getStat(const vmCvar_t *cvar) const;
   std::string getStatName(const vmCvar_t *cvar) const;
-  [[nodiscard]] const std::array<CHSCvar, MAX_CHS_INFO> &
-  getCvars(int32_t chs) const;
+  [[nodiscard]] const std::array<CHSCvar, MAX_CHS_INFO> &getCvars(int32_t chs) const;
 
 private:
   // as a general rule, try to keep this in sync with
   // the values used in DeFRaG (where applicable)
   // https://www.q3df.org/wiki?p=136#CHS-list
   enum class Stats {
-    SPEED = 1,
+    SPEED  = 1,
     HEALTH = 2,
-    AMMO = 4,
+    AMMO   = 4,
 
-    DISTANCE_XY = 10,
-    DISTANCE_Z = 11,
-    DISTANCE_XYZ = 12,
-    DISTANCE_VIEW_XYZ = 13,
-    DISTANCE_XY_Z_XYZ = 14,
+    DISTANCE_XY            = 10,
+    DISTANCE_Z             = 11,
+    DISTANCE_XYZ           = 12,
+    DISTANCE_VIEW_XYZ      = 13,
+    DISTANCE_XY_Z_XYZ      = 14,
     DISTANCE_XY_Z_VIEW_XYZ = 15,
-    LOOK_XYZ = 16,
+    LOOK_XYZ               = 16,
 
-    SPEED_X = 20,
-    SPEED_Y = 21,
-    SPEED_Z = 22,
-    SPEED_XY = 23,
-    SPEED_XYZ = 24,
-    SPEED_FORWARD = 25,
-    SPEED_SIDE = 26,
-    SPEED_FORWARD_SIDE = 27,
+    SPEED_X               = 20,
+    SPEED_Y               = 21,
+    SPEED_Z               = 22,
+    SPEED_XY              = 23,
+    SPEED_XYZ             = 24,
+    SPEED_FORWARD         = 25,
+    SPEED_SIDE            = 26,
+    SPEED_FORWARD_SIDE    = 27,
     SPEED_XY_FORWARD_SIDE = 28,
 
-    PITCH = 30,
-    YAW = 31,
-    ROLL = 32,
-    POS_X = 33,
-    POS_Y = 34,
-    POS_Z = 35,
+    PITCH      = 30,
+    YAW        = 31,
+    ROLL       = 32,
+    POS_X      = 33,
+    POS_Y      = 34,
+    POS_Z      = 35,
     VIEW_POS_X = 36,
     VIEW_POS_Y = 37,
     VIEW_POS_Z = 38,
 
-    PITCH_YAW = 40,
-    PLAYER_POS_XYZ = 41,
+    PITCH_YAW                = 40,
+    PLAYER_POS_XYZ           = 41,
     PLAYER_POS_XYZ_PITCH_YAW = 42,
-    VIEW_POS_XYZ_PITCH_YAW = 43,
-    POS_XYZ = 44,
-    VIEW_POS_XYZ = 45,
-    ANGLES_XYZ = 46,
-    VELOCITY_XYZ = 47,
+    VIEW_POS_XYZ_PITCH_YAW   = 43,
+    POS_XYZ                  = 44,
+    VIEW_POS_XYZ             = 45,
+    ANGLES_XYZ               = 46,
+    VELOCITY_XYZ             = 47,
 
-    JUMP_XYZ = 50,
-    PLANE_ANGLE_Z = 53,
+    JUMP_XYZ        = 50,
+    PLANE_ANGLE_Z   = 53,
     LAST_JUMP_SPEED = 55,
 
-    UPMOVE_PRE_DELAY = 70,
-    UPMOVE_POST_DELAY = 71,
-    UPMOVE_FULL_DELAY = 72,
+    UPMOVE_PRE_DELAY           = 70,
+    UPMOVE_POST_DELAY          = 71,
+    UPMOVE_FULL_DELAY          = 72,
     UPMOVE_PRE_FULL_POST_DELAY = 73,
     UPMOVE_POST_FULL_PRE_DELAY = 74,
   };
 
   enum class StatOpts {
-    TRACE = 1 << 0,
+    TRACE       = 1 << 0,
     EXTRA_TRACE = 1 << 1,
-    PMOVE = 1 << 2,
+    PMOVE       = 1 << 2,
   };
 
   struct StatData {
@@ -193,39 +198,39 @@ private:
   float ZOffset{};      // std::abs(ps->mins[2])
 
   enum class SpeedType {
-    X = 0,
-    Y = 1,
-    Z = 2,
-    XY = 3,
-    XYZ = 4,
-    FORWARD = 5,
-    SIDE = 6,
-    FORWARD_SIDE = 7,
+    X               = 0,
+    Y               = 1,
+    Z               = 2,
+    XY              = 3,
+    XYZ             = 4,
+    FORWARD         = 5,
+    SIDE            = 6,
+    FORWARD_SIDE    = 7,
     XY_FORWARD_SIDE = 8,
   };
 
   enum class DistanceType {
-    XY = 0,
-    Z = 1,
-    XYZ = 2,
-    VIEW_XYZ = 3,
-    XY_Z_XYZ = 4,
+    XY            = 0,
+    Z             = 1,
+    XYZ           = 2,
+    VIEW_XYZ      = 3,
+    XY_Z_XYZ      = 4,
     XY_Z_VIEW_XYZ = 5,
   };
 
   enum class PositionType {
-    X = 0,
-    Y = 1,
-    Z = 2,
+    X      = 0,
+    Y      = 1,
+    Z      = 2,
     VIEW_X = 3,
     VIEW_Y = 4,
     VIEW_Z = 5,
   };
 
   enum class UpmoveType {
-    PRE_DELAY = 0,
-    POST_DELAY = 1,
-    FULL_DELAY = 2,
+    PRE_DELAY           = 0,
+    POST_DELAY          = 1,
+    FULL_DELAY          = 2,
     PRE_FULL_POST_DELAY = 3,
     POST_FULL_PRE_DELAY = 4,
   };

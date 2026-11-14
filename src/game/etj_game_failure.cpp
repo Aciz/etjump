@@ -22,17 +22,20 @@
  * SOFTWARE.
  */
 
-#include <cstdio>
-
 #include "etj_game_failure.h"
 
+#include <cstdio>
+
 namespace ETJump {
-GameFailure::GameFailure() { reset(); }
+GameFailure::GameFailure() {
+  reset();
+}
 
-bool GameFailure::isActive() const { return active; }
+bool GameFailure::isActive() const {
+  return active;
+}
 
-void GameFailure::activate(const char *errorMessage, const bool unexpected,
-                           const bool dropClients, const int time) {
+void GameFailure::activate(const char *errorMessage, const bool unexpected, const bool dropClients, const int time) {
   std::snprintf(message.data(), message.size(), "%s", errorMessage);
   std::snprintf(denialMessage.data(), denialMessage.size(), "%s",
                 unexpected ? GAME_FAILURE_GENERIC_DENIAL : errorMessage);
@@ -48,29 +51,30 @@ void GameFailure::activate(const char *errorMessage, const bool unexpected,
     }
   }
 
-  dropsPending = dropClients;
-  dropTime = time;
-  shutdownQueued = false;
+  dropsPending       = dropClients;
+  dropTime           = time;
+  shutdownQueued     = false;
   localClientDropped = false;
-  active = true;
+  active             = true;
 }
 
 void GameFailure::reset() {
-  active = false;
+  active             = false;
   localClientDropped = false;
-  message[0] = '\0';
+  message[0]         = '\0';
 
   // e.g. for a failing connect nested inside a syscall, which is denied
   // without the game going inert
-  std::snprintf(denialMessage.data(), denialMessage.size(), "%s",
-                GAME_FAILURE_GENERIC_DENIAL);
+  std::snprintf(denialMessage.data(), denialMessage.size(), "%s", GAME_FAILURE_GENERIC_DENIAL);
 }
 
 const char *GameFailure::getDenialMessage() const {
   return denialMessage.data();
 }
 
-const char *GameFailure::getMessage() const { return message.data(); }
+const char *GameFailure::getMessage() const {
+  return message.data();
+}
 
 bool GameFailure::takeClientDrops(const int time) {
   if (!active || !dropsPending) {
@@ -78,15 +82,16 @@ bool GameFailure::takeClientDrops(const int time) {
   }
 
   dropsPending = false;
-  dropTime = time;
+  dropTime     = time;
   return true;
 }
 
-void GameFailure::setLocalClientDropped() { localClientDropped = true; }
+void GameFailure::setLocalClientDropped() {
+  localClientDropped = true;
+}
 
 bool GameFailure::takeShutdown(const int time) {
-  if (!active || dropsPending || shutdownQueued ||
-      time - dropTime < GAME_FAILURE_SHUTDOWN_DELAY) {
+  if (!active || dropsPending || shutdownQueued || time - dropTime < GAME_FAILURE_SHUTDOWN_DELAY) {
     return false;
   }
 

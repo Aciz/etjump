@@ -22,9 +22,10 @@
  * SOFTWARE.
  */
 
+#include "etj_portal_prediction.h"
+
 #include <algorithm>
 
-#include "etj_portal_prediction.h"
 #include "cg_local.h"
 #include "etj_cgame.h"
 #include "etj_trace_utils.h"
@@ -37,15 +38,15 @@ namespace ETJump {
 inline constexpr float CONFIRMED_PORTAL_MAX_DIST = 1.0f;
 
 void PortalPrediction::beginPrediction() {
-  prevPortals = portals;
-  portals = {};
+  prevPortals   = portals;
+  portals       = {};
   serverPortals = {};
 
-  active = etj_portalPredict.integer || cgame.sharedWSKeys.portalPredict;
+  active    = etj_portalPredict.integer || cgame.sharedWSKeys.portalPredict;
   clientNum = cg.snap->ps.clientNum;
 
   if (!active) {
-    prevPortals = {};
+    prevPortals      = {};
     confirmedPortals = {};
     return;
   }
@@ -90,30 +91,26 @@ void PortalPrediction::endPrediction() {
 }
 
 void PortalPrediction::clear() {
-  active = false;
-  portals = {};
-  prevPortals = {};
-  serverPortals = {};
+  active           = false;
+  portals          = {};
+  prevPortals      = {};
+  serverPortals    = {};
   confirmedPortals = {};
 }
 
-void PortalPrediction::checkFire(const playerState_t &before,
-                                 const playerState_t &after,
-                                 const usercmd_t &cmd) {
+void PortalPrediction::checkFire(const playerState_t &before, const playerState_t &after, const usercmd_t &cmd) {
   if (!active) {
     return;
   }
 
   // these match the early outs in 'FireWeapon'
-  if (after.pm_type == PM_DEAD || after.persistant[PERS_HWEAPON_USE] ||
-      after.weapon != WP_PORTAL_GUN) {
+  if (after.pm_type == PM_DEAD || after.persistant[PERS_HWEAPON_USE] || after.weapon != WP_PORTAL_GUN) {
     return;
   }
 
   // same event range as 'ClientEvents' checks on server
-  int32_t eventSequence =
-      std::max(before.eventSequence, after.eventSequence - MAX_EVENTS);
-  bool fired = false;
+  int32_t eventSequence = std::max(before.eventSequence, after.eventSequence - MAX_EVENTS);
+  bool fired            = false;
 
   for (; eventSequence < after.eventSequence; eventSequence++) {
     switch (after.events[eventSequence & (MAX_EVENTS - 1)]) {
@@ -131,10 +128,9 @@ void PortalPrediction::checkFire(const playerState_t &before,
     return;
   }
 
-  const int32_t eType =
-      cmd.wbuttons & WBUTTON_ATTACK2 ? ET_PORTAL_RED : ET_PORTAL_BLUE;
+  const int32_t eType    = cmd.wbuttons & WBUTTON_ATTACK2 ? ET_PORTAL_RED : ET_PORTAL_BLUE;
   const int32_t fireTime = after.commandTime;
-  const auto &prev = prevPortals[typeIndex(eType)];
+  const auto &prev       = prevPortals[typeIndex(eType)];
 
   // we've already predicted this shot on a previous frame,
   // keep the portal as it was, so it doesn't jump around or re-animate
@@ -151,21 +147,21 @@ void PortalPrediction::checkFire(const playerState_t &before,
   }
 
   PredictedPortal portal{};
-  portal.fireTime = fireTime;
+  portal.fireTime        = fireTime;
   portal.parentEntityNum = hitEntityNum;
 
   entityState_t &es = portal.es;
-  es.number = ENTITYNUM_NONE;
-  es.eType = eType;
-  es.pos.trType = TR_STATIONARY;
+  es.number         = ENTITYNUM_NONE;
+  es.eType          = eType;
+  es.pos.trType     = TR_STATIONARY;
   VectorCopy(placement.origin, es.origin);
   VectorCopy(placement.origin, es.pos.trBase);
   VectorCopy(placement.angles, es.angles);
   VectorCopy(placement.angles, es.apos.trBase);
-  es.onFireStart = PortalgunShared::sizeFromScale(placement.scale);
-  es.effect1Time = cg.time;
+  es.onFireStart    = PortalgunShared::sizeFromScale(placement.scale);
+  es.effect1Time    = cg.time;
   es.otherEntityNum = clientNum;
-  es.teamNum = etj_portalTeam.integer;
+  es.teamNum        = etj_portalTeam.integer;
 
   portals[typeIndex(eType)] = portal;
 
@@ -173,19 +169,18 @@ void PortalPrediction::checkFire(const playerState_t &before,
   // (also handle the command time going backwards, e.g. on map restart)
   if (fireTime > lastTrailFireTime || lastTrailFireTime > cg.time + 1000) {
     vec3_t muzzle;
-    PortalgunShared::muzzlePoint(after.origin, after.viewheight,
-                                 after.viewangles, muzzle);
-    portalTrail(placement.surfacePoint, muzzle,
-                eType == ET_PORTAL_BLUE ? portalBlueTrail : portalRedTrail);
+    PortalgunShared::muzzlePoint(after.origin, after.viewheight, after.viewangles, muzzle);
+    portalTrail(placement.surfacePoint, muzzle, eType == ET_PORTAL_BLUE ? portalBlueTrail : portalRedTrail);
 
     lastTrailFireTime = fireTime;
   }
 }
 
-bool PortalPrediction::isActive() const { return active; }
+bool PortalPrediction::isActive() const {
+  return active;
+}
 
-bool PortalPrediction::resolveServerPortal(const entityState_t &es,
-                                           entityState_t &out) const {
+bool PortalPrediction::resolveServerPortal(const entityState_t &es, entityState_t &out) const {
   out = es;
 
   if (!active || !isOwnPortal(es)) {
@@ -223,8 +218,7 @@ int32_t PortalPrediction::spawnAnimTime(const entityState_t &es) const {
 
   const auto &confirmed = confirmedPortals[typeIndex(es.eType)];
 
-  if (confirmed && confirmed->eType == es.eType &&
-      Distance(confirmed->origin, es.origin) < CONFIRMED_PORTAL_MAX_DIST) {
+  if (confirmed && confirmed->eType == es.eType && Distance(confirmed->origin, es.origin) < CONFIRMED_PORTAL_MAX_DIST) {
     return confirmed->spawnTime;
   }
 
@@ -250,27 +244,22 @@ int32_t PortalPrediction::otherType(const int32_t eType) {
 }
 
 bool PortalPrediction::isOwnPortal(const entityState_t &es) const {
-  return (es.eType == ET_PORTAL_BLUE || es.eType == ET_PORTAL_RED) &&
-         es.otherEntityNum == clientNum;
+  return (es.eType == ET_PORTAL_BLUE || es.eType == ET_PORTAL_RED) && es.otherEntityNum == clientNum;
 }
 
 bool PortalPrediction::isAlive(const PredictedPortal &portal) const {
-  if (portal.parentEntityNum < 0 ||
-      portal.parentEntityNum >= ENTITYNUM_MAX_NORMAL) {
+  if (portal.parentEntityNum < 0 || portal.parentEntityNum >= ENTITYNUM_MAX_NORMAL) {
     return true;
   }
 
   // server removes portals attached to 'func_static_client'
   // when the entity is toggled off for the portal owner
-  const entityState_t &parent =
-      cg_entities[portal.parentEntityNum].currentState;
+  const entityState_t &parent = cg_entities[portal.parentEntityNum].currentState;
 
-  return !(parent.eType == ET_STATIC_CLIENT &&
-           EntityUtilsShared::funcStaticClientIsHidden(&parent, clientNum));
+  return !(parent.eType == ET_STATIC_CLIENT && EntityUtilsShared::funcStaticClientIsHidden(&parent, clientNum));
 }
 
-const PortalPrediction::PredictedPortal *
-PortalPrediction::getPortal(const int32_t eType) const {
+const PortalPrediction::PredictedPortal *PortalPrediction::getPortal(const int32_t eType) const {
   const auto &portal = portals[typeIndex(eType)];
 
   if (!portal || !isAlive(*portal)) {
@@ -280,9 +269,7 @@ PortalPrediction::getPortal(const int32_t eType) const {
   return &*portal;
 }
 
-bool PortalPrediction::getOwnPortalPosition(const int32_t eType,
-                                            vec3_t origin,
-                                            vec3_t angles) const {
+bool PortalPrediction::getOwnPortalPosition(const int32_t eType, vec3_t origin, vec3_t angles) const {
   const int32_t index = typeIndex(eType);
 
   if (portals[index]) {
@@ -306,8 +293,7 @@ bool PortalPrediction::getOwnPortalPosition(const int32_t eType,
   return false;
 }
 
-bool PortalPrediction::resolvePredictedPortal(
-    const std::optional<PredictedPortal> &portal, entityState_t &out) const {
+bool PortalPrediction::resolvePredictedPortal(const std::optional<PredictedPortal> &portal, entityState_t &out) const {
   if (!portal || !isAlive(*portal)) {
     return false;
   }
@@ -322,22 +308,17 @@ bool PortalPrediction::resolvePredictedPortal(
   return true;
 }
 
-bool PortalPrediction::tryPlacePortal(const playerState_t &ps,
-                                      const int32_t eType,
-                                      PortalgunShared::Placement &placement,
-                                      int32_t &hitEntityNum) const {
+bool PortalPrediction::tryPlacePortal(const playerState_t &ps, const int32_t eType,
+                                      PortalgunShared::Placement &placement, int32_t &hitEntityNum) const {
   vec3_t traceStart;
   vec3_t traceEnd;
   trace_t tr;
 
-  PortalgunShared::traceEndpoints(ps.origin, ps.viewheight, ps.viewangles,
-                                  traceStart, traceEnd);
+  PortalgunShared::traceEndpoints(ps.origin, ps.viewheight, ps.viewangles, traceStart, traceEnd);
 
-  cgame.utils.trace->filteredTrace(clientNum, &tr, traceStart, nullptr,
-                                   nullptr, traceEnd, clientNum, MASK_PORTAL);
+  cgame.utils.trace->filteredTrace(clientNum, &tr, traceStart, nullptr, nullptr, traceEnd, clientNum, MASK_PORTAL);
 
-  if (!PortalgunShared::surfaceAllowsPortal(
-          tr, cgame.sharedWSKeys.portalSurfaces)) {
+  if (!PortalgunShared::surfaceAllowsPortal(tr, cgame.sharedWSKeys.portalSurfaces)) {
     return false;
   }
 
@@ -353,8 +334,7 @@ bool PortalPrediction::tryPlacePortal(const playerState_t &ps,
     }
   }
 
-  PortalgunShared::computePlacement(tr, hitTarget ? &target : nullptr,
-                                    placement);
+  PortalgunShared::computePlacement(tr, hitTarget ? &target : nullptr, placement);
 
   if (overlapsOtherPortals(placement, eType)) {
     return false;
@@ -364,34 +344,29 @@ bool PortalPrediction::tryPlacePortal(const playerState_t &ps,
   return true;
 }
 
-bool PortalPrediction::overlapsOtherPortals(
-    const PortalgunShared::Placement &placement, const int32_t eType) const {
+bool PortalPrediction::overlapsOtherPortals(const PortalgunShared::Placement &placement, const int32_t eType) const {
   // we can never overlap our own portals
-  const int32_t other = otherType(eType);
+  const int32_t other      = otherType(eType);
   const int32_t otherIndex = typeIndex(other);
 
   if (portals[otherIndex]) {
     const PredictedPortal *portal = getPortal(other);
 
     if (portal &&
-        PortalgunShared::portalsOverlap(placement, portal->es.origin,
-                                        portal->es.angles,
-                                        portal->es.onFireStart)) {
+        PortalgunShared::portalsOverlap(placement, portal->es.origin, portal->es.angles, portal->es.onFireStart)) {
       return true;
     }
   } else if (serverPortals[otherIndex]) {
     const entityState_t &es = *serverPortals[otherIndex];
 
-    if (PortalgunShared::portalsOverlap(placement, es.origin, es.angles,
-                                        es.onFireStart)) {
+    if (PortalgunShared::portalsOverlap(placement, es.origin, es.angles, es.onFireStart)) {
       return true;
     }
   }
 
   const auto portalTeam = static_cast<PortalTeamOpts>(etj_portalTeam.integer);
 
-  if (portalTeam != PortalTeamOpts::FIRETEAM &&
-      portalTeam != PortalTeamOpts::ALL) {
+  if (portalTeam != PortalTeamOpts::FIRETEAM && portalTeam != PortalTeamOpts::ALL) {
     return false;
   }
 
@@ -407,13 +382,11 @@ bool PortalPrediction::overlapsOtherPortals(
       continue;
     }
 
-    if (portalTeam == PortalTeamOpts::FIRETEAM &&
-        !CG_IsOnSameFireteam(clientNum, es.otherEntityNum)) {
+    if (portalTeam == PortalTeamOpts::FIRETEAM && !CG_IsOnSameFireteam(clientNum, es.otherEntityNum)) {
       continue;
     }
 
-    if (PortalgunShared::portalsOverlap(placement, es.origin, es.angles,
-                                        es.onFireStart)) {
+    if (PortalgunShared::portalsOverlap(placement, es.origin, es.angles, es.onFireStart)) {
       return true;
     }
   }

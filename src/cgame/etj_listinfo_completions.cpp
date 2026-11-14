@@ -23,6 +23,7 @@
  */
 
 #include "etj_listinfo_completions.h"
+
 #include "cg_local.h"
 
 #include "../game/etj_string_utilities.h"

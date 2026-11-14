@@ -29,7 +29,6 @@
 namespace ETJump {
 class CallGotoCompletions : public ICompletion {
 public:
-  [[nodiscard]] bool
-  complete(const std::vector<std::string> &args) const override;
+  [[nodiscard]] bool complete(const std::vector<std::string> &args) const override;
 };
 } // namespace ETJump

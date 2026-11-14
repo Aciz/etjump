@@ -40,8 +40,7 @@ struct FindEntitiesResult {
 };
 
 class EntityUtilities {
-  static void drawRailBox(const gentity_t *ent,
-                          const std::vector<float> &color);
+  static void drawRailBox(const gentity_t *ent, const std::vector<float> &color);
 
   // always empty if 'developer' is not set
   static std::vector<std::string> parsedEntities;
@@ -76,8 +75,6 @@ public:
 
   // finds all entities matching the given field/value pair,
   // 'func' is used as the function name prefix in error messages
-  static FindEntitiesResult findEntitiesByField(const std::string &key,
-                                                const std::string &value,
-                                                const char *func);
+  static FindEntitiesResult findEntitiesByField(const std::string &key, const std::string &value, const char *func);
 };
 } // namespace ETJump

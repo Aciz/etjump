@@ -23,6 +23,7 @@
  */
 
 #include "etj_keep_alive.h"
+
 #include "ui_local.h"
 
 #include "../game/etj_fatal_error_shared.h"
@@ -48,16 +49,15 @@ void resetKeepAlive() {
   // the previous load, and a tracker could release a reference while the
   // error is still handled, based on a refresh from before the error
   cgameKeepAlive = {};
-  registered = false;
-  cgameTracker = {};
-  uiTracker = {};
+  registered     = false;
+  cgameTracker   = {};
+  uiTracker      = {};
 #endif
 }
 
 void initKeepAlive() {
 #ifdef _WIN32
-  trap_Cvar_Register(&cgameKeepAlive, FatalErrorBoundary::CGAME_KEEP_ALIVE_CVAR,
-                     "0", 0);
+  trap_Cvar_Register(&cgameKeepAlive, FatalErrorBoundary::CGAME_KEEP_ALIVE_CVAR, "0", 0);
   registered = true;
 
   // While handling an error, the engine normally loads ui after it disconnected

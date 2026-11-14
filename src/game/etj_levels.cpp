@@ -25,14 +25,14 @@
 #include "etj_levels.h"
 
 #include <memory>
+
 #include "etj_local.h"
 #include "etj_printer.h"
 #include "etj_string_utilities.h"
 
-Levels::Level::Level(int level, std::string const &name,
-                     std::string const &greeting, std::string const &commands) {
-  this->level = level;
-  this->name = name;
+Levels::Level::Level(int level, std::string const &name, std::string const &greeting, std::string const &commands) {
+  this->level    = level;
+  this->name     = name;
   this->greeting = greeting;
   this->commands = commands;
 }
@@ -43,8 +43,7 @@ Levels::Levels() {
 
 Levels::~Levels() {}
 
-bool Levels::Add(int level, std::string const name, std::string const commands,
-                 std::string const greeting) {
+bool Levels::Add(int level, std::string const name, std::string const commands, std::string const greeting) {
   auto it = FindConst(level);
   if (it != levels_.end()) {
     errorMessage = "level exists";
@@ -71,17 +70,16 @@ bool Levels::Delete(int level) {
   return false;
 }
 
-bool Levels::Edit(int level, std::string const &name,
-                  std::string const &commands, std::string const &greeting,
+bool Levels::Edit(int level, std::string const &name, std::string const &commands, std::string const &greeting,
                   int updated) {
   auto it = FindConst(level);
   if (it == levels_.end()) {
     return Add(level, name, commands, greeting);
   }
 
-  const auto CMDS_UPDATED = 1;
+  const auto CMDS_UPDATED     = 1;
   const auto GREETING_UPDATED = 2;
-  const auto NAME_UPDATED = 4;
+  const auto NAME_UPDATED     = 4;
 
   if (updated & CMDS_UPDATED) {
     it->get()->commands = commands;
@@ -104,20 +102,16 @@ bool Levels::Edit(int level, std::string const &name,
 bool Levels::CreateDefaultLevels() {
   levels_.clear();
 
-  auto tempLevel = std::make_shared<Level>(
-      0, "Visitor", "Welcome Visitor [n]^7! Your last visit was on [t]!", "a");
+  auto tempLevel = std::make_shared<Level>(0, "Visitor", "Welcome Visitor [n]^7! Your last visit was on [t]!", "a");
   levels_.push_back(std::move(tempLevel));
 
-  tempLevel = std::make_shared<Level>(
-      1, "Friend", "Welcome Friend [n]^7! Your last visit was [d] ago!", "a");
+  tempLevel = std::make_shared<Level>(1, "Friend", "Welcome Friend [n]^7! Your last visit was [d] ago!", "a");
   levels_.push_back(std::move(tempLevel));
 
-  tempLevel = std::make_shared<Level>(2, "Moderator",
-                                      "Welcome Moderator [n]^7!", "*-Asv");
+  tempLevel = std::make_shared<Level>(2, "Moderator", "Welcome Moderator [n]^7!", "*-Asv");
   levels_.push_back(std::move(tempLevel));
 
-  tempLevel = std::make_shared<Level>(3, "Administrator",
-                                      "Welcome Administrator [n]^7!", "*");
+  tempLevel = std::make_shared<Level>(3, "Administrator", "Welcome Administrator [n]^7!", "*");
   levels_.push_back(std::move(tempLevel));
 
   if (!WriteToConfig()) {
@@ -139,8 +133,7 @@ void WriteInt(int toWrite, fileHandle_t &f) {
   trap_FS_Write("\n", 1, f);
 }
 
-bool Levels::SortByLevel(const std::shared_ptr<Level> &lhs,
-                         const std::shared_ptr<Level> &rhs) {
+bool Levels::SortByLevel(const std::shared_ptr<Level> &lhs, const std::shared_ptr<Level> &rhs) {
   return lhs->level < rhs->level;
 }
 
@@ -170,7 +163,7 @@ bool Levels::WriteToConfig() {
 }
 
 Levels::Level const *Levels::GetLevel(int level) {
-  auto it = levels_.begin();
+  auto it  = levels_.begin();
   auto end = levels_.end();
   for (; it != end; ++it) {
     if (it->get()->level == level) {
@@ -204,14 +197,12 @@ void Levels::PrintLevelInfo(gentity_t *ent, int level) {
                                                 "^5Name: ^7%s\n"
                                                 "^5Commands: ^7%s\n"
                                                 "^5Greeting: ^7%s",
-                                                level, lvl->name, lvl->commands,
-                                                lvl->greeting));
+                                                level, lvl->name, lvl->commands, lvl->greeting));
       return;
     }
   }
 
-  Printer::chat(ent,
-                "^3levelinfo: ^7undefined level: " + std::to_string(level));
+  Printer::chat(ent, "^3levelinfo: ^7undefined level: " + std::to_string(level));
 }
 
 bool Levels::LevelExists(int level) const {
@@ -231,8 +222,8 @@ void Levels::PrintLevels() {
   std::string level;
 
   for (; it != levels_.end(); ++it) {
-    level += std::to_string(it->get()->level) + "\n" + it->get()->name + "\n" +
-             it->get()->commands + "\n" + it->get()->greeting + "\n";
+    level += std::to_string(it->get()->level) + "\n" + it->get()->name + "\n" + it->get()->commands + "\n" +
+             it->get()->greeting + "\n";
 
     G_LogPrintf(level.c_str());
 
@@ -240,7 +231,9 @@ void Levels::PrintLevels() {
   }
 }
 
-std::string Levels::ErrorMessage() const { return errorMessage; }
+std::string Levels::ErrorMessage() const {
+  return errorMessage;
+}
 
 Levels::ConstIter Levels::FindConst(int level) {
   ConstIter it = levels_.begin();
@@ -268,8 +261,7 @@ int ReadInt(const char **configFile) {
   if (!Q_stricmp(token, "=")) {
     token = COM_ParseExt(configFile, qfalse);
   } else {
-    G_LogPrintf("readconfig: missing = before \"%s\" on line %d.", token,
-                COM_GetCurrentParseLine());
+    G_LogPrintf("readconfig: missing = before \"%s\" on line %d.", token, COM_GetCurrentParseLine());
   }
   return Q_atoi(token);
 }
@@ -280,8 +272,7 @@ std::string ReadString(const char **configFile) {
   if (!Q_stricmp(token, "=")) {
     token = COM_ParseExt(configFile, qfalse);
   } else {
-    G_LogPrintf("readconfig: missing = before \"%s\" on line %d.", token,
-                COM_GetCurrentParseLine());
+    G_LogPrintf("readconfig: missing = before \"%s\" on line %d.", token, COM_GetCurrentParseLine());
   }
 
   std::string output;
@@ -296,7 +287,7 @@ std::string ReadString(const char **configFile) {
 }
 
 bool Levels::ReadFromConfig() {
-  auto f = 0;
+  auto f   = 0;
   auto len = trap_FS_FOpenFile(g_levelConfig.string, &f, FS_READ);
   if (len < 0) {
     CreateDefaultLevels();
@@ -316,7 +307,7 @@ bool Levels::ReadFromConfig() {
   trap_FS_FCloseFile(f);
 
   const char *token = nullptr;
-  auto levelOpen = false;
+  auto levelOpen    = false;
   std::shared_ptr<Level> tempLevel;
 
   levels_.clear();
@@ -340,8 +331,7 @@ bool Levels::ReadFromConfig() {
     } else if (!Q_stricmp(token, "name")) {
       tempLevel->name = ReadString(&file2);
     } else {
-      G_LogPrintf("readconfig: parse error near %s on line %d", token,
-                  COM_GetCurrentParseLine());
+      G_LogPrintf("readconfig: parse error near %s on line %d", token, COM_GetCurrentParseLine());
     }
 
     if (!Q_stricmp(token, "[level]")) {

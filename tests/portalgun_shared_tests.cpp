@@ -1,10 +1,12 @@
 #include <gtest/gtest.h>
+
 #include "../src/game/etj_portalgun_shared.h"
 
 namespace ETJump {
 class PortalgunSharedTests : public testing::Test {
 public:
   void SetUp() override {}
+
   void TearDown() override {}
 
   // trace hitting a wall facing +X at the given point
@@ -35,19 +37,19 @@ public:
 };
 
 TEST_F(PortalgunSharedTests, SurfaceAllowsPortal_NoHit) {
-  trace_t tr = createWallTrace(0, 0, 0);
+  trace_t tr  = createWallTrace(0, 0, 0);
   tr.fraction = 1.0f;
   EXPECT_FALSE(PortalgunShared::surfaceAllowsPortal(tr, true));
 }
 
 TEST_F(PortalgunSharedTests, SurfaceAllowsPortal_NoImpact) {
-  trace_t tr = createWallTrace(0, 0, 0);
+  trace_t tr      = createWallTrace(0, 0, 0);
   tr.surfaceFlags = SURF_NOIMPACT;
   EXPECT_FALSE(PortalgunShared::surfaceAllowsPortal(tr, true));
 }
 
 TEST_F(PortalgunSharedTests, SurfaceAllowsPortal_PortalClipAndBody) {
-  trace_t tr = createWallTrace(0, 0, 0);
+  trace_t tr  = createWallTrace(0, 0, 0);
   tr.contents = CONTENTS_PORTALCLIP;
   EXPECT_FALSE(PortalgunShared::surfaceAllowsPortal(tr, true));
 
@@ -80,8 +82,8 @@ TEST_F(PortalgunSharedTests, ComputePlacement_Wall) {
   PortalgunShared::computePlacement(tr, nullptr, placement);
 
   const vec3_t expectedSurface = {100, 50, 25};
-  const vec3_t expectedOrigin = {100 + PORTAL_SURFACE_OFFSET, 50, 25};
-  const vec3_t expectedAngles = {0, 0, 0};
+  const vec3_t expectedOrigin  = {100 + PORTAL_SURFACE_OFFSET, 50, 25};
+  const vec3_t expectedAngles  = {0, 0, 0};
 
   expectVec3Eq(placement.surfacePoint, expectedSurface);
   expectVec3Eq(placement.origin, expectedOrigin);
@@ -111,7 +113,7 @@ TEST_F(PortalgunSharedTests, ComputePlacement_TargetIsCentered) {
 
   // center projected onto the wall plane
   const vec3_t expectedSurface = {100, 50, 25};
-  const vec3_t expectedOrigin = {100 + PORTAL_SURFACE_OFFSET, 50, 25};
+  const vec3_t expectedOrigin  = {100 + PORTAL_SURFACE_OFFSET, 50, 25};
 
   expectVec3Eq(placement.surfacePoint, expectedSurface);
   expectVec3Eq(placement.origin, expectedOrigin);
@@ -136,13 +138,12 @@ TEST_F(PortalgunSharedTests, PortalsOverlap) {
   PortalgunShared::Placement placement{};
   PortalgunShared::computePlacement(tr, nullptr, placement);
 
-  const int32_t defaultSize = PortalgunShared::sizeFromScale(1.0f);
-  const vec3_t wallAngles = {0, 0, 0};
+  const int32_t defaultSize       = PortalgunShared::sizeFromScale(1.0f);
+  const vec3_t wallAngles         = {0, 0, 0};
   const vec3_t oppositeWallAngles = {0, 180, 0};
 
   // same spot on the same wall
-  EXPECT_TRUE(PortalgunShared::portalsOverlap(placement, placement.origin,
-                                              wallAngles, defaultSize));
+  EXPECT_TRUE(PortalgunShared::portalsOverlap(placement, placement.origin, wallAngles, defaultSize));
 
   // close, but not overlapping
   // NOTE: keep a margin from the exact threshold, results exactly at the
@@ -150,16 +151,13 @@ TEST_F(PortalgunSharedTests, PortalsOverlap) {
   vec3_t farOrigin;
   VectorCopy(placement.origin, farOrigin);
   farOrigin[1] += MIN_PORTALS_DIST * 2 + 1.0f;
-  EXPECT_FALSE(PortalgunShared::portalsOverlap(placement, farOrigin,
-                                               wallAngles, defaultSize));
+  EXPECT_FALSE(PortalgunShared::portalsOverlap(placement, farOrigin, wallAngles, defaultSize));
 
   // larger portal overlaps from further away
-  EXPECT_TRUE(PortalgunShared::portalsOverlap(placement, farOrigin, wallAngles,
-                                              defaultSize * 2));
+  EXPECT_TRUE(PortalgunShared::portalsOverlap(placement, farOrigin, wallAngles, defaultSize * 2));
 
   // same spot, but facing the other way (e.g. other side of a thin wall)
-  EXPECT_FALSE(PortalgunShared::portalsOverlap(
-      placement, placement.origin, oppositeWallAngles, defaultSize));
+  EXPECT_FALSE(PortalgunShared::portalsOverlap(placement, placement.origin, oppositeWallAngles, defaultSize));
 }
 
 TEST_F(PortalgunSharedTests, PortalTargetEncoding) {
@@ -180,8 +178,7 @@ TEST_F(PortalgunSharedTests, PortalTargetEncoding) {
   es.frame = PortalgunShared::encodePortalTarget(10000);
   EXPECT_EQ(PortalgunShared::portalTargetSize(es), MAX_PORTAL_TARGET_SIZE);
 
-  EXPECT_LE(PortalgunShared::encodePortalTarget(MAX_PORTAL_TARGET_SIZE),
-            0xFFFF);
+  EXPECT_LE(PortalgunShared::encodePortalTarget(MAX_PORTAL_TARGET_SIZE), 0xFFFF);
 
   es.eType = ET_STATIC_CLIENT;
   EXPECT_TRUE(PortalgunShared::isPortalTarget(es));
@@ -206,7 +203,7 @@ TEST_F(PortalgunSharedTests, PortalTargetState) {
 }
 
 TEST_F(PortalgunSharedTests, TraceEndpoints) {
-  const vec3_t origin = {0, 0, 0};
+  const vec3_t origin     = {0, 0, 0};
   const vec3_t viewangles = {0, 90, 0};
   vec3_t start;
   vec3_t end;

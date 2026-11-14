@@ -24,14 +24,14 @@
 
 #pragma once
 
+#include <atomic>
+#include <condition_variable>
 #include <functional>
 #include <memory>
 #include <mutex>
 #include <optional>
 #include <queue>
 #include <stdexcept>
-#include <condition_variable>
-#include <atomic>
 #include <thread>
 #include <utility>
 
@@ -46,9 +46,9 @@ public:
     virtual ~ResultBase() = default;
   };
 
-  using TaskFn = std::function<std::unique_ptr<ResultBase>()>;
+  using TaskFn     = std::function<std::unique_ptr<ResultBase>()>;
   using CallbackFn = std::function<void(std::unique_ptr<ResultBase>)>;
-  using ErrorFn = std::function<void(std::runtime_error)>;
+  using ErrorFn    = std::function<void(std::runtime_error)>;
 
   void startWorkerThreads(unsigned numThreads);
   void stopWorkerThreads();
@@ -57,7 +57,11 @@ public:
 
 private:
   struct Operation {
-    enum class Status { Incomplete, Complete, Error };
+    enum class Status {
+      Incomplete,
+      Complete,
+      Error
+    };
 
     Status status;
     TaskFn task;
@@ -69,11 +73,8 @@ private:
     Operation() = delete;
 
     explicit Operation(TaskFn task, CallbackFn callback, ErrorFn errorCallback)
-        : status(Status::Incomplete), task(std::move(task)),
-          callback(std::move(callback)),
-          errorCallback(std::move(errorCallback)),
-          result(std::unique_ptr<ResultBase>()), error(std::runtime_error("")) {
-    }
+      : status(Status::Incomplete), task(std::move(task)), callback(std::move(callback)),
+        errorCallback(std::move(errorCallback)), result(std::unique_ptr<ResultBase>()), error(std::runtime_error("")) {}
   };
 
   void worker();

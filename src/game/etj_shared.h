@@ -23,8 +23,8 @@
  */
 
 #pragma once
-#include <string>
 #include <stdexcept>
+#include <string>
 
 namespace ETJump {
 namespace Constants {
@@ -35,10 +35,9 @@ const std::string AUTHENTICATE = "authenticate";
 } // namespace Constants
 
 // template class for a bitset that uses 'enum class' as values for the bits
-template <typename EnumT>
-class EnumBitset {
+template <typename EnumT> class EnumBitset {
   using UnderlyingT = std::underlying_type_t<EnumT>;
-  UnderlyingT bits = 0;
+  UnderlyingT bits  = 0;
 
 public:
   // default constructor, empty bitset
@@ -46,8 +45,7 @@ public:
 
   // construct from enum value
   // EnumBitset<MyEnum> bitset(MyEnum::VALUE_1)
-  constexpr explicit EnumBitset(EnumT flag)
-      : bits(static_cast<UnderlyingT>(flag)) {}
+  constexpr explicit EnumBitset(EnumT flag) : bits(static_cast<UnderlyingT>(flag)) {}
 
   // construct from initializer list
   // EnumBitset<MyEnum> bitset({MyEnum::VALUE_1, MyEnum::VALUE_2 ...})
@@ -62,8 +60,8 @@ public:
   constexpr explicit EnumBitset(UnderlyingT flags) : bits(flags) {}
 
   // we don't want floating point implicit conversions for constructors
-  EnumBitset(float) = delete;
-  EnumBitset(double) = delete;
+  EnumBitset(float)       = delete;
+  EnumBitset(double)      = delete;
   EnumBitset(long double) = delete;
 
   constexpr EnumBitset &set(EnumT flag) {
@@ -95,7 +93,9 @@ public:
     return (bits & static_cast<UnderlyingT>(flag)) != 0;
   }
 
-  constexpr bool operator&(EnumT flag) const { return has(flag); }
+  constexpr bool operator&(EnumT flag) const {
+    return has(flag);
+  }
 
   constexpr EnumBitset operator&(EnumBitset other) const {
     EnumBitset result;
@@ -119,8 +119,12 @@ public:
     return bits == other.bits;
   }
 
-  constexpr explicit operator bool() const { return bits != 0; }
+  constexpr explicit operator bool() const {
+    return bits != 0;
+  }
 
-  constexpr explicit operator UnderlyingT() const { return bits; }
+  constexpr explicit operator UnderlyingT() const {
+    return bits;
+  }
 };
 } // namespace ETJump

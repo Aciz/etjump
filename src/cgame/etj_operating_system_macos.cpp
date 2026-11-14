@@ -24,9 +24,9 @@
 
 #ifdef __APPLE__
 
-  #include "etj_operating_system.h"
-
   #include <IOKit/IOKitLib.h>
+
+  #include "etj_operating_system.h"
 
 const char *G_SHA1(const char *str);
 
@@ -36,10 +36,9 @@ void ETJump::OperatingSystem::minimize() {}
 
 std::string ETJump::OperatingSystem::getHwid() {
   char buf[512];
-  io_registry_entry_t ioRegistryRoot =
-      IORegistryEntryFromPath(kIOMasterPortDefault, "IOService:/");
-  auto uuidCf = (CFStringRef)IORegistryEntryCreateCFProperty(
-      ioRegistryRoot, CFSTR(kIOPlatformUUIDKey), kCFAllocatorDefault, 0);
+  io_registry_entry_t ioRegistryRoot = IORegistryEntryFromPath(kIOMasterPortDefault, "IOService:/");
+  auto uuidCf =
+    (CFStringRef)IORegistryEntryCreateCFProperty(ioRegistryRoot, CFSTR(kIOPlatformUUIDKey), kCFAllocatorDefault, 0);
   IOObjectRelease(ioRegistryRoot);
   CFStringGetCString(uuidCf, buf, sizeof(buf), kCFStringEncodingMacRoman);
   CFRelease(uuidCf);

@@ -22,9 +22,10 @@
  * SOFTWARE.
  */
 
+#include "etj_func_static_client.h"
+
 #include <algorithm>
 
-#include "etj_func_static_client.h"
 #include "etj_entity_utilities.h"
 #include "etj_entity_utilities_shared.h"
 #include "etj_portalgun_shared.h"
@@ -50,7 +51,7 @@ void FuncStaticClient::spawn(gentity_t *ent) {
   VectorCopy(ent->s.origin, ent->r.currentOrigin);
   trap_LinkEntity(ent);
 
-  ent->use = use;
+  ent->use     = use;
   ent->s.eType = ET_STATIC_CLIENT;
 
   // hide by default for all clients if spawnflag 1 is set
@@ -60,7 +61,7 @@ void FuncStaticClient::spawn(gentity_t *ent) {
   }
 
   if (ent->spawnflags & Spawnflags::PAIN) {
-    ent->pain = pain;
+    ent->pain       = pain;
     ent->takedamage = qtrue;
     // pretty sure this is useless but 'func_static' does it as well
     ent->isProp = qtrue;
@@ -109,26 +110,22 @@ void FuncStaticClient::spawn(gentity_t *ent) {
   }
 }
 
-void FuncStaticClient::use(gentity_t *self, [[maybe_unused]] gentity_t *other,
-                           gentity_t *activator) {
+void FuncStaticClient::use(gentity_t *self, [[maybe_unused]] gentity_t *other, gentity_t *activator) {
   if (!activator || !activator->client) {
     G_Error("'%s' cannot be used by a non-client entity", self->classname);
   }
 
   const int32_t clientNum = ClientNum(activator);
-  self->activator = activator;
+  self->activator         = activator;
 
   if (clientNum < MAX_CLIENTS / 2) {
-    COM_BitCheck(&self->s.effect1Time, clientNum) ? turnOn(self, clientNum)
-                                                  : turnOff(self, clientNum);
+    COM_BitCheck(&self->s.effect1Time, clientNum) ? turnOn(self, clientNum) : turnOff(self, clientNum);
   } else {
-    COM_BitCheck(&self->s.effect2Time, clientNum) ? turnOn(self, clientNum)
-                                                  : turnOff(self, clientNum);
+    COM_BitCheck(&self->s.effect2Time, clientNum) ? turnOn(self, clientNum) : turnOff(self, clientNum);
   }
 }
 
-void FuncStaticClient::pain(gentity_t *self, gentity_t *attacker,
-                            [[maybe_unused]] int32_t damage,
+void FuncStaticClient::pain(gentity_t *self, gentity_t *attacker, [[maybe_unused]] int32_t damage,
                             [[maybe_unused]] vec_t *point) {
   // do not error here, otherwise things like 'shooter_rocket'
   // hitting the entity will crash the server
@@ -137,7 +134,7 @@ void FuncStaticClient::pain(gentity_t *self, gentity_t *attacker,
   }
 
   // reset the health so the entity never dies
-  self->health = FUNC_STATIC_PAIN_HEALTH;
+  self->health    = FUNC_STATIC_PAIN_HEALTH;
   self->activator = attacker;
 
   G_UseTargets(self, self->activator);
@@ -150,10 +147,8 @@ void FuncStaticClient::turnOn(gentity_t *self, const int32_t clientNum) {
     COM_BitClear(&self->s.effect2Time, clientNum);
   }
 
-  if (self->spawnflags & Spawnflags::GIB_INSIDE &&
-      activatorIsInsideEnt(self, clientNum)) {
-    G_Damage(g_entities + clientNum, self, self, nullptr, nullptr, 9999,
-             DAMAGE_NO_PROTECTION, MOD_CRUSH);
+  if (self->spawnflags & Spawnflags::GIB_INSIDE && activatorIsInsideEnt(self, clientNum)) {
+    G_Damage(g_entities + clientNum, self, self, nullptr, nullptr, 9999, DAMAGE_NO_PROTECTION, MOD_CRUSH);
   }
 
   if (self->spawnflags & Spawnflags::CONSUME_PORTALS) {
@@ -177,8 +172,7 @@ void FuncStaticClient::turnOff(gentity_t *self, const int32_t clientNum) {
   }
 }
 
-bool FuncStaticClient::activatorIsInsideEnt(const gentity_t *self,
-                                            const int32_t clientNum) {
+bool FuncStaticClient::activatorIsInsideEnt(const gentity_t *self, const int32_t clientNum) {
   std::array<int32_t, MAX_GENTITIES> touch{};
   const gentity_t *activator = g_entities + clientNum;
   vec3_t mins{};
@@ -187,8 +181,7 @@ bool FuncStaticClient::activatorIsInsideEnt(const gentity_t *self,
   VectorAdd(activator->r.currentOrigin, activator->client->ps.mins, mins);
   VectorAdd(activator->r.currentOrigin, activator->client->ps.maxs, maxs);
 
-  const int32_t count =
-      trap_EntitiesInBox(mins, maxs, touch.data(), MAX_GENTITIES);
+  const int32_t count = trap_EntitiesInBox(mins, maxs, touch.data(), MAX_GENTITIES);
 
   for (int32_t i = 0; i < count; i++) {
     if (touch[i] == self->s.number) {
@@ -199,8 +192,7 @@ bool FuncStaticClient::activatorIsInsideEnt(const gentity_t *self,
   return false;
 }
 
-void FuncStaticClient::syncToFireteamLeaderState(const int32_t clientNum,
-                                                 const int32_t leaderNum) {
+void FuncStaticClient::syncToFireteamLeaderState(const int32_t clientNum, const int32_t leaderNum) {
   for (int32_t i = MAX_CLIENTS + BODY_QUEUE_SIZE; i < level.num_entities; i++) {
     gentity_t *ent = &g_entities[i];
 
@@ -220,22 +212,19 @@ void FuncStaticClient::syncToFireteamLeaderState(const int32_t clientNum,
   }
 }
 
-void FuncStaticClient::deleteTouchingPortals(const gentity_t *self,
-                                             const int32_t clientNum) {
+void FuncStaticClient::deleteTouchingPortals(const gentity_t *self, const int32_t clientNum) {
   const gentity_t *activator = g_entities + clientNum;
 
   // we check against the portal origin instead of bbox, otherwise it's
   // possible to fire portals next to the entity while it's solid,
   // which then get deleted when it's toggled, which feels very wrong
   if (activator->portalBlue &&
-      trap_EntityContact(activator->portalBlue->r.currentOrigin,
-                         activator->portalBlue->r.currentOrigin, self)) {
+      trap_EntityContact(activator->portalBlue->r.currentOrigin, activator->portalBlue->r.currentOrigin, self)) {
     G_FreeEntity(activator->portalBlue);
   }
 
   if (activator->portalRed &&
-      trap_EntityContact(activator->portalRed->r.currentOrigin,
-                         activator->portalRed->r.currentOrigin, self)) {
+      trap_EntityContact(activator->portalRed->r.currentOrigin, activator->portalRed->r.currentOrigin, self)) {
     G_FreeEntity(activator->portalRed);
   }
 }

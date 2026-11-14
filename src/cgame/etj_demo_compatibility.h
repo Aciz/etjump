@@ -38,18 +38,18 @@ inline constexpr int32_t COMPAT_ET_VELOCITY_PUSH_TRIGGER_NUM = 9;
 inline constexpr int32_t COMPAT_WEAPON_MEDIC_HEAL_INDEX = 56;
 
 // old 'shared' cvar bits
-inline constexpr int32_t COMPAT_SHARED_NO_OVERBOUNCE = 1 << 0;
-inline constexpr int32_t COMPAT_SHARED_NO_JUMPDELAY = 1 << 1;
-inline constexpr int32_t COMPAT_SHARED_NO_SAVE = 1 << 2;
-inline constexpr int32_t COMPAT_SHARED_NO_FALLDAMAGE = 1 << 3;
+inline constexpr int32_t COMPAT_SHARED_NO_OVERBOUNCE       = 1 << 0;
+inline constexpr int32_t COMPAT_SHARED_NO_JUMPDELAY        = 1 << 1;
+inline constexpr int32_t COMPAT_SHARED_NO_SAVE             = 1 << 2;
+inline constexpr int32_t COMPAT_SHARED_NO_FALLDAMAGE       = 1 << 3;
 inline constexpr int32_t COMPAT_SHARED_NO_FALLDAMAGE_FORCE = 1 << 4;
-inline constexpr int32_t COMPAT_SHARED_NO_PRONE = 1 << 5;
-inline constexpr int32_t COMPAT_SHARED_NO_DROP = 1 << 6;
-inline constexpr int32_t COMPAT_SHARED_NO_WALLBUG = 1 << 7;
-inline constexpr int32_t COMPAT_SHARED_NO_NOCLIP = 1 << 8;
-inline constexpr int32_t COMPAT_SHARED_PORTAL_PREDICT = 1 << 9;
-inline constexpr int32_t COMPAT_SHARED_BODY_OB_ALWAYS = 1 << 10;
-inline constexpr int32_t COMPAT_SHARED_BODY_OB_NEVER = 1 << 11;
+inline constexpr int32_t COMPAT_SHARED_NO_PRONE            = 1 << 5;
+inline constexpr int32_t COMPAT_SHARED_NO_DROP             = 1 << 6;
+inline constexpr int32_t COMPAT_SHARED_NO_WALLBUG          = 1 << 7;
+inline constexpr int32_t COMPAT_SHARED_NO_NOCLIP           = 1 << 8;
+inline constexpr int32_t COMPAT_SHARED_PORTAL_PREDICT      = 1 << 9;
+inline constexpr int32_t COMPAT_SHARED_BODY_OB_ALWAYS      = 1 << 10;
+inline constexpr int32_t COMPAT_SHARED_BODY_OB_NEVER       = 1 << 11;
 
 class DemoCompatibility {
   struct Version {
@@ -59,8 +59,7 @@ class DemoCompatibility {
   };
 
   void parseDemoVersion();
-  void fillVersionInfo(Version &version, const std::string &versionStr,
-                       const std::string &delimiter);
+  void fillVersionInfo(Version &version, const std::string &versionStr, const std::string &delimiter);
 
   void setupCompatibilityFlags();
   void printCompatibilityInfo();
@@ -80,25 +79,25 @@ class DemoCompatibility {
 
 public:
   struct CompatibilityFlags {
-    bool serverSideCoronas = false;
-    bool svFpsUnavailable = false;
-    bool svFpsInSysteminfo = false;
-    bool adjustEntityTypes = false;
-    bool noSavePosTimerunInfo = false;
-    bool adjustEvTokens = false;
-    bool adjustEvGeneralClientSoundVolume = false;
-    bool adjustEvVelocityPushTrigger = false;
+    bool serverSideCoronas                    = false;
+    bool svFpsUnavailable                     = false;
+    bool svFpsInSysteminfo                    = false;
+    bool adjustEntityTypes                    = false;
+    bool noSavePosTimerunInfo                 = false;
+    bool adjustEvTokens                       = false;
+    bool adjustEvGeneralClientSoundVolume     = false;
+    bool adjustEvVelocityPushTrigger          = false;
     bool adjustEvFakebrushAndClientTeleporter = false;
-    bool serverSideDlights = false;
-    bool setAttack2FiringFlag = false;
-    bool adjustItemlistIndex = false;
-    bool predictedJumpSpeeds = false;
-    bool noSpecCountInVoteCs = false;
-    bool stripLocalizationMarkers = false;
-    bool noMapCustomizationHashes = false;
-    bool adjustEvFuncStaticClient = false;
-    bool oldShaderIndexOrder = false;
-    bool useSharedCvar = false;
+    bool serverSideDlights                    = false;
+    bool setAttack2FiringFlag                 = false;
+    bool adjustItemlistIndex                  = false;
+    bool predictedJumpSpeeds                  = false;
+    bool noSpecCountInVoteCs                  = false;
+    bool stripLocalizationMarkers             = false;
+    bool noMapCustomizationHashes             = false;
+    bool adjustEvFuncStaticClient             = false;
+    bool oldShaderIndexOrder                  = false;
+    bool useSharedCvar                        = false;
   };
 
   // everything in here will be set to false unless we're on demo playback
@@ -118,8 +117,7 @@ public:
 
   void printDemoInformation() const;
 
-  explicit DemoCompatibility(
-      const std::shared_ptr<ClientCommandsHandler> &consoleCommands);
+  explicit DemoCompatibility(const std::shared_ptr<ClientCommandsHandler> &consoleCommands);
   ~DemoCompatibility();
 };
 } // namespace ETJump

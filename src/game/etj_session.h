@@ -24,13 +24,14 @@
 
 #pragma once
 
+#include <bitset>
 #include <string>
 #include <vector>
-#include <bitset>
-#include "etj_local.h"
-#include "etj_levels.h"
+
 #include "etj_database.h"
 #include "etj_iauthentication.h"
+#include "etj_levels.h"
+#include "etj_local.h"
 
 class Session {
 public:
@@ -71,8 +72,7 @@ public:
   std::string GetMessage() const;
   void PrintAdmintest(gentity_t *ent);
   void PrintFinger(gentity_t *ent, gentity_t *target);
-  bool Ban(gentity_t *ent, gentity_t *player, unsigned expires,
-           std::string reason);
+  bool Ban(gentity_t *ent, gentity_t *player, unsigned expires, std::string reason);
   bool IsIpBanned(int clientNum);
   void ParsePermissions(int clientNum);
   bool HasPermission(gentity_t *ent, char flag);

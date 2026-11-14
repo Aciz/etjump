@@ -22,16 +22,16 @@
  * SOFTWARE.
  */
 
+#include "etj_timerun_shared.h"
+
 #include <stdexcept>
 
-#include "etj_timerun_shared.h"
 #include "etj_container_utilities.h"
 #include "etj_string_utilities.h"
 
 namespace ETJump {
-std::vector<int32_t>
-TimerunSegments::computeSegmentTimes(const std::vector<int32_t> &checkpoints,
-                                     int32_t completionTime) {
+std::vector<int32_t> TimerunSegments::computeSegmentTimes(const std::vector<int32_t> &checkpoints,
+                                                          int32_t completionTime) {
   std::vector<int32_t> segments;
   int32_t previous = 0;
 
@@ -44,10 +44,9 @@ TimerunSegments::computeSegmentTimes(const std::vector<int32_t> &checkpoints,
     // positions after a gap cannot be trusted, so the prefix is kept and the
     // tail dropped rather than recording a segment under the wrong number
     if (checkpoint == TIMERUN_CHECKPOINT_NOT_SET) {
-      if (std::any_of((checkpoints.cbegin() + static_cast<int32_t>(i) + 1),
-                      checkpoints.cend(), [](const auto cp) {
-                        return cp != TIMERUN_CHECKPOINT_NOT_SET;
-                      })) {
+      if (std::any_of((checkpoints.cbegin() + static_cast<int32_t>(i) + 1), checkpoints.cend(), [](const auto cp) {
+            return cp != TIMERUN_CHECKPOINT_NOT_SET;
+          })) {
         return segments;
       }
 
@@ -75,23 +74,20 @@ TimerunSegments::computeSegmentTimes(const std::vector<int32_t> &checkpoints,
   return segments;
 }
 
-std::pair<bool, bool> TimerunSegments::bestSegmentBeaten(
-    const std::map<std::string, std::vector<int32_t>> &personalBestSegments,
-    const std::map<std::string, std::vector<int32_t>> &globalBestSegments,
-    const std::string &runName, int32_t segmentIdx, int32_t duration) {
+std::pair<bool, bool>
+TimerunSegments::bestSegmentBeaten(const std::map<std::string, std::vector<int32_t>> &personalBestSegments,
+                                   const std::map<std::string, std::vector<int32_t>> &globalBestSegments,
+                                   const std::string &runName, int32_t segmentIdx, int32_t duration) {
   if (duration <= 0) {
     return {false, false};
   }
 
-  const auto beaten =
-      [&runName, segmentIdx,
-       duration](const std::map<std::string, std::vector<int32_t>> &cache) {
-        const auto it = cache.find(runName);
+  const auto beaten = [&runName, segmentIdx, duration](const std::map<std::string, std::vector<int32_t>> &cache) {
+    const auto it = cache.find(runName);
 
-        return it != cache.end() &&
-               segmentIdx < static_cast<int32_t>(it->second.size()) &&
-               duration < it->second[segmentIdx];
-      };
+    return it != cache.end() && segmentIdx < static_cast<int32_t>(it->second.size()) &&
+           duration < it->second[segmentIdx];
+  };
 
   return {beaten(personalBestSegments), beaten(globalBestSegments)};
 }
@@ -132,31 +128,26 @@ std::optional<int> TimerunCommands::parseInteger(const std::string &arg) {
   }
 }
 
-TimerunCommands::Start::Start(
-    int clientNum, int startTime, const std::string &runName,
-    const std::optional<int> &previousRecord, bool runHasCheckpoints,
-    std::array<int, MAX_TIMERUN_CHECKPOINTS> checkpoints,
-    std::array<int, MAX_TIMERUN_CHECKPOINTS> currentRunCheckpoints,
-    std::array<bool, MAX_TIMERUN_CHECKPOINTS> currentRunBestPersonalSegments,
-    std::array<bool, MAX_TIMERUN_CHECKPOINTS> currentRunBestGlobalSegments)
-    : clientNum(clientNum), startTime(startTime), runName(runName),
-      previousRecord(previousRecord), runHasCheckpoints(runHasCheckpoints),
-      checkpoints(checkpoints), currentRunCheckpoints(currentRunCheckpoints),
-      currentRunBestPersonalSegments(currentRunBestPersonalSegments),
-      currentRunBestGlobalSegments(currentRunBestGlobalSegments) {}
+TimerunCommands::Start::Start(int clientNum, int startTime, const std::string &runName,
+                              const std::optional<int> &previousRecord, bool runHasCheckpoints,
+                              std::array<int, MAX_TIMERUN_CHECKPOINTS> checkpoints,
+                              std::array<int, MAX_TIMERUN_CHECKPOINTS> currentRunCheckpoints,
+                              std::array<bool, MAX_TIMERUN_CHECKPOINTS> currentRunBestPersonalSegments,
+                              std::array<bool, MAX_TIMERUN_CHECKPOINTS> currentRunBestGlobalSegments)
+  : clientNum(clientNum), startTime(startTime), runName(runName), previousRecord(previousRecord),
+    runHasCheckpoints(runHasCheckpoints), checkpoints(checkpoints), currentRunCheckpoints(currentRunCheckpoints),
+    currentRunBestPersonalSegments(currentRunBestPersonalSegments),
+    currentRunBestGlobalSegments(currentRunBestGlobalSegments) {}
 
 std::string TimerunCommands::Start::serialize() const {
-  return StringUtils::format(
-      "timerun start %d %d \"%s\" %d %d \"%s\" \"%s\" \"%s\" \"%s\"", clientNum,
-      startTime, runName, previousRecord.value_or(-1), runHasCheckpoints,
-      StringUtils::join(checkpoints, ","),
-      StringUtils::join(currentRunCheckpoints, ","),
-      StringUtils::join(currentRunBestPersonalSegments, ","),
-      StringUtils::join(currentRunBestGlobalSegments, ","));
+  return StringUtils::format("timerun start %d %d \"%s\" %d %d \"%s\" \"%s\" \"%s\" \"%s\"", clientNum, startTime,
+                             runName, previousRecord.value_or(-1), runHasCheckpoints,
+                             StringUtils::join(checkpoints, ","), StringUtils::join(currentRunCheckpoints, ","),
+                             StringUtils::join(currentRunBestPersonalSegments, ","),
+                             StringUtils::join(currentRunBestGlobalSegments, ","));
 }
 
-std::optional<TimerunCommands::Start>
-TimerunCommands::Start::deserialize(const std::vector<std::string> &args) {
+std::optional<TimerunCommands::Start> TimerunCommands::Start::deserialize(const std::vector<std::string> &args) {
   const int numExpectedFields = 9;
 
   if (args.size() < numExpectedFields) {
@@ -201,9 +192,9 @@ TimerunCommands::Start::deserialize(const std::vector<std::string> &args) {
   start.runHasCheckpoints = std::stoi(args[6]);
 
   unsigned idx = 0;
-  for (const auto &v :
-       Container::map(StringUtils::split(args[7], ","),
-                      [](const auto &c) { return std::stoi(c); })) {
+  for (const auto &v : Container::map(StringUtils::split(args[7], ","), [](const auto &c) {
+         return std::stoi(c);
+       })) {
     if (idx >= start.checkpoints.size()) {
       break;
     }
@@ -214,9 +205,9 @@ TimerunCommands::Start::deserialize(const std::vector<std::string> &args) {
   }
 
   idx = 0;
-  for (const auto &v :
-       Container::map(StringUtils::split(args[8], ","),
-                      [](const auto &c) { return std::stoi(c); })) {
+  for (const auto &v : Container::map(StringUtils::split(args[8], ","), [](const auto &c) {
+         return std::stoi(c);
+       })) {
     if (idx >= start.currentRunCheckpoints.size()) {
       break;
     }
@@ -231,9 +222,9 @@ TimerunCommands::Start::deserialize(const std::vector<std::string> &args) {
   // in old demos, since they were never tracked to begin with
   if (args.size() >= numExpectedFields + 2) {
     idx = 0;
-    for (const auto &v :
-         Container::map(StringUtils::split(args[9], ","),
-                        [](const auto &c) { return std::stoi(c); })) {
+    for (const auto &v : Container::map(StringUtils::split(args[9], ","), [](const auto &c) {
+           return std::stoi(c);
+         })) {
       if (idx >= start.currentRunBestPersonalSegments.size()) {
         break;
       }
@@ -244,9 +235,9 @@ TimerunCommands::Start::deserialize(const std::vector<std::string> &args) {
     }
 
     idx = 0;
-    for (const auto &v :
-         Container::map(StringUtils::split(args[10], ","),
-                        [](const auto &c) { return std::stoi(c); })) {
+    for (const auto &v : Container::map(StringUtils::split(args[10], ","), [](const auto &c) {
+           return std::stoi(c);
+         })) {
       if (idx >= start.currentRunBestGlobalSegments.size()) {
         break;
       }
@@ -260,28 +251,22 @@ TimerunCommands::Start::deserialize(const std::vector<std::string> &args) {
   return start;
 }
 
-TimerunCommands::SavePosStart::SavePosStart(
-    int clientNum, int startTime, std::string runName,
-    const std::optional<int> &previousRecord, bool runHasCheckpoints,
-    std::array<int, MAX_TIMERUN_CHECKPOINTS> checkpoints,
-    std::array<int, MAX_TIMERUN_CHECKPOINTS> currentRunCheckpoints)
-    : clientNum(clientNum), startTime(startTime), runName(std::move(runName)),
-      previousRecord(previousRecord), runHasCheckpoints(runHasCheckpoints),
-      checkpoints(checkpoints), currentRunCheckpoints(currentRunCheckpoints) {}
+TimerunCommands::SavePosStart::SavePosStart(int clientNum, int startTime, std::string runName,
+                                            const std::optional<int> &previousRecord, bool runHasCheckpoints,
+                                            std::array<int, MAX_TIMERUN_CHECKPOINTS> checkpoints,
+                                            std::array<int, MAX_TIMERUN_CHECKPOINTS> currentRunCheckpoints)
+  : clientNum(clientNum), startTime(startTime), runName(std::move(runName)), previousRecord(previousRecord),
+    runHasCheckpoints(runHasCheckpoints), checkpoints(checkpoints), currentRunCheckpoints(currentRunCheckpoints) {}
 
 std::string TimerunCommands::SavePosStart::serialize() const {
-  return StringUtils::format(
-      "timerun saveposstart %d %d \"%s\" %d %d \"%s\" \"%s\"", clientNum,
-      startTime, runName, previousRecord.value_or(-1), runHasCheckpoints,
-      StringUtils::join(checkpoints, ","),
-      StringUtils::join(currentRunCheckpoints, ","));
+  return StringUtils::format("timerun saveposstart %d %d \"%s\" %d %d \"%s\" \"%s\"", clientNum, startTime, runName,
+                             previousRecord.value_or(-1), runHasCheckpoints, StringUtils::join(checkpoints, ","),
+                             StringUtils::join(currentRunCheckpoints, ","));
 }
 
 std::string TimerunCommands::Checkpoint::serialize() const {
-  return StringUtils::format("timerun checkpoint %d %d %d \"%s\" %d %d %d",
-                             clientNum, checkpointNum, checkpointTime, runName,
-                             checkpointIndex, bestPersonalSegment,
-                             bestGlobalSegment);
+  return StringUtils::format("timerun checkpoint %d %d %d \"%s\" %d %d %d", clientNum, checkpointNum, checkpointTime,
+                             runName, checkpointIndex, bestPersonalSegment, bestGlobalSegment);
 }
 
 std::optional<TimerunCommands::Checkpoint>
@@ -319,7 +304,7 @@ TimerunCommands::Checkpoint::deserialize(const std::vector<std::string> &args) {
   }
 
   cp.checkpointTime = time.value();
-  cp.runName = args[5];
+  cp.runName        = args[5];
 
   if (args.size() == 6) {
     return cp;
@@ -338,7 +323,7 @@ TimerunCommands::Checkpoint::deserialize(const std::vector<std::string> &args) {
   // which simply never render gold
   if (args.size() >= 9) {
     cp.bestPersonalSegment = parseInteger(args[7]).value_or(0) != 0;
-    cp.bestGlobalSegment = parseInteger(args[8]).value_or(0) != 0;
+    cp.bestGlobalSegment   = parseInteger(args[8]).value_or(0) != 0;
   }
 
   return cp;
@@ -364,9 +349,8 @@ TimerunCommands::Interrupt::deserialize(const std::vector<std::string> &args) {
 }
 
 std::string TimerunCommands::Completion::serialize() const {
-  return StringUtils::format(
-      "timerun completion %d %d %d \"%s\"", clientNum, completionTime,
-      previousRecordTime.value_or(NO_PREVIOUS_RECORD), runName);
+  return StringUtils::format("timerun completion %d %d %d \"%s\"", clientNum, completionTime,
+                             previousRecordTime.value_or(NO_PREVIOUS_RECORD), runName);
 }
 
 std::optional<TimerunCommands::Completion>
@@ -398,13 +382,11 @@ TimerunCommands::Completion::deserialize(const std::vector<std::string> &args) {
 }
 
 std::string TimerunCommands::Record::serialize() const {
-  return StringUtils::format(
-      "timerun record %d %d %d \"%s\"", clientNum, completionTime,
-      previousRecordTime.value_or(NO_PREVIOUS_RECORD), runName);
+  return StringUtils::format("timerun record %d %d %d \"%s\"", clientNum, completionTime,
+                             previousRecordTime.value_or(NO_PREVIOUS_RECORD), runName);
 }
 
-std::optional<TimerunCommands::Record>
-TimerunCommands::Record::deserialize(const std::vector<std::string> &args) {
+std::optional<TimerunCommands::Record> TimerunCommands::Record::deserialize(const std::vector<std::string> &args) {
   if (args[0] != "timerun" || args[1] != "record") {
     return std::nullopt;
   }
@@ -430,12 +412,11 @@ TimerunCommands::Record::deserialize(const std::vector<std::string> &args) {
 }
 
 std::string TimerunCommands::Stop::serialize() const {
-  return StringUtils::format("timerun stop %d %d \"%s\" %d %d", clientNum,
-                             completionTime, runName, beatPersonal, beatGlobal);
+  return StringUtils::format("timerun stop %d %d \"%s\" %d %d", clientNum, completionTime, runName, beatPersonal,
+                             beatGlobal);
 }
 
-std::optional<TimerunCommands::Stop>
-TimerunCommands::Stop::deserialize(const std::vector<std::string> &args) {
+std::optional<TimerunCommands::Stop> TimerunCommands::Stop::deserialize(const std::vector<std::string> &args) {
   if (args[0] != "timerun" || args[1] != "stop") {
     return std::nullopt;
   }
@@ -459,7 +440,7 @@ TimerunCommands::Stop::deserialize(const std::vector<std::string> &args) {
   // which simply never render gold
   if (args.size() >= 7) {
     stop.beatPersonal = parseInteger(args[5]).value_or(0) != 0;
-    stop.beatGlobal = parseInteger(args[6]).value_or(0) != 0;
+    stop.beatGlobal   = parseInteger(args[6]).value_or(0) != 0;
   }
 
   return stop;

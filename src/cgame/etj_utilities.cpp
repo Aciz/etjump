@@ -22,21 +22,21 @@
  * SOFTWARE.
  */
 
+#include "etj_utilities.h"
+
 #include <string>
 #include <utility>
 
-#include "etj_utilities.h"
 #include "cg_local.h"
 #include "etj_demo_compatibility.h"
 #include "etj_event_loop.h"
 #include "etj_player_events_handler.h"
 
-#include "../game/etj_string_utilities.h"
 #include "../game/etj_portalgun_shared.h"
+#include "../game/etj_string_utilities.h"
 
 namespace ETJump {
-std::string composeShader(const char *name, ShaderStage general,
-                          ShaderStages stages) {
+std::string composeShader(const char *name, ShaderStage general, ShaderStages stages) {
   std::string shader;
   // shader name
   shader = shader + name + " {\n";
@@ -78,15 +78,16 @@ bool clearInterval(int handle) {
 }
 
 int setImmediate(std::function<void()> fun) {
-  return cgame.utils.eventLoop->schedule(std::move(fun), 0,
-                                         TaskPriorities::Immediate);
+  return cgame.utils.eventLoop->schedule(std::move(fun), 0, TaskPriorities::Immediate);
 }
 
 bool clearImmediate(int handle) {
   return cgame.utils.eventLoop->unschedule(handle);
 }
 
-void executeTimeout(int handle) { cgame.utils.eventLoop->execute(handle); }
+void executeTimeout(int handle) {
+  cgame.utils.eventLoop->execute(handle);
+}
 
 bool configFileExists(const std::string &filename) {
   bool fileExists = true;
@@ -107,8 +108,7 @@ bool configFileExists(const std::string &filename) {
 void execFile(const std::string &filename, ExecFileType type) {
   const bool quiet = static_cast<int>(type) & etj_useExecQuiet.integer;
   const std::string cmd =
-      quiet ? StringUtils::format("execq \"%s.cfg\"\n", filename)
-            : StringUtils::format("exec \"%s.cfg\"\n", filename);
+    quiet ? StringUtils::format("execq \"%s.cfg\"\n", filename) : StringUtils::format("exec \"%s.cfg\"\n", filename);
   trap_SendConsoleCommand(cmd.c_str());
 }
 
@@ -117,8 +117,7 @@ bool isValidClientNum(const int clientNum) {
 }
 
 bool isPlaying(const int clientNum) {
-  return (cgs.clientinfo[clientNum].team == TEAM_ALLIES ||
-          cgs.clientinfo[clientNum].team == TEAM_AXIS);
+  return (cgs.clientinfo[clientNum].team == TEAM_ALLIES || cgs.clientinfo[clientNum].team == TEAM_AXIS);
 }
 
 int getSvFps() {
@@ -133,7 +132,7 @@ int getSvFps() {
     fps = 1000 / DEFAULT_SV_FRAMETIME;
   } else if (cgame.demo.compatibility->flags.svFpsInSysteminfo) {
     const char *cs = CG_ConfigString(CS_SYSTEMINFO);
-    fps = Q_atoi(Info_ValueForKey(cs, "sv_fps"));
+    fps            = Q_atoi(Info_ValueForKey(cs, "sv_fps"));
   } else {
     fps = cgs.sv_fps;
   }
@@ -152,8 +151,7 @@ bool playerIsSolid(const int self, const int other) {
     }
 
     if (!CG_IsOnSameFireteam(self, other) ||
-        (CG_IsOnSameFireteam(self, other) &&
-         !cgs.clientinfo[self].fireteamData->noGhost)) {
+        (CG_IsOnSameFireteam(self, other) && !cgs.clientinfo[self].fireteamData->noGhost)) {
       return false;
     }
   }
@@ -162,8 +160,7 @@ bool playerIsSolid(const int self, const int other) {
 }
 
 bool playerIsNoclipping(const int clientNum) {
-  return cg_entities[clientNum].currentState.density &
-         static_cast<int>(PlayerDensityFlags::Noclip);
+  return cg_entities[clientNum].currentState.density & static_cast<int>(PlayerDensityFlags::Noclip);
 }
 
 bool skipPortalDraw(const int selfNum, const int otherNum) {
@@ -176,8 +173,7 @@ bool skipPortalDraw(const int selfNum, const int otherNum) {
     return false;
   }
 
-  if (etj_portalTeam.integer ==
-          static_cast<int32_t>(PortalTeamOpts::FIRETEAM) &&
+  if (etj_portalTeam.integer == static_cast<int32_t>(PortalTeamOpts::FIRETEAM) &&
       CG_IsOnSameFireteam(selfNum, otherNum)) {
     return false;
   }
@@ -187,11 +183,8 @@ bool skipPortalDraw(const int selfNum, const int otherNum) {
 
 // compatibility version, for old shader index numbering (1 shader per index)
 static void registerGameShaderCompat(const int32_t index, const char *shader) {
-  cgs.gameShaders[index] = shader[0] == '*'
-                               ? trap_R_RegisterShader(shader + 1)
-                               : trap_R_RegisterShaderNoMip(shader);
-  Q_strncpyz(cgs.gameShaderNames[index], shader[0] == '*' ? shader + 1 : shader,
-             MAX_QPATH);
+  cgs.gameShaders[index] = shader[0] == '*' ? trap_R_RegisterShader(shader + 1) : trap_R_RegisterShaderNoMip(shader);
+  Q_strncpyz(cgs.gameShaderNames[index], shader[0] == '*' ? shader + 1 : shader, MAX_QPATH);
 }
 
 void registerGameShader(const int32_t index, const char *shaderStr) {
@@ -200,16 +193,16 @@ void registerGameShader(const int32_t index, const char *shaderStr) {
     return;
   }
 
-  const auto shaders = StringUtils::split(shaderStr, " ");
+  const auto shaders  = StringUtils::split(shaderStr, " ");
   const int32_t start = index * MAX_SHADERS_PER_INDEX;
 
   for (int32_t i = 0; i < static_cast<int32_t>(shaders.size()); i++) {
     // 1-indexed, index 0 is always empty (invalid)
-    const int32_t shaderNum = start + i + 1;
+    const int32_t shaderNum   = start + i + 1;
     const std::string &shader = shaders[i];
 
     if (StringUtils::startsWith(shaders[i], "*")) {
-      const char *s = shader.c_str() + 1;
+      const char *s              = shader.c_str() + 1;
       cgs.gameShaders[shaderNum] = trap_R_RegisterShader(s);
       Q_strncpyz(cgs.gameShaderNames[shaderNum], s, MAX_QPATH);
     } else {
@@ -225,22 +218,20 @@ void centerCursor() {
   cgDC.cursor.realX = cgDC.glconfig.vidWidth / 2;
   cgDC.cursor.realY = cgDC.glconfig.vidHeight / 2;
 
-  cgs.cursorX = cgDC.cursor.virtX;
-  cgs.cursorY = cgDC.cursor.virtY;
+  cgs.cursorX     = cgDC.cursor.virtX;
+  cgs.cursorY     = cgDC.cursor.virtY;
   cgs.realCursorX = cgDC.cursor.realX;
   cgs.realCursorY = cgDC.cursor.realY;
 }
 
-void addLoopingSound(const vec3_t origin, const vec3_t velocity,
-                     const sfxHandle_t sfx, const int32_t volume,
+void addLoopingSound(const vec3_t origin, const vec3_t velocity, const sfxHandle_t sfx, const int32_t volume,
                      const int32_t soundTime) {
   if (etj_loopedSounds.integer > 0) {
     trap_S_AddLoopingSound(origin, velocity, sfx, volume, soundTime);
   }
 }
 
-void addRealLoopingSound(const vec3_t origin, const vec3_t velocity,
-                         const sfxHandle_t sfx, const int32_t range,
+void addRealLoopingSound(const vec3_t origin, const vec3_t velocity, const sfxHandle_t sfx, const int32_t range,
                          const int32_t volume, const int32_t soundTime) {
   if (etj_loopedSounds.integer > 0) {
     trap_S_AddRealLoopingSound(origin, velocity, sfx, range, volume, soundTime);
@@ -281,10 +272,10 @@ void onPlayerRespawn(bool revived) {
 
 playerState_t *getValidPlayerState() {
   return (cg.snap->ps.clientNum != cg.clientNum || cg.demoPlayback)
-             // spectating/demo playback
-             ? &cg.snap->ps
-             // playing
-             : &cg.predictedPlayerState;
+           // spectating/demo playback
+           ? &cg.snap->ps
+           // playing
+           : &cg.predictedPlayerState;
 }
 
 void resetTransitionEffects() {
@@ -292,9 +283,9 @@ void resetTransitionEffects() {
 }
 
 void resetCustomvoteInfo() {
-  cg.numCustomvotesRequested = false;
-  cg.customvoteInfoRequested = false;
-  cg.numCustomvotes = -1;
+  cg.numCustomvotesRequested     = false;
+  cg.customvoteInfoRequested     = false;
+  cg.numCustomvotes              = -1;
   cg.numCustomvoteInfosRequested = 0;
 
   trap_SendConsoleCommand("uiResetCustomvotes\n");

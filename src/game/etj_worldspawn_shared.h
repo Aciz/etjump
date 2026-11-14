@@ -33,16 +33,16 @@
 
 // shared worldspawn data & methods needed on both client and server
 namespace ETJump::WorldspawnShared {
-inline constexpr char NO_OVERBOUNCE_CS[] = "ob";
-inline constexpr char NO_JUMP_DELAY_CS[] = "njd";
-inline constexpr char NO_SAVE_CS[] = "save";
-inline constexpr char NO_PRONE_CS[] = "prone";
-inline constexpr char NO_DROP_CS[] = "drop";
-inline constexpr char NO_WALLBUG_CS[] = "wbug";
-inline constexpr char NO_NOCLIP_CS[] = "noclip";
-inline constexpr char PORTAL_PREDICT_CS[] = "ppred";
-inline constexpr char PORTAL_SURFACES_CS[] = "psurf";
-inline constexpr char NO_FALL_DAMAGE_CS[] = "fdmg";
+inline constexpr char NO_OVERBOUNCE_CS[]      = "ob";
+inline constexpr char NO_JUMP_DELAY_CS[]      = "njd";
+inline constexpr char NO_SAVE_CS[]            = "save";
+inline constexpr char NO_PRONE_CS[]           = "prone";
+inline constexpr char NO_DROP_CS[]            = "drop";
+inline constexpr char NO_WALLBUG_CS[]         = "wbug";
+inline constexpr char NO_NOCLIP_CS[]          = "noclip";
+inline constexpr char PORTAL_PREDICT_CS[]     = "ppred";
+inline constexpr char PORTAL_SURFACES_CS[]    = "psurf";
+inline constexpr char NO_FALL_DAMAGE_CS[]     = "fdmg";
 inline constexpr char OVERBOUNCE_PLAYERS_CS[] = "obp";
 
 enum class Keys {
@@ -80,66 +80,65 @@ struct WSKeyDescriptor {
 };
 
 struct KeyDescriptors {
-  std::array<WSKeyDescriptor,
-             static_cast<size_t>(WorldspawnShared::Keys::NUM_KEYS)>
-      data;
+  std::array<WSKeyDescriptor, static_cast<size_t>(WorldspawnShared::Keys::NUM_KEYS)> data;
 
   constexpr const WSKeyDescriptor &operator[](WorldspawnShared::Keys k) const {
     return data[static_cast<size_t>(k)];
   }
 
-  [[nodiscard]] auto begin() const { return data.begin(); }
-  [[nodiscard]] auto end() const { return data.end(); }
+  [[nodiscard]] auto begin() const {
+    return data.begin();
+  }
+
+  [[nodiscard]] auto end() const {
+    return data.end();
+  }
 };
 
 inline constexpr KeyDescriptors keyDescriptors = {{{
-    {WorldspawnShared::Keys::NO_DROP, "nodrop", NO_DROP_CS},
-    {WorldspawnShared::Keys::NO_EXPLOSIVES, "noexplosives", nullptr},
-    {WorldspawnShared::Keys::NO_FALL_DAMAGE, "nofalldamage", NO_FALL_DAMAGE_CS},
-    {WorldspawnShared::Keys::NO_FT_NO_GHOST, "noftnoghost", nullptr},
-    {WorldspawnShared::Keys::NO_FT_SAVE_LIMIT, "noftsavelimit", nullptr},
-    {WorldspawnShared::Keys::NO_FT_TJ_MODE, "noftteamjumpmode", nullptr},
-    {WorldspawnShared::Keys::NO_GHOST, "noghost", nullptr},
-    {WorldspawnShared::Keys::NO_GOD, "nogod", nullptr},
-    {WorldspawnShared::Keys::NO_GOTO, "nogoto", nullptr},
-    {WorldspawnShared::Keys::NO_JUMP_DELAY, "nojumpdelay", NO_JUMP_DELAY_CS},
-    {WorldspawnShared::Keys::NO_NOCLIP, "nonoclip", NO_NOCLIP_CS, true},
-    {WorldspawnShared::Keys::NO_SAVE, "nosave", NO_SAVE_CS, true},
-    {WorldspawnShared::Keys::NO_OVERBOUNCE, "nooverbounce", NO_OVERBOUNCE_CS},
-    {WorldspawnShared::Keys::NO_PRONE, "noprone", NO_PRONE_CS, true},
-    {WorldspawnShared::Keys::NO_WALLBUG, "nowallbug", NO_WALLBUG_CS},
-    {WorldspawnShared::Keys::OVERBOUCNE_PLAYERS, "overbounce_players",
-     OVERBOUNCE_PLAYERS_CS},
-    {WorldspawnShared::Keys::PORTALGUN_SPAWN, "portalgun_spawn", nullptr},
-    {WorldspawnShared::Keys::PORTAL_SURFACES, "portalsurfaces",
-     PORTAL_SURFACES_CS},
-    {WorldspawnShared::Keys::PORTAL_PREDICT, "portalpredict",
-     PORTAL_PREDICT_CS},
-    {WorldspawnShared::Keys::PORTAL_TEAM, "portalteam", nullptr},
-    {WorldspawnShared::Keys::LIMITED_SAVES, "limitedsaves", nullptr},
-    {WorldspawnShared::Keys::STRICT_SAVE_LOAD, "strictsaveload", nullptr},
+  {WorldspawnShared::Keys::NO_DROP, "nodrop", NO_DROP_CS},
+  {WorldspawnShared::Keys::NO_EXPLOSIVES, "noexplosives", nullptr},
+  {WorldspawnShared::Keys::NO_FALL_DAMAGE, "nofalldamage", NO_FALL_DAMAGE_CS},
+  {WorldspawnShared::Keys::NO_FT_NO_GHOST, "noftnoghost", nullptr},
+  {WorldspawnShared::Keys::NO_FT_SAVE_LIMIT, "noftsavelimit", nullptr},
+  {WorldspawnShared::Keys::NO_FT_TJ_MODE, "noftteamjumpmode", nullptr},
+  {WorldspawnShared::Keys::NO_GHOST, "noghost", nullptr},
+  {WorldspawnShared::Keys::NO_GOD, "nogod", nullptr},
+  {WorldspawnShared::Keys::NO_GOTO, "nogoto", nullptr},
+  {WorldspawnShared::Keys::NO_JUMP_DELAY, "nojumpdelay", NO_JUMP_DELAY_CS},
+  {WorldspawnShared::Keys::NO_NOCLIP, "nonoclip", NO_NOCLIP_CS, true},
+  {WorldspawnShared::Keys::NO_SAVE, "nosave", NO_SAVE_CS, true},
+  {WorldspawnShared::Keys::NO_OVERBOUNCE, "nooverbounce", NO_OVERBOUNCE_CS},
+  {WorldspawnShared::Keys::NO_PRONE, "noprone", NO_PRONE_CS, true},
+  {WorldspawnShared::Keys::NO_WALLBUG, "nowallbug", NO_WALLBUG_CS},
+  {WorldspawnShared::Keys::OVERBOUCNE_PLAYERS, "overbounce_players", OVERBOUNCE_PLAYERS_CS},
+  {WorldspawnShared::Keys::PORTALGUN_SPAWN, "portalgun_spawn", nullptr},
+  {WorldspawnShared::Keys::PORTAL_SURFACES, "portalsurfaces", PORTAL_SURFACES_CS},
+  {WorldspawnShared::Keys::PORTAL_PREDICT, "portalpredict", PORTAL_PREDICT_CS},
+  {WorldspawnShared::Keys::PORTAL_TEAM, "portalteam", nullptr},
+  {WorldspawnShared::Keys::LIMITED_SAVES, "limitedsaves", nullptr},
+  {WorldspawnShared::Keys::STRICT_SAVE_LOAD, "strictsaveload", nullptr},
 }}};
 
 // ensure the init order matches the enum
 static_assert(
-    [] {
-      for (size_t i = 0;
-           i < static_cast<size_t>(WorldspawnShared::Keys::NUM_KEYS); i++) {
-        if (static_cast<size_t>(keyDescriptors.data[i].key) != i) {
-          return false;
-        }
+  [] {
+    for (size_t i = 0; i < static_cast<size_t>(WorldspawnShared::Keys::NUM_KEYS); i++) {
+      if (static_cast<size_t>(keyDescriptors.data[i].key) != i) {
+        return false;
       }
+    }
 
-      return true;
-    }(),
-    "keyDescriptors must be listed in the same order as Keys");
+    return true;
+  }(),
+  "keyDescriptors must be listed in the same order as Keys");
 
 enum class KeyOverrideFlags {
-  AXIS = 1 << 0,
-  ALLIES = 1 << 1,
-  SPECTATORS = 1 << 2,
+  AXIS         = 1 << 0,
+  ALLIES       = 1 << 1,
+  SPECTATORS   = 1 << 2,
   TIMERUN_ONLY = 1 << 3,
-  NO_TIMERUN = 1 << 4,
+  NO_TIMERUN   = 1 << 4,
 };
 
 struct KeyOverride {
@@ -165,10 +164,9 @@ inline bool areaAllowsAction(AreaOpts areaOpts, const trace_t &trace) {
 // values into account. This *should* be called on init, whenever team changes,
 // and whenever timerun state changes, but realistically it's cheap enough to be
 // called every frame.
-inline SharedWorldspawnKeys
-resolveSharedWSKeys(const SharedWorldspawnKeys &global,
-                    const std::vector<KeyOverride> &overrides,
-                    const team_t team, const bool timerunActive) {
+inline SharedWorldspawnKeys resolveSharedWSKeys(const SharedWorldspawnKeys &global,
+                                                const std::vector<KeyOverride> &overrides, const team_t team,
+                                                const bool timerunActive) {
   // globals are the baseline
   SharedWorldspawnKeys keys = global;
 
@@ -196,9 +194,7 @@ resolveSharedWSKeys(const SharedWorldspawnKeys &global,
   // if the number of supported keys grows significantly
   // (it also only "supports" AreaOpts currently)
   const auto setOverrideKey = [&keys](const KeyOverride &o) {
-    const auto value =
-        std::clamp(static_cast<AreaOpts>(o.value), AreaOpts::FORBID_INSIDE,
-                   AreaOpts::FORBID_EVERYWHERE);
+    const auto value = std::clamp(static_cast<AreaOpts>(o.value), AreaOpts::FORBID_INSIDE, AreaOpts::FORBID_EVERYWHERE);
 
     switch (o.key) {
       case Keys::NO_NOCLIP:
@@ -231,16 +227,14 @@ resolveSharedWSKeys(const SharedWorldspawnKeys &global,
     }
 
     // not a timerun-stateless override
-    if ((o.flags & KeyOverrideFlags::TIMERUN_ONLY) ||
-        (o.flags & KeyOverrideFlags::NO_TIMERUN)) {
+    if ((o.flags & KeyOverrideFlags::TIMERUN_ONLY) || (o.flags & KeyOverrideFlags::NO_TIMERUN)) {
       continue;
     }
 
     setOverrideKey(o);
   }
 
-  const auto timerunScope = timerunActive ? KeyOverrideFlags::TIMERUN_ONLY
-                                          : KeyOverrideFlags::NO_TIMERUN;
+  const auto timerunScope = timerunActive ? KeyOverrideFlags::TIMERUN_ONLY : KeyOverrideFlags::NO_TIMERUN;
 
   for (const auto &o : overrides) {
     // team is mandatory in the entity,
