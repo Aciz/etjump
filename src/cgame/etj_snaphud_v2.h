@@ -38,8 +38,7 @@ class CvarUpdateHandler;
 
 class SnaphudV2 : public IRenderable {
 public:
-  SnaphudV2(const std::shared_ptr<SnaphudData> &snaphudData,
-            const std::shared_ptr<CvarUpdateHandler> &cvarUpdate);
+  SnaphudV2(const std::shared_ptr<SnaphudData> &snaphudData, const std::shared_ptr<CvarUpdateHandler> &cvarUpdate);
   ~SnaphudV2() override;
 
   bool beforeRender() override;
@@ -54,19 +53,22 @@ private:
 
   [[nodiscard]] bool canSkipDraw(const SnaphudData::State &s) const;
 
-  enum class SnapTrueness { UPMOVE = 1, GROUND = 2 };
+  enum class SnapTrueness {
+    UPMOVE = 1,
+    GROUND = 2
+  };
 
   enum class SnaphudStyle {
-    OFF = 0,
+    OFF    = 0,
     NORMAL = 1,
-    EDGE = 2,
+    EDGE   = 2,
     BORDER = 3,
   };
 
   enum class CropStyle {
-    OFF = 0,
+    OFF         = 0,
     IF_STRAFING = 1,
-    ALWAYS = 2,
+    ALWAYS      = 2,
   };
 
   struct Snapzone {

@@ -1,4 +1,5 @@
 #include <csetjmp>
+#include <gtest/gtest.h>
 #include <stdexcept>
 #include <string>
 #include <thread>
@@ -6,7 +7,6 @@
 #include <utility>
 #include <vector>
 
-#include <gtest/gtest.h>
 #include "../src/game/etj_fatal_error_shared.h"
 
 #ifdef _MSC_VER
@@ -40,11 +40,9 @@ TEST_NOINLINE static void enterWithoutLeaving(const int levels) {
 // own, which is what makes the call nested (a nested run() inside the outer
 // call's lambda could be inlined into the same frame)
 template <typename Dispatch>
-TEST_NOINLINE static intptr_t
-callFromSyscall(Dispatch &&dispatch, const intptr_t failureResult = 0,
-                const FatalErrorBoundary::DeferFunction defer = nullptr) {
-  return FatalErrorBoundary::run(std::forward<Dispatch>(dispatch),
-                                 failureResult, defer);
+TEST_NOINLINE static intptr_t callFromSyscall(Dispatch &&dispatch, const intptr_t failureResult = 0,
+                                              const FatalErrorBoundary::DeferFunction defer = nullptr) {
+  return FatalErrorBoundary::run(std::forward<Dispatch>(dispatch), failureResult, defer);
 }
 
 // raises an error outside of vmMain, further down the stack than the calls
@@ -88,7 +86,10 @@ public:
 
   struct Guard {
     bool &destroyed;
-    ~Guard() { destroyed = true; }
+
+    ~Guard() {
+      destroyed = true;
+    }
   };
 
   inline static std::vector<std::string> raised;
@@ -115,10 +116,12 @@ public:
     throw RaiseCalled{};
   }
 
-  static void fakePrint(const char *message) { printed.emplace_back(message); }
+  static void fakePrint(const char *message) {
+    printed.emplace_back(message);
+  }
 
   static bool fakeDefer(const char *message, const bool unexpected) {
-    deferred = message;
+    deferred           = message;
     deferredUnexpected = unexpected;
     return true;
   }
@@ -131,8 +134,10 @@ public:
     if (deferredMessages.size() == 1) {
       FatalErrorBoundary::rethrowPending();
       callFromSyscall(
-          []() -> intptr_t { FatalErrorBoundary::throwFatal("second"); }, 0,
-          reenteringDefer);
+        []() -> intptr_t {
+          FatalErrorBoundary::throwFatal("second");
+        },
+        0, reenteringDefer);
 
       EXPECT_STREQ(message, "first");
     }
@@ -153,7 +158,10 @@ public:
 };
 
 TEST_F(FatalErrorBoundaryTests, Run_ReturnsDispatchResult) {
-  EXPECT_EQ(FatalErrorBoundary::run([] { return intptr_t{42}; }), 42);
+  EXPECT_EQ(FatalErrorBoundary::run([] {
+              return intptr_t{42};
+            }),
+            42);
   EXPECT_TRUE(raised.empty());
 }
 
@@ -171,17 +179,16 @@ TEST_F(FatalErrorBoundaryTests, Run_UnwindsStackAndRaisesOnceOnTopLevelError) {
 }
 
 TEST_F(FatalErrorBoundaryTests, Run_RethrowsNestedErrorAfterSyscallReturns) {
-  bool destroyed = false;
+  bool destroyed           = false;
   bool reachedAfterSyscall = false;
 
   EXPECT_THROW(FatalErrorBoundary::run([&]() -> intptr_t {
                  Guard guard{destroyed};
 
                  // the engine calls back into the module during a syscall
-                 const intptr_t result = callFromSyscall(
-                     []() -> intptr_t {
-                       FatalErrorBoundary::throwFatal("nested");
-                     });
+                 const intptr_t result = callFromSyscall([]() -> intptr_t {
+                   FatalErrorBoundary::throwFatal("nested");
+                 });
 
                  EXPECT_EQ(result, 0);
                  EXPECT_TRUE(raised.empty());
@@ -242,23 +249,25 @@ TEST_F(FatalErrorBoundaryTests, Run_ReturnsFailureResultForLeftoverError) {
     ~FailOnDestroy() {
       // the engine calls back into the module from a syscall made here,
       // and the error can't be rethrown while unwinding
-      callFromSyscall([]() -> intptr_t { throw std::runtime_error("nested"); });
+      callFromSyscall([]() -> intptr_t {
+        throw std::runtime_error("nested");
+      });
       FatalErrorBoundary::rethrowPending();
     }
   };
 
   EXPECT_EQ(FatalErrorBoundary::run(
-                []() -> intptr_t {
-                  try {
-                    FailOnDestroy fail;
-                    throw std::runtime_error("swallowed");
-                  } catch (const std::runtime_error &) {
-                  }
+              []() -> intptr_t {
+                try {
+                  FailOnDestroy fail;
+                  throw std::runtime_error("swallowed");
+                } catch (const std::runtime_error &) {
+                }
 
-                  // e.g. a connect that would be accepted otherwise
-                  return 1;
-                },
-                9, fakeDefer),
+                // e.g. a connect that would be accepted otherwise
+                return 1;
+              },
+              9, fakeDefer),
             9);
 
   EXPECT_EQ(deferred, "Unhandled exception: nested");
@@ -292,7 +301,9 @@ TEST_F(FatalErrorBoundaryTests, RethrowPending_SkipsOtherNestedCalls) {
 
 TEST_F(FatalErrorBoundaryTests, RethrowPending_DoesNotThrowWhileUnwinding) {
   struct RethrowOnDestroy {
-    ~RethrowOnDestroy() { FatalErrorBoundary::rethrowPending(); }
+    ~RethrowOnDestroy() {
+      FatalErrorBoundary::rethrowPending();
+    }
   };
 
   EXPECT_THROW(FatalErrorBoundary::run([]() -> intptr_t {
@@ -316,7 +327,9 @@ TEST_F(FatalErrorBoundaryTests, RethrowPending_DoesNothingOutsideBoundary) {
 TEST_F(FatalErrorBoundaryTests, RethrowPending_DoesNotThrowLeftoverError) {
   struct FailOnDestroy {
     ~FailOnDestroy() {
-      callFromSyscall([]() -> intptr_t { throw std::runtime_error("nested"); });
+      callFromSyscall([]() -> intptr_t {
+        throw std::runtime_error("nested");
+      });
       FatalErrorBoundary::rethrowPending();
     }
   };
@@ -361,7 +374,10 @@ TEST_F(FatalErrorBoundaryTests, ThrowFatal_ThrowsInCallMadeWhileUnwinding) {
       // the nested call catches its own exceptions,
       // even while the outer call unwinds the stack
       result = callFromSyscall(
-          []() -> intptr_t { FatalErrorBoundary::throwFatal("nested"); }, 4);
+        []() -> intptr_t {
+          FatalErrorBoundary::throwFatal("nested");
+        },
+        4);
     }
   };
 
@@ -388,7 +404,9 @@ TEST_F(FatalErrorBoundaryTests, Run_PassesOnErrorOfCallThatFailedUnwinding) {
   struct FailOnDestroy {
     ~FailOnDestroy() {
       // can't be rethrown here, as the call below unwinds the stack
-      callFromSyscall([]() -> intptr_t { throw std::runtime_error("deep"); });
+      callFromSyscall([]() -> intptr_t {
+        throw std::runtime_error("deep");
+      });
       FatalErrorBoundary::rethrowPending();
     }
   };
@@ -397,17 +415,17 @@ TEST_F(FatalErrorBoundaryTests, Run_PassesOnErrorOfCallThatFailedUnwinding) {
 
   EXPECT_THROW(FatalErrorBoundary::run([&]() -> intptr_t {
                  EXPECT_EQ(callFromSyscall(
-                               []() -> intptr_t {
-                                 try {
-                                   FailOnDestroy fail;
-                                   throw std::runtime_error("handled");
-                                 } catch (const std::runtime_error &) {
-                                 }
+                             []() -> intptr_t {
+                               try {
+                                 FailOnDestroy fail;
+                                 throw std::runtime_error("handled");
+                               } catch (const std::runtime_error &) {
+                               }
 
-                                 // e.g. a connect that would be accepted
-                                 return 1;
-                               },
-                               5),
+                               // e.g. a connect that would be accepted
+                               return 1;
+                             },
+                             5),
                            5);
 
                  // the syscall returns
@@ -424,8 +442,9 @@ TEST_F(FatalErrorBoundaryTests, Run_PassesOnErrorOfCallThatFailedUnwinding) {
 TEST_F(FatalErrorBoundaryTests, Run_KeepsFatalErrorThatStartedUnwinding) {
   struct FailOnDestroy {
     ~FailOnDestroy() {
-      callFromSyscall(
-          []() -> intptr_t { throw std::runtime_error("consequence"); });
+      callFromSyscall([]() -> intptr_t {
+        throw std::runtime_error("consequence");
+      });
       FatalErrorBoundary::rethrowPending();
     }
   };
@@ -446,15 +465,15 @@ TEST_F(FatalErrorBoundaryTests, Run_KeepsFatalErrorThatStartedUnwinding) {
 
 TEST_F(FatalErrorBoundaryTests, Run_FailsWhenHandlerSwallowsFatalError) {
   EXPECT_EQ(FatalErrorBoundary::run(
-                []() -> intptr_t {
-                  try {
-                    FatalErrorBoundary::throwFatal("swallowed");
-                  } catch (...) {
-                  }
+              []() -> intptr_t {
+                try {
+                  FatalErrorBoundary::throwFatal("swallowed");
+                } catch (...) {
+                }
 
-                  return 1;
-                },
-                3, fakeDefer),
+                return 1;
+              },
+              3, fakeDefer),
             3);
 
   EXPECT_EQ(deferred, "swallowed");
@@ -466,15 +485,15 @@ TEST_F(FatalErrorBoundaryTests, Run_PassesOnSwallowedNestedError) {
 
   EXPECT_THROW(FatalErrorBoundary::run([&]() -> intptr_t {
                  EXPECT_EQ(callFromSyscall(
-                               []() -> intptr_t {
-                                 try {
-                                   FatalErrorBoundary::throwFatal("nested");
-                                 } catch (...) {
-                                 }
+                             []() -> intptr_t {
+                               try {
+                                 FatalErrorBoundary::throwFatal("nested");
+                               } catch (...) {
+                               }
 
-                                 return 1;
-                               },
-                               5),
+                               return 1;
+                             },
+                             5),
                            5);
 
                  FatalErrorBoundary::rethrowPending();
@@ -489,17 +508,18 @@ TEST_F(FatalErrorBoundaryTests, Run_PassesOnSwallowedNestedError) {
 
 TEST_F(FatalErrorBoundaryTests, Run_PrintsAdditionalError) {
   EXPECT_EQ(FatalErrorBoundary::run(
-                []() -> intptr_t {
-                  try {
-                    FatalErrorBoundary::throwFatal("first");
-                  } catch (...) {
-                  }
+              []() -> intptr_t {
+                try {
+                  FatalErrorBoundary::throwFatal("first");
+                } catch (...) {
+                }
 
-                  callFromSyscall(
-                      []() -> intptr_t { throw std::runtime_error("second"); });
-                  return 1;
-                },
-                3, fakeDefer),
+                callFromSyscall([]() -> intptr_t {
+                  throw std::runtime_error("second");
+                });
+                return 1;
+              },
+              3, fakeDefer),
             3);
 
   EXPECT_EQ(deferred, "first");
@@ -510,16 +530,16 @@ TEST_F(FatalErrorBoundaryTests, Run_PrintsAdditionalError) {
 
 TEST_F(FatalErrorBoundaryTests, ThrowFatal_PrintsAdditionalErrorOnce) {
   EXPECT_EQ(FatalErrorBoundary::run(
-                []() -> intptr_t {
-                  try {
-                    FatalErrorBoundary::throwFatal("first");
-                  } catch (...) {
-                  }
+              []() -> intptr_t {
+                try {
+                  FatalErrorBoundary::throwFatal("first");
+                } catch (...) {
+                }
 
-                  // reaches the boundary, which must not print it again
-                  FatalErrorBoundary::throwFatal("second");
-                },
-                3, fakeDefer),
+                // reaches the boundary, which must not print it again
+                FatalErrorBoundary::throwFatal("second");
+              },
+              3, fakeDefer),
             3);
 
   EXPECT_EQ(deferred, "first");
@@ -533,32 +553,38 @@ TEST_F(FatalErrorBoundaryTests, Run_HandlesErrorLeftOverAtOutermostCall) {
   FatalErrorBoundary::detail::hasPending = true;
 
   // the call fails with it
-  EXPECT_EQ(FatalErrorBoundary::run([] { return intptr_t{1}; }, 3, fakeDefer),
+  EXPECT_EQ(FatalErrorBoundary::run(
+              [] {
+                return intptr_t{1};
+              },
+              3, fakeDefer),
             3);
 
   // later errors are handled again
   EXPECT_EQ(FatalErrorBoundary::run(
-                []() -> intptr_t { FatalErrorBoundary::throwFatal("next"); },
-                3, fakeDefer),
+              []() -> intptr_t {
+                FatalErrorBoundary::throwFatal("next");
+              },
+              3, fakeDefer),
             3);
   EXPECT_EQ(deferred, "next");
 }
 
 TEST_F(FatalErrorBoundaryTests, Run_FailsWhenHandlerSwallowsRethrownError) {
   EXPECT_EQ(FatalErrorBoundary::run(
-                []() -> intptr_t {
-                  callFromSyscall([]() -> intptr_t {
-                    FatalErrorBoundary::throwFatal("nested");
-                  });
+              []() -> intptr_t {
+                callFromSyscall([]() -> intptr_t {
+                  FatalErrorBoundary::throwFatal("nested");
+                });
 
-                  try {
-                    FatalErrorBoundary::rethrowPending();
-                  } catch (...) {
-                  }
+                try {
+                  FatalErrorBoundary::rethrowPending();
+                } catch (...) {
+                }
 
-                  return 1;
-                },
-                3, fakeDefer),
+                return 1;
+              },
+              3, fakeDefer),
             3);
 
   EXPECT_EQ(deferred, "nested");
@@ -680,16 +706,18 @@ TEST_F(FatalErrorBoundaryTests, Run_KeepsOuterCallAfterReloadInNestedCall) {
                    // the engine loads the module again inside a syscall of
                    // this nested call, and initializes it
                    FatalErrorBoundary::initialize(fakeRaise, fakePrint);
-                   callFromSyscall([] { return intptr_t{0}; });
+                   callFromSyscall([] {
+                     return intptr_t{0};
+                   });
                    return intptr_t{0};
                  });
 
                  // another nested call from the outer call, still active
                  EXPECT_EQ(callFromSyscall(
-                               []() -> intptr_t {
-                                 FatalErrorBoundary::throwFatal("nested");
-                               },
-                               5),
+                             []() -> intptr_t {
+                               FatalErrorBoundary::throwFatal("nested");
+                             },
+                             5),
                            5);
                  EXPECT_TRUE(raised.empty());
 
@@ -705,10 +733,10 @@ TEST_F(FatalErrorBoundaryTests, Run_ReturnsFailureResultForNestedError) {
   EXPECT_THROW(FatalErrorBoundary::run([]() -> intptr_t {
                  // e.g. a console command, which must count as handled
                  EXPECT_EQ(callFromSyscall(
-                               []() -> intptr_t {
-                                 FatalErrorBoundary::throwFatal("nested");
-                               },
-                               1),
+                             []() -> intptr_t {
+                               FatalErrorBoundary::throwFatal("nested");
+                             },
+                             1),
                            1);
 
                  FatalErrorBoundary::rethrowPending();
@@ -719,8 +747,10 @@ TEST_F(FatalErrorBoundaryTests, Run_ReturnsFailureResultForNestedError) {
 
 TEST_F(FatalErrorBoundaryTests, Run_DefersUnexpectedError) {
   EXPECT_EQ(FatalErrorBoundary::run(
-                []() -> intptr_t { throw std::runtime_error("sqlite"); }, 2,
-                fakeDefer),
+              []() -> intptr_t {
+                throw std::runtime_error("sqlite");
+              },
+              2, fakeDefer),
             2);
 
   EXPECT_EQ(deferred, "Unhandled exception: sqlite");
@@ -729,14 +759,15 @@ TEST_F(FatalErrorBoundaryTests, Run_DefersUnexpectedError) {
 
 TEST_F(FatalErrorBoundaryTests, Run_KeepsUnexpectedAcrossNestedCalls) {
   EXPECT_EQ(FatalErrorBoundary::run(
-                [] {
-                  callFromSyscall(
-                      []() -> intptr_t { throw std::runtime_error("sqlite"); });
+              [] {
+                callFromSyscall([]() -> intptr_t {
+                  throw std::runtime_error("sqlite");
+                });
 
-                  FatalErrorBoundary::rethrowPending();
-                  return intptr_t{1};
-                },
-                0, fakeDefer),
+                FatalErrorBoundary::rethrowPending();
+                return intptr_t{1};
+              },
+              0, fakeDefer),
             0);
 
   EXPECT_EQ(deferred, "Unhandled exception: sqlite");
@@ -796,16 +827,20 @@ TEST_F(FatalErrorBoundaryTests, Run_ConvertsStdException) {
 }
 
 TEST_F(FatalErrorBoundaryTests, Run_ConvertsUnknownException) {
-  EXPECT_THROW(
-      FatalErrorBoundary::run([]() -> intptr_t { throw 42; }), RaiseCalled);
+  EXPECT_THROW(FatalErrorBoundary::run([]() -> intptr_t {
+                 throw 42;
+               }),
+               RaiseCalled);
 
   EXPECT_EQ(raised, std::vector<std::string>{"Unhandled unknown exception"});
 }
 
 TEST_F(FatalErrorBoundaryTests, Run_DefersTopLevelError) {
   EXPECT_EQ(FatalErrorBoundary::run(
-                []() -> intptr_t { FatalErrorBoundary::throwFatal("boom"); },
-                0, fakeDefer),
+              []() -> intptr_t {
+                FatalErrorBoundary::throwFatal("boom");
+              },
+              0, fakeDefer),
             0);
 
   EXPECT_TRUE(raised.empty());
@@ -813,14 +848,19 @@ TEST_F(FatalErrorBoundaryTests, Run_DefersTopLevelError) {
   EXPECT_FALSE(deferredUnexpected);
 
   // the deferred error doesn't linger around
-  EXPECT_EQ(FatalErrorBoundary::run([] { return intptr_t{1}; }), 1);
+  EXPECT_EQ(FatalErrorBoundary::run([] {
+              return intptr_t{1};
+            }),
+            1);
   EXPECT_TRUE(raised.empty());
 }
 
 TEST_F(FatalErrorBoundaryTests, Run_HandlesErrorRaisedWhileDeferring) {
   EXPECT_EQ(FatalErrorBoundary::run(
-                []() -> intptr_t { FatalErrorBoundary::throwFatal("first"); },
-                0, reenteringDefer),
+              []() -> intptr_t {
+                FatalErrorBoundary::throwFatal("first");
+              },
+              0, reenteringDefer),
             0);
 
   EXPECT_EQ(deferredMessages, (std::vector<std::string>{"first", "second"}));
@@ -830,10 +870,10 @@ TEST_F(FatalErrorBoundaryTests, Run_HandlesErrorRaisedWhileDeferring) {
 TEST_F(FatalErrorBoundaryTests, Run_DoesNotDeferNestedError) {
   EXPECT_THROW(FatalErrorBoundary::run([]() -> intptr_t {
                  callFromSyscall(
-                     []() -> intptr_t {
-                       FatalErrorBoundary::throwFatal("nested");
-                     },
-                     0, fakeDefer);
+                   []() -> intptr_t {
+                     FatalErrorBoundary::throwFatal("nested");
+                   },
+                   0, fakeDefer);
                  return 1;
                }),
                RaiseCalled);
@@ -872,8 +912,7 @@ TEST(DescribeCaughtExceptionTests, Describe_KeepsFatalErrorFlags) {
   try {
     throw FatalError("boom", true, true);
   } catch (...) {
-    const FatalErrorBoundary::CaughtError error =
-        FatalErrorBoundary::describeCaughtException();
+    const FatalErrorBoundary::CaughtError error = FatalErrorBoundary::describeCaughtException();
 
     EXPECT_STREQ(error.message.data(), "boom");
     EXPECT_TRUE(error.unexpected);
@@ -885,8 +924,7 @@ TEST(DescribeCaughtExceptionTests, Describe_ExpectsFatalErrorByDefault) {
   try {
     throw FatalError("boom");
   } catch (...) {
-    const FatalErrorBoundary::CaughtError error =
-        FatalErrorBoundary::describeCaughtException();
+    const FatalErrorBoundary::CaughtError error = FatalErrorBoundary::describeCaughtException();
 
     EXPECT_FALSE(error.unexpected);
     EXPECT_FALSE(error.reported);
@@ -897,8 +935,7 @@ TEST(DescribeCaughtExceptionTests, Describe_ConvertsStdException) {
   try {
     throw std::runtime_error("oops");
   } catch (...) {
-    const FatalErrorBoundary::CaughtError error =
-        FatalErrorBoundary::describeCaughtException();
+    const FatalErrorBoundary::CaughtError error = FatalErrorBoundary::describeCaughtException();
 
     EXPECT_STREQ(error.message.data(), "Unhandled exception: oops");
     EXPECT_TRUE(error.unexpected);
@@ -910,8 +947,7 @@ TEST(DescribeCaughtExceptionTests, Describe_ConvertsUnknownException) {
   try {
     throw 42;
   } catch (...) {
-    const FatalErrorBoundary::CaughtError error =
-        FatalErrorBoundary::describeCaughtException();
+    const FatalErrorBoundary::CaughtError error = FatalErrorBoundary::describeCaughtException();
 
     EXPECT_STREQ(error.message.data(), "Unhandled unknown exception");
     EXPECT_TRUE(error.unexpected);
@@ -941,15 +977,17 @@ TEST(RunEachStepTests, RunEachStep_RunsEveryStepAndRethrowsFirst) {
 
   try {
     runEachStep(
-        [&] {
-          ran.push_back(1);
-          throw FatalError("first");
-        },
-        [&] {
-          ran.push_back(2);
-          throw std::runtime_error("second");
-        },
-        [&] { ran.push_back(3); });
+      [&] {
+        ran.push_back(1);
+        throw FatalError("first");
+      },
+      [&] {
+        ran.push_back(2);
+        throw std::runtime_error("second");
+      },
+      [&] {
+        ran.push_back(3);
+      });
 
     FAIL() << "expected the first error to be rethrown";
   } catch (const FatalError &e) {
@@ -962,7 +1000,13 @@ TEST(RunEachStepTests, RunEachStep_RunsEveryStepAndRethrowsFirst) {
 TEST(RunEachStepTests, RunEachStep_DoesNotThrowWithoutErrors) {
   int count = 0;
 
-  EXPECT_NO_THROW(runEachStep([&] { ++count; }, [&] { ++count; }));
+  EXPECT_NO_THROW(runEachStep(
+    [&] {
+      ++count;
+    },
+    [&] {
+      ++count;
+    }));
   EXPECT_EQ(count, 2);
 }
 } // namespace ETJump

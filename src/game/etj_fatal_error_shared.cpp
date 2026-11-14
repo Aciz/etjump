@@ -49,15 +49,20 @@
 #include "etj_fatal_error_shared.h"
 
 namespace ETJump {
-FatalError::FatalError(std::string message, const bool unexpected,
-                       const bool reported)
-    : message(std::move(message)), unexpected(unexpected), reported(reported) {}
+FatalError::FatalError(std::string message, const bool unexpected, const bool reported)
+  : message(std::move(message)), unexpected(unexpected), reported(reported) {}
 
-const std::string &FatalError::getMessage() const { return message; }
+const std::string &FatalError::getMessage() const {
+  return message;
+}
 
-bool FatalError::isUnexpected() const { return unexpected; }
+bool FatalError::isUnexpected() const {
+  return unexpected;
+}
 
-bool FatalError::isReported() const { return reported; }
+bool FatalError::isReported() const {
+  return reported;
+}
 
 namespace FatalErrorBoundary {
 namespace detail {
@@ -100,7 +105,7 @@ bool pendingDeferred = false;
 // set once the error has been handed to the engine, the engine calls back
 // into the module (shutdown) before it longjmps out of trap_Error, from
 // further down the stack than the stack position the error was raised at
-bool raising = false;
+bool raising         = false;
 uintptr_t raiseFrame = 0;
 std::array<char, MAX_MESSAGE_LENGTH> raiseMessage{};
 
@@ -118,20 +123,18 @@ __attribute__((always_inline)) inline uintptr_t framePosition() {
 }
 #endif
 
-void copyMessage(std::array<char, MAX_MESSAGE_LENGTH> &dest,
-                 const char *message, const char *details) {
-  std::snprintf(dest.data(), dest.size(), "%s%s", message ? message : "",
-                details ? details : "");
+void copyMessage(std::array<char, MAX_MESSAGE_LENGTH> &dest, const char *message, const char *details) {
+  std::snprintf(dest.data(), dest.size(), "%s%s", message ? message : "", details ? details : "");
 }
 
 void resetState() {
-  depth = 0;
+  depth              = 0;
   detail::hasPending = false;
-  pending = {};
-  pendingDepth = 0;
-  pendingDeferred = false;
-  raising = false;
-  raiseFrame = 0;
+  pending            = {};
+  pendingDepth       = 0;
+  pendingDeferred    = false;
+  raising            = false;
+  raiseFrame         = 0;
 }
 
 bool isUnwinding() {
@@ -148,7 +151,7 @@ void printError(const char *prefix, const char *message) {
 
   // the print is a syscall itself, which mustn't rethrow the pending error
   const bool hadPending = detail::hasPending;
-  detail::hasPending = false;
+  detail::hasPending    = false;
   printFunction(buffer.data());
   detail::hasPending = hadPending;
 }
@@ -163,16 +166,15 @@ bool record(const CaughtError &error) {
     // a FatalError is either the recorded error itself, or was printed
     // here when throwFatal couldn't record it
     if (!error.recorded) {
-      printError("Additional fatal error, another one is handled instead: ",
-                 error.message.data());
+      printError("Additional fatal error, another one is handled instead: ", error.message.data());
     }
 
     return false;
   }
 
-  pending = error;
-  pendingDepth = depth;
-  pendingDeferred = false;
+  pending            = error;
+  pendingDepth       = depth;
+  pendingDeferred    = false;
   detail::hasPending = true;
   return true;
 }
@@ -218,8 +220,7 @@ void acquireModule() {
 
   // any address inside this module identifies it,
   // and this increments the reference count of the module
-  if (GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
-                         reinterpret_cast<LPCWSTR>(&keepAliveHandle),
+  if (GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<LPCWSTR>(&keepAliveHandle),
                          &handle)) {
     keepAliveHandle = handle;
 
@@ -243,10 +244,10 @@ void releaseModule() {
   copyMessage(raiseMessage, message, nullptr);
 
   detail::hasPending = false;
-  pendingDeferred = false;
-  raising = true;
-  raiseFrame = frame;
-  depth = 0;
+  pendingDeferred    = false;
+  raising            = true;
+  raiseFrame         = frame;
+  depth              = 0;
 
 #ifdef _WIN32
   acquireModule();
@@ -265,14 +266,13 @@ void releaseModule() {
 // lets another module take over the reference this module keeps on itself,
 // the caller can't be this module, as releasing it might unmap its code
 extern "C" __declspec(dllexport) void *etj_takeKeepAliveReference() {
-  HMODULE handle = keepAliveHandle;
+  HMODULE handle  = keepAliveHandle;
   keepAliveHandle = nullptr;
   return handle;
 }
 #endif
 
-void initialize(const RaiseFunction raiseFunc, const PrintFunction printFunc,
-                const KeepAliveFunction keepAliveFunc,
+void initialize(const RaiseFunction raiseFunc, const PrintFunction printFunc, const KeepAliveFunction keepAliveFunc,
                 const KeepAliveRelease release) {
   raiseFunction = raiseFunc;
   printFunction = printFunc;
@@ -297,8 +297,7 @@ void initialize(const RaiseFunction raiseFunc, const PrintFunction printFunc,
 }
 
 void throwFatal(const char *message) {
-  if (depth > 0 && std::this_thread::get_id() == ownerThread &&
-      !isUnwinding()) {
+  if (depth > 0 && std::this_thread::get_id() == ownerThread && !isUnwinding()) {
     // before throwing, so a handler that swallows it can't hide it
     CaughtError error;
     copyMessage(error.message, message, nullptr);
@@ -369,8 +368,8 @@ void releaseKeptModule(const char *moduleName) {
 
   using TakeFunction = void *(*)();
   // casting through void (*)() avoids -Wcast-function-type
-  const auto take = reinterpret_cast<TakeFunction>(reinterpret_cast<void (*)()>(
-      GetProcAddress(module, "etj_takeKeepAliveReference")));
+  const auto take =
+    reinterpret_cast<TakeFunction>(reinterpret_cast<void (*)()>(GetProcAddress(module, "etj_takeKeepAliveReference")));
 
   if (!take) {
     return;
@@ -392,8 +391,8 @@ CaughtError describeCaughtException() {
   } catch (const FatalError &e) {
     copyMessage(error.message, e.getMessage().c_str(), nullptr);
     error.unexpected = e.isUnexpected();
-    error.reported = e.isReported();
-    error.recorded = true;
+    error.reported   = e.isReported();
+    error.recorded   = true;
   } catch (const std::exception &e) {
     copyMessage(error.message, "Unhandled exception: ", e.what());
     error.unexpected = true;
@@ -410,8 +409,7 @@ void rethrowPending() {
   // only the call whose syscall contained the failed call rethrows it,
   // other calls the engine makes into the module meanwhile (e.g. its own
   // shutdown command when it errors out) must run normally
-  if (depth == 0 || depth != pendingDepth - 1 || pendingDeferred ||
-      std::this_thread::get_id() != ownerThread) {
+  if (depth == 0 || depth != pendingDepth - 1 || pendingDeferred || std::this_thread::get_id() != ownerThread) {
     return;
   }
 
@@ -426,8 +424,7 @@ void rethrowPending() {
 
   // the error belongs to this call now, and stays recorded while it unwinds
   pendingDepth = depth;
-  throw FatalError(pending.message.data(), pending.unexpected,
-                   pending.reported);
+  throw FatalError(pending.message.data(), pending.unexpected, pending.reported);
 }
 
 // never inlined, so the stack position it sees only depends on its caller,
@@ -453,8 +450,7 @@ Entry enter() {
   // but engines load the modules again after every error anyway (ETe, 2.60b
   // and ET: Legacy all unload them while handling it, which is what this is
   // a safety net for).
-  if ((depth > 0 && frame >= outermostFrame) ||
-      (raising && frame >= raiseFrame)) {
+  if ((depth > 0 && frame >= outermostFrame) || (raising && frame >= raiseFrame)) {
     resetState();
 
     if (printFunction) {
@@ -465,8 +461,7 @@ Entry enter() {
 
   // an error can only belong to an earlier call that is still active, one
   // that is left over at the outermost level is handled once this call ends
-  const Entry entry{depth, entryUncaughtExceptions, outermostFrame,
-                    hasPending && depth > 0};
+  const Entry entry{depth, entryUncaughtExceptions, outermostFrame, hasPending && depth > 0};
 
   if (depth == 0) {
     outermostFrame = frame;
@@ -477,7 +472,9 @@ Entry enter() {
   return entry;
 }
 
-void capture(const CaughtError &error) { record(error); }
+void capture(const CaughtError &error) {
+  record(error);
+}
 
 bool leave(const Entry &entry, const DeferFunction defer) {
   const uintptr_t frame = outermostFrame;
@@ -486,8 +483,8 @@ bool leave(const Entry &entry, const DeferFunction defer) {
   // again while this call was active (e.g. an engine command executed
   // inside a syscall that restarts the module), which resets the depth,
   // and the calls after that loading overwrite the outermost frame
-  depth = entry.depth;
-  outermostFrame = entry.outermostFrame;
+  depth                   = entry.depth;
+  outermostFrame          = entry.outermostFrame;
   entryUncaughtExceptions = entry.uncaughtExceptions;
 
   if (!hasPending || entry.hadPending) {
@@ -499,15 +496,14 @@ bool leave(const Entry &entry, const DeferFunction defer) {
     // e.g. when it shuts the module down while handling an error of its own,
     // and not every module prints its errors when they're raised
     if (!pending.reported) {
-      printError("Fatal error in a call nested inside a syscall: ",
-                 pending.message.data());
+      printError("Fatal error in a call nested inside a syscall: ", pending.message.data());
     }
 
     pending.reported = true;
 
     // passed on to the call that made the syscall,
     // which rethrows it once the syscall returns
-    pendingDepth = depth + 1;
+    pendingDepth    = depth + 1;
     pendingDeferred = false;
     return true;
   }
@@ -517,8 +513,8 @@ bool leave(const Entry &entry, const DeferFunction defer) {
   // (e.g. by a call into the module during a syscall) is handled on its own,
   // which is also why the message is copied
   const std::array<char, MAX_MESSAGE_LENGTH> message = pending.message;
-  const bool unexpected = pending.unexpected;
-  hasPending = false;
+  const bool unexpected                              = pending.unexpected;
+  hasPending                                         = false;
 
   if (raising) {
     // the engine is already handling an error and called back into the

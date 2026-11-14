@@ -31,10 +31,10 @@ namespace ETJump {
 class UpmoveMeterData {
 private:
   enum class JumpState {
-    AIR_NOJUMP = 0,         // in air, not holding jump
-    AIR_JUMP = 1,           // in air, holding jump
-    GROUND_JUMP = 2,        // on ground, holding jump
-    GROUND_NOJUMP = 3,      // on ground, not holding jump
+    AIR_NOJUMP         = 0, // in air, not holding jump
+    AIR_JUMP           = 1, // in air, holding jump
+    GROUND_JUMP        = 2, // on ground, holding jump
+    GROUND_NOJUMP      = 3, // on ground, not holding jump
     AIR_JUMP_NORELEASE = 4, // in air (post jump), holding jump
   };
 

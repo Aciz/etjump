@@ -12,8 +12,8 @@
 #include "etj_snaphud_data.h"
 #include "etj_trace_utils.h"
 #include "etj_trickjump_lines.h"
-#include "etj_utilities.h"
 #include "etj_upmove_meter_data.h"
+#include "etj_utilities.h"
 
 /*
 =============================================================================
@@ -72,7 +72,7 @@ void CG_TestModel_f(void) {
 
   if (trap_Argc() == 3) {
     cg.testModelEntity.backlerp = Q_atof(CG_Argv(2));
-    cg.testModelEntity.frame = 1;
+    cg.testModelEntity.frame    = 1;
     cg.testModelEntity.oldframe = 0;
   }
   if (!cg.testModelEntity.hModel) {
@@ -80,12 +80,11 @@ void CG_TestModel_f(void) {
     return;
   }
 
-  VectorMA(cg.refdef.vieworg, 100, cg.refdef.viewaxis[0],
-           cg.testModelEntity.origin);
+  VectorMA(cg.refdef.vieworg, 100, cg.refdef.viewaxis[0], cg.testModelEntity.origin);
 
   angles[PITCH] = 0;
-  angles[YAW] = 180 + cg.refdefViewAngles[1];
-  angles[ROLL] = 0;
+  angles[YAW]   = 180 + cg.refdefViewAngles[1];
+  angles[ROLL]  = 0;
 
   AnglesToAxis(angles, cg.testModelEntity.axis);
   cg.testGun = qfalse;
@@ -100,7 +99,7 @@ Replaces the current view weapon with the given model
 */
 void CG_TestGun_f(void) {
   CG_TestModel_f();
-  cg.testGun = qtrue;
+  cg.testGun                  = qtrue;
   cg.testModelEntity.renderfx = RF_MINLIGHT | RF_DEPTHHACK | RF_FIRST_PERSON;
 }
 
@@ -177,11 +176,11 @@ void CG_Letterbox(float xsize, float ysize, qboolean center) {
     float lbheight, lbdiff;
 
     lbheight = ysize * 0.85;
-    lbdiff = ysize - lbheight;
+    lbdiff   = ysize - lbheight;
 
     if (!center) {
-      int offset = (cgs.glconfig.vidHeight * (.5f * lbdiff)) / 100;
-      offset &= ~1;
+      int offset   = (cgs.glconfig.vidHeight * (.5f * lbdiff)) / 100;
+      offset      &= ~1;
       cg.refdef.y += offset;
     }
 
@@ -203,10 +202,10 @@ void CG_Letterbox(float xsize, float ysize, qboolean center) {
     //		}
   }
 
-  cg.refdef.width = cgs.glconfig.vidWidth * xsize / 100;
+  cg.refdef.width  = cgs.glconfig.vidWidth * xsize / 100;
   cg.refdef.width &= ~1;
 
-  cg.refdef.height = cgs.glconfig.vidHeight * ysize / 100;
+  cg.refdef.height  = cgs.glconfig.vidHeight * ysize / 100;
   cg.refdef.height &= ~1;
 
   if (center) {
@@ -225,13 +224,12 @@ static void CG_CalcVrect(void) {
 
     CG_AdjustFrom640(&x, &y, &w, &h);
 
-    cg.refdef.x = x;
-    cg.refdef.y = y;
-    cg.refdef.width = w;
+    cg.refdef.x      = x;
+    cg.refdef.y      = y;
+    cg.refdef.width  = w;
     cg.refdef.height = h;
 
-    CG_Letterbox((LIMBO_3D_W / static_cast<float>(SCREEN_WIDTH)) * 100,
-                 (LIMBO_3D_H / 480.f) * 100, qfalse);
+    CG_Letterbox((LIMBO_3D_W / static_cast<float>(SCREEN_WIDTH)) * 100, (LIMBO_3D_H / 480.f) * 100, qfalse);
     return;
   }
 
@@ -241,7 +239,6 @@ static void CG_CalcVrect(void) {
 //==============================================================================
 
 static void CG_OffsetFreeCamView(void) {
-
   if (cgs.demoCam.setCamAngles) {
     VectorCopy(cgs.demoCam.camAngle, cg.refdefViewAngles);
   }
@@ -252,7 +249,7 @@ static void CG_OffsetFreeCamView(void) {
     centity_t *temp;
     vec3_t dir;
     int entNum = std::clamp(etj_demo_lookat.integer, 0, MAX_GENTITIES - 1);
-    temp = &cg_entities[entNum];
+    temp       = &cg_entities[entNum];
     VectorSubtract(temp->lerpOrigin, cgs.demoCam.camOrigin, dir);
 
     vectoangles(dir, cg.refdefViewAngles);
@@ -279,9 +276,8 @@ void CG_OffsetThirdPersonView(void) {
   float forwardScale, sideScale;
 
   // use the interpolated display state when available ('etj_lerpPmove')
-  const playerState_t *ps = ETJump::cgame.displayStateValid
-                                ? &ETJump::cgame.displayPlayerState
-                                : &cg.predictedPlayerState;
+  const playerState_t *ps =
+    ETJump::cgame.displayStateValid ? &ETJump::cgame.displayPlayerState : &cg.predictedPlayerState;
 
   cg.refdef_current->vieworg[2] += ps->viewheight;
 
@@ -290,10 +286,9 @@ void CG_OffsetThirdPersonView(void) {
   // rain - if dead, look at medic or allow freelook if none in range
   if (ps->stats[STAT_HEALTH] <= 0) {
     // rain - #254 - force yaw to 0 if we're tracking a medic
-    if (cg.snap->ps.viewlocked !=
-        static_cast<int>(ETJump::ViewlockState::Medic)) {
+    if (cg.snap->ps.viewlocked != static_cast<int>(ETJump::ViewlockState::Medic)) {
       // rain - do short2angle AFTER the network part
-      focusAngles[YAW] = SHORT2ANGLE(ps->stats[STAT_DEAD_YAW]);
+      focusAngles[YAW]         = SHORT2ANGLE(ps->stats[STAT_DEAD_YAW]);
       cg.refdefViewAngles[YAW] = SHORT2ANGLE(ps->stats[STAT_DEAD_YAW]);
     }
   }
@@ -311,13 +306,13 @@ void CG_OffsetThirdPersonView(void) {
 
   VectorCopy(cg.refdef_current->vieworg, view);
 
-  view[2] += 8;
+  view[2]                    += 8;
   cg.refdefViewAngles[PITCH] *= 0.5;
 
   AngleVectors(cg.refdefViewAngles, forward, right, up);
 
   forwardScale = cos(cg_thirdPersonAngle.value / 180 * M_PI);
-  sideScale = sin(cg_thirdPersonAngle.value / 180 * M_PI);
+  sideScale    = sin(cg_thirdPersonAngle.value / 180 * M_PI);
   VectorMA(view, -cg_thirdPersonRange.value * forwardScale, forward, view);
   VectorMA(view, -cg_thirdPersonRange.value * sideScale, right, view);
 
@@ -325,8 +320,7 @@ void CG_OffsetThirdPersonView(void) {
   // isn't in a solid block.  Use an 8 by 8 block to prevent the view
   // from near clipping anything
 
-  CG_Trace(&trace, cg.refdef_current->vieworg, mins, maxs, view, ps->clientNum,
-           MASK_SOLID);
+  CG_Trace(&trace, cg.refdef_current->vieworg, mins, maxs, view, ps->clientNum, MASK_SOLID);
 
   if (trace.fraction != 1.0) {
     VectorCopy(trace.endpos, view);
@@ -334,8 +328,7 @@ void CG_OffsetThirdPersonView(void) {
     // try another trace to this position, because a tunnel may
     // have the ceiling close enogh that this is poking out
 
-    CG_Trace(&trace, cg.refdef_current->vieworg, mins, maxs, view,
-             ps->clientNum, MASK_SOLID);
+    CG_Trace(&trace, cg.refdef_current->vieworg, mins, maxs, view, ps->clientNum, MASK_SOLID);
     VectorCopy(trace.endpos, view);
   }
 
@@ -343,13 +336,12 @@ void CG_OffsetThirdPersonView(void) {
 
   // select pitch to look at focus point from vieword
   VectorSubtract(focusPoint, cg.refdef_current->vieworg, focusPoint);
-  focusDist =
-      sqrt(focusPoint[0] * focusPoint[0] + focusPoint[1] * focusPoint[1]);
+  focusDist = sqrt(focusPoint[0] * focusPoint[0] + focusPoint[1] * focusPoint[1]);
   if (focusDist < 1) {
     focusDist = 1; // should never happen
   }
-  cg.refdefViewAngles[PITCH] = -180 / M_PI * atan2(focusPoint[2], focusDist);
-  cg.refdefViewAngles[YAW] -= cg_thirdPersonAngle.value;
+  cg.refdefViewAngles[PITCH]  = -180 / M_PI * atan2(focusPoint[2], focusDist);
+  cg.refdefViewAngles[YAW]   -= cg_thirdPersonAngle.value;
 }
 
 static void CG_StepOffset() {
@@ -372,15 +364,13 @@ static void CG_StepOffset() {
     // caught up to the physics origin, the normal lerp between physics
     // frames is sufficient and no compensation is needed.
     if (ETJump::cgame.displayStateValid && timeDelta < cgs.pmove_msec) {
-      const float risen = cg.predictedPlayerState.origin[2] -
-                          ETJump::cgame.displayPlayerState.origin[2];
+      const float risen = cg.predictedPlayerState.origin[2] - ETJump::cgame.displayPlayerState.origin[2];
       if (risen > 0) {
         cg.refdef_current->vieworg[2] += risen;
       }
     }
 
-    cg.refdef_current->vieworg[2] -=
-        cg.stepChange * static_cast<float>(STEP_TIME - timeDelta) / STEP_TIME;
+    cg.refdef_current->vieworg[2] -= cg.stepChange * static_cast<float>(STEP_TIME - timeDelta) / STEP_TIME;
   }
 }
 
@@ -390,11 +380,11 @@ CG_KickAngles
 ================
 */
 void CG_KickAngles(void) {
-  const vec3_t centerSpeed = {2400, 2400, 2400};
-  const float recoilCenterSpeed = 200;
+  const vec3_t centerSpeed       = {2400, 2400, 2400};
+  const float recoilCenterSpeed  = 200;
   const float recoilIgnoreCutoff = 15;
-  const float recoilMaxSpeed = 50;
-  const vec3_t maxKickAngles = {10, 10, 10};
+  const float recoilMaxSpeed     = 50;
+  const vec3_t maxKickAngles     = {10, 10, 10};
   float idealCenterSpeed, kickChange;
   int i, frametime, t;
   float ft;
@@ -418,45 +408,41 @@ void CG_KickAngles(void) {
       if (cg.kickAVel[i] || cg.kickAngles[i]) {
         // apply centering forces to kickAvel
         if (cg.kickAngles[i] && frametime) {
-          idealCenterSpeed =
-              -(2.0 * (cg.kickAngles[i] > 0) - 1.0) * centerSpeed[i];
+          idealCenterSpeed = -(2.0 * (cg.kickAngles[i] > 0) - 1.0) * centerSpeed[i];
           if (idealCenterSpeed) {
             cg.kickAVel[i] += idealCenterSpeed * ft;
           }
         }
         // add the kickAVel to the kickAngles
         kickChange = cg.kickAVel[i] * ft;
-        if (cg.kickAngles[i] &&
-            (cg.kickAngles[i] < 0) != (kickChange < 0)) // slower when returning
-                                                        // to center
+        if (cg.kickAngles[i] && (cg.kickAngles[i] < 0) != (kickChange < 0)) // slower when returning
+                                                                            // to center
         {
           kickChange *= 0.06;
         }
         // check for crossing back over the
         // center point
-        if (!cg.kickAngles[i] ||
-            ((cg.kickAngles[i] + kickChange) < 0) == (cg.kickAngles[i] < 0)) {
+        if (!cg.kickAngles[i] || ((cg.kickAngles[i] + kickChange) < 0) == (cg.kickAngles[i] < 0)) {
           cg.kickAngles[i] += kickChange;
           if (!cg.kickAngles[i] && frametime) {
             cg.kickAVel[i] = 0;
           } else if (fabs(cg.kickAngles[i]) > maxKickAngles[i]) {
-            cg.kickAngles[i] =
-                maxKickAngles[i] * ((2 * (cg.kickAngles[i] > 0)) - 1);
-            cg.kickAVel[i] = 0; // force Avel
-                                // to return
-                                // us to
-                                // center
-                                // rather
-                                // than keep
-                                // going
-                                // outside
-                                // range
+            cg.kickAngles[i] = maxKickAngles[i] * ((2 * (cg.kickAngles[i] > 0)) - 1);
+            cg.kickAVel[i]   = 0; // force Avel
+                                  // to return
+                                  // us to
+                                  // center
+                                  // rather
+                                  // than keep
+                                  // going
+                                  // outside
+                                  // range
           }
         } else // about to cross, so just zero
                // it out
         {
           cg.kickAngles[i] = 0;
-          cg.kickAVel[i] = 0;
+          cg.kickAVel[i]   = 0;
         }
       }
     }
@@ -473,8 +459,7 @@ void CG_KickAngles(void) {
       }
       // apply centering forces to kickAvel
       if (frametime) {
-        idealCenterSpeed =
-            -(2.0 * (cg.recoilPitch > 0) - 1.0) * recoilCenterSpeed * ft;
+        idealCenterSpeed = -(2.0 * (cg.recoilPitch > 0) - 1.0) * recoilCenterSpeed * ft;
         if (idealCenterSpeed) {
           if (fabs(idealCenterSpeed) < fabs(cg.recoilPitch)) {
             cg.recoilPitch += idealCenterSpeed;
@@ -515,12 +500,11 @@ void CG_Concussive(centity_t *cent) {
   vec3_t recoil;
   //
 
-  if (!cg.renderingThirdPerson &&
-      cent->currentState.density == cg.snap->ps.clientNum) {
+  if (!cg.renderingThirdPerson && cent->currentState.density == cg.snap->ps.clientNum) {
     //
     pitchRecoilAdd = 0;
-    pitchAdd = 0;
-    yawRandom = 0;
+    pitchAdd       = 0;
+    yawRandom      = 0;
     //
 
     VectorSubtract(cg.snap->ps.origin, cent->currentState.origin, vec);
@@ -533,7 +517,7 @@ void CG_Concussive(centity_t *cent) {
       return;
     }
 
-    pitchAdd = (32 / length) * 64;
+    pitchAdd  = (32 / length) * 64;
     yawRandom = (32 / length) * 64;
 
     // recoil[YAW] = crandom()*yawRandom;
@@ -543,7 +527,7 @@ void CG_Concussive(centity_t *cent) {
       recoil[YAW] = yawRandom;
     }
 
-    recoil[ROLL] = -recoil[YAW]; // why not
+    recoil[ROLL]  = -recoil[YAW]; // why not
     recoil[PITCH] = -pitchAdd;
     // scale it up a bit (easier to modify this while tweaking)
     VectorScale(recoil, 30, recoil);
@@ -570,8 +554,7 @@ static void CG_ZoomSway(void) {
     return;
   }
 
-  if (cg.snap->ps.eFlags & EF_MG42_ACTIVE ||
-      cg.snap->ps.eFlags & EF_AAGUN_ACTIVE) // don't draw when on mg_42
+  if (cg.snap->ps.eFlags & EF_MG42_ACTIVE || cg.snap->ps.eFlags & EF_AAGUN_ACTIVE) // don't draw when on mg_42
   {
     return;
   }
@@ -582,13 +565,11 @@ static void CG_ZoomSway(void) {
 
   spreadfrac = (float)cg.snap->ps.aimSpreadScale / 255.0;
 
-  phase = cg.time / 1000.0 * ZOOM_PITCH_FREQUENCY * M_PI * 2;
-  cg.refdefViewAngles[PITCH] += ZOOM_PITCH_AMPLITUDE * sin(phase) *
-                                (spreadfrac + ZOOM_PITCH_MIN_AMPLITUDE);
+  phase                       = cg.time / 1000.0 * ZOOM_PITCH_FREQUENCY * M_PI * 2;
+  cg.refdefViewAngles[PITCH] += ZOOM_PITCH_AMPLITUDE * sin(phase) * (spreadfrac + ZOOM_PITCH_MIN_AMPLITUDE);
 
-  phase = cg.time / 1000.0 * ZOOM_YAW_FREQUENCY * M_PI * 2;
-  cg.refdefViewAngles[YAW] +=
-      ZOOM_YAW_AMPLITUDE * sin(phase) * (spreadfrac + ZOOM_YAW_MIN_AMPLITUDE);
+  phase                     = cg.time / 1000.0 * ZOOM_YAW_FREQUENCY * M_PI * 2;
+  cg.refdefViewAngles[YAW] += ZOOM_YAW_AMPLITUDE * sin(phase) * (spreadfrac + ZOOM_YAW_MIN_AMPLITUDE);
 }
 
 /*
@@ -610,9 +591,8 @@ static void CG_OffsetFirstPersonView(void) {
   qboolean useLastValidBob = qfalse;
 
   // use the interpolated display state when available ('etj_lerpPmove')
-  const playerState_t *ps = ETJump::cgame.displayStateValid
-                                ? &ETJump::cgame.displayPlayerState
-                                : &cg.predictedPlayerState;
+  const playerState_t *ps =
+    ETJump::cgame.displayStateValid ? &ETJump::cgame.displayPlayerState : &cg.predictedPlayerState;
 
   if (cg.snap->ps.pm_type == PM_INTERMISSION) {
     return;
@@ -622,8 +602,7 @@ static void CG_OffsetFirstPersonView(void) {
   angles = cg.refdefViewAngles;
 
   if (cg.snap->ps.weapon == WP_MOBILE_MG42_SET) {
-    float yawDiff =
-        cg.refdefViewAngles[YAW] - cg.pmext.mountedWeaponAngles[YAW];
+    float yawDiff = cg.refdefViewAngles[YAW] - cg.pmext.mountedWeaponAngles[YAW];
     vec3_t forward, point;
     float oldZ = origin[2];
 
@@ -641,8 +620,7 @@ static void CG_OffsetFirstPersonView(void) {
 
     origin[2] = oldZ;
   } else if (cg.snap->ps.weapon == WP_MORTAR_SET) {
-    float yawDiff =
-        cg.refdefViewAngles[YAW] - cg.pmext.mountedWeaponAngles[YAW];
+    float yawDiff = cg.refdefViewAngles[YAW] - cg.pmext.mountedWeaponAngles[YAW];
     vec3_t forward, point;
     float oldZ = origin[2];
 
@@ -662,16 +640,14 @@ static void CG_OffsetFirstPersonView(void) {
   }
 
   // if dead, fix the angle and don't add any kick
-  if (!(cg.snap->ps.pm_flags & PMF_LIMBO) &&
-      cg.snap->ps.stats[STAT_HEALTH] <= 0) {
-    angles[ROLL] = 40;
+  if (!(cg.snap->ps.pm_flags & PMF_LIMBO) && cg.snap->ps.stats[STAT_HEALTH] <= 0) {
+    angles[ROLL]  = 40;
     angles[PITCH] = -15;
 
     // rain - #254 - force yaw to 0 if we're tracking a medic
     // rain - medic tracking doesn't seem to happen in this
     // case?
-    if (cg.snap->ps.viewlocked ==
-        static_cast<int>(ETJump::ViewlockState::Medic)) {
+    if (cg.snap->ps.viewlocked == static_cast<int>(ETJump::ViewlockState::Medic)) {
       angles[YAW] = 0;
     } else {
       // rain - do short2angle AFTER the network part
@@ -695,14 +671,14 @@ static void CG_OffsetFirstPersonView(void) {
   if (cg.damageTime) {
     ratio = cg.time - cg.damageTime;
     if (ratio < DAMAGE_DEFLECT_TIME) {
-      ratio /= DAMAGE_DEFLECT_TIME;
+      ratio         /= DAMAGE_DEFLECT_TIME;
       angles[PITCH] += ratio * cg.v_dmg_pitch;
-      angles[ROLL] += ratio * cg.v_dmg_roll;
+      angles[ROLL]  += ratio * cg.v_dmg_roll;
     } else {
       ratio = 1.0 - (ratio - DAMAGE_DEFLECT_TIME) / DAMAGE_RETURN_TIME;
       if (ratio > 0) {
         angles[PITCH] += ratio * cg.v_dmg_pitch;
-        angles[ROLL] += ratio * cg.v_dmg_roll;
+        angles[ROLL]  += ratio * cg.v_dmg_roll;
       }
     }
   }
@@ -720,10 +696,10 @@ static void CG_OffsetFirstPersonView(void) {
   // add angles based on velocity
   VectorCopy(ps->velocity, predictedVelocity);
 
-  delta = DotProduct(predictedVelocity, cg.refdef_current->viewaxis[0]);
+  delta          = DotProduct(predictedVelocity, cg.refdef_current->viewaxis[0]);
   angles[PITCH] += delta * cg_runpitch.value;
 
-  delta = DotProduct(predictedVelocity, cg.refdef_current->viewaxis[1]);
+  delta         = DotProduct(predictedVelocity, cg.refdef_current->viewaxis[1]);
   angles[ROLL] -= delta * cg_runroll.value;
 
   // add angles based on bob
@@ -735,17 +711,17 @@ static void CG_OffsetFirstPersonView(void) {
     // 200 msec to get back to center from 1
     // that's 1/200 per msec = 0.005 per msec
     cg.lastvalidBobfracsin -= 0.005 * cg.frametime;
-    useLastValidBob = qtrue;
+    useLastValidBob         = qtrue;
   }
 
-  delta = useLastValidBob ? cg.lastvalidBobfracsin * cg_bobpitch.value * speed
-                          : cg.bobfracsin * cg_bobpitch.value * speed;
+  delta =
+    useLastValidBob ? cg.lastvalidBobfracsin * cg_bobpitch.value * speed : cg.bobfracsin * cg_bobpitch.value * speed;
   if (ps->pm_flags & PMF_DUCKED) {
     delta *= 3; // crouching
   }
   angles[PITCH] += delta;
-  delta = useLastValidBob ? cg.lastvalidBobfracsin * cg_bobroll.value * speed
-                          : cg.bobfracsin * cg_bobroll.value * speed;
+  delta =
+    useLastValidBob ? cg.lastvalidBobfracsin * cg_bobroll.value * speed : cg.bobfracsin * cg_bobroll.value * speed;
   if (ps->pm_flags & PMF_DUCKED) {
     delta *= 3; // crouching accentuates roll
   }
@@ -781,8 +757,7 @@ static void CG_OffsetFirstPersonView(void) {
       cg.duckTime = cg.time - PRONE_TIME;
     }
     if (timeDelta < PRONE_TIME) {
-      cg.refdef_current->vieworg[2] -=
-          cg.duckChange * (PRONE_TIME - timeDelta) / PRONE_TIME;
+      cg.refdef_current->vieworg[2] -= cg.duckChange * (PRONE_TIME - timeDelta) / PRONE_TIME;
     }
   } else {
     if (timeDelta < 0) // Ridah
@@ -790,8 +765,7 @@ static void CG_OffsetFirstPersonView(void) {
       cg.duckTime = cg.time - DUCK_TIME;
     }
     if (timeDelta < DUCK_TIME) {
-      cg.refdef_current->vieworg[2] -=
-          cg.duckChange * (DUCK_TIME - timeDelta) / DUCK_TIME;
+      cg.refdef_current->vieworg[2] -= cg.duckChange * (DUCK_TIME - timeDelta) / DUCK_TIME;
     }
   }
 
@@ -810,11 +784,11 @@ static void CG_OffsetFirstPersonView(void) {
     cg.landTime = cg.time - (LAND_DEFLECT_TIME + LAND_RETURN_TIME);
   }
   if (delta < LAND_DEFLECT_TIME) {
-    f = delta / LAND_DEFLECT_TIME;
+    f                              = delta / LAND_DEFLECT_TIME;
     cg.refdef_current->vieworg[2] += cg.landChange * f;
   } else if (delta < LAND_DEFLECT_TIME + LAND_RETURN_TIME) {
-    delta -= LAND_DEFLECT_TIME;
-    f = 1.0 - (delta / LAND_RETURN_TIME);
+    delta                         -= LAND_DEFLECT_TIME;
+    f                              = 1.0 - (delta / LAND_RETURN_TIME);
     cg.refdef_current->vieworg[2] += cg.landChange * f;
   }
 
@@ -829,8 +803,7 @@ static void CG_OffsetFirstPersonView(void) {
     vec3_t right;
     cg.refdefViewAngles[2] += ps->leanf / 2.0f;
     AngleVectors(cg.refdefViewAngles, NULL, right, NULL);
-    VectorMA(cg.refdef_current->vieworg, ps->leanf, right,
-             cg.refdef_current->vieworg);
+    VectorMA(cg.refdef_current->vieworg, ps->leanf, right, cg.refdef_current->vieworg);
   }
 
   // add kick offset
@@ -845,14 +818,14 @@ static void CG_OffsetFirstPersonView(void) {
 
 // probably move to server variables
 float zoomTable[ZOOM_MAX_ZOOMS][2] = {
-    // max {out,in}
-    {0, 0},
+  // max {out,in}
+  {0,  0 },
 
-    {36, 8},  //	binoc
-    {20, 4},  //	sniper
-    {60, 20}, //	snooper
-    {55, 55}, //	fg42
-    {55, 55}  //	mg42
+  {36, 8 }, //	binoc
+  {20, 4 }, //	sniper
+  {60, 20}, //	snooper
+  {55, 55}, //	fg42
+  {55, 55}  //	mg42
 };
 
 void CG_AdjustZoomVal(float val, int type) {
@@ -868,11 +841,9 @@ void CG_AdjustZoomVal(float val, int type) {
 void CG_ZoomIn_f(void) {
   // Gordon: fixed being able to "latch" your zoom by weaponcheck +
   // quick zoomin OSP - change for zoom view in demos
-  if (cg_entities[cg.snap->ps.clientNum].currentState.weapon ==
-      WP_GARAND_SCOPE) {
+  if (cg_entities[cg.snap->ps.clientNum].currentState.weapon == WP_GARAND_SCOPE) {
     CG_AdjustZoomVal(-(cg_zoomStepSniper.value), ZOOM_SNIPER);
-  } else if (cg_entities[cg.snap->ps.clientNum].currentState.weapon ==
-             WP_K43_SCOPE) {
+  } else if (cg_entities[cg.snap->ps.clientNum].currentState.weapon == WP_K43_SCOPE) {
     CG_AdjustZoomVal(-(cg_zoomStepSniper.value), ZOOM_SNIPER);
   } else if (cg.zoomedBinoc) {
     CG_AdjustZoomVal(-(cg_zoomStepSniper.value),
@@ -883,11 +854,9 @@ void CG_ZoomIn_f(void) {
 }
 
 void CG_ZoomOut_f(void) {
-  if (cg_entities[cg.snap->ps.clientNum].currentState.weapon ==
-      WP_GARAND_SCOPE) {
+  if (cg_entities[cg.snap->ps.clientNum].currentState.weapon == WP_GARAND_SCOPE) {
     CG_AdjustZoomVal(cg_zoomStepSniper.value, ZOOM_SNIPER);
-  } else if (cg_entities[cg.snap->ps.clientNum].currentState.weapon ==
-             WP_K43_SCOPE) {
+  } else if (cg_entities[cg.snap->ps.clientNum].currentState.weapon == WP_K43_SCOPE) {
     CG_AdjustZoomVal(cg_zoomStepSniper.value, ZOOM_SNIPER);
   } else if (cg.zoomedBinoc) {
     CG_AdjustZoomVal(cg_zoomStepSniper.value,
@@ -909,9 +878,8 @@ void CG_Zoom(void) {
     // check for scope wepon in use, and switch to if necessary
     // OSP - spec/demo scaling allowances
     if (cg.predictedPlayerState.weapon == WP_FG42SCOPE) {
-      cg.zoomval = (cg.zoomval == 0) ? cg_zoomDefaultSniper.value
-                                     : cg.zoomval; // JPW NERVE was DefaultFG,
-                                                   // changed per atvi req
+      cg.zoomval = (cg.zoomval == 0) ? cg_zoomDefaultSniper.value : cg.zoomval; // JPW NERVE was DefaultFG,
+                                                                                // changed per atvi req
     } else if (cg.predictedPlayerState.weapon == WP_GARAND_SCOPE) {
       cg.zoomval = (cg.zoomval == 0) ? cg_zoomDefaultSniper.value : cg.zoomval;
     } else if (cg.predictedPlayerState.weapon == WP_K43_SCOPE) {
@@ -925,13 +893,13 @@ void CG_Zoom(void) {
       return;
     }
     cg.zoomedBinoc = qtrue;
-    cg.zoomTime = cg.time;
-    cg.zoomval = cg_zoomDefaultSniper.value; // JPW NERVE was DefaultBinoc,
-                                             // changed per atvi req
+    cg.zoomTime    = cg.time;
+    cg.zoomval     = cg_zoomDefaultSniper.value; // JPW NERVE was DefaultBinoc,
+                                                 // changed per atvi req
   } else {
     if (cg.zoomedBinoc) {
       cg.zoomedBinoc = qfalse;
-      cg.zoomTime = cg.time;
+      cg.zoomTime    = cg.time;
 
       // check for scope weapon in use, and switch to if
       // necessary
@@ -988,18 +956,17 @@ static int CG_CalcFov(void) {
 
   CG_Zoom();
 
-  if (cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 &&
-      !(cg.snap->ps.pm_flags & PMF_FOLLOW)) {
+  if (cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 && !(cg.snap->ps.pm_flags & PMF_FOLLOW)) {
     cg.zoomedBinoc = qfalse;
-    cg.zoomTime = 0;
-    cg.zoomval = 0;
+    cg.zoomTime    = 0;
+    cg.zoomval     = 0;
   }
 
   // fix for edv
   if (cgs.demoCam.renderingFreeCam) {
     cg.zoomedBinoc = qfalse;
-    cg.zoomTime = 0;
-    cg.zoomval = 0;
+    cg.zoomTime    = 0;
+    cg.zoomval     = 0;
   }
 
   if (cg.predictedPlayerState.pm_type == PM_INTERMISSION) {
@@ -1042,7 +1009,7 @@ static int CG_CalcFov(void) {
         lastfov = fov_x;
       } else if (cg.zoomval) // zoomed by sniper/snooper
       {
-        fov_x = cg.zoomval;
+        fov_x   = cg.zoomval;
         lastfov = fov_x;
       } else // binoc zooming out
       {
@@ -1074,13 +1041,12 @@ static int CG_CalcFov(void) {
 
   if (etj_realFov.integer) {
     // etlegacy fov fix for wide screens
-    fov_x = atan(tan(fov_x * M_PI / 360.0f) * 0.75f *
-                 (float)cgs.glconfig.vidWidth / (float)cgs.glconfig.vidHeight) *
+    fov_x = atan(tan(fov_x * M_PI / 360.0f) * 0.75f * (float)cgs.glconfig.vidWidth / (float)cgs.glconfig.vidHeight) *
             360.0f / M_PI;
   }
 
   // Arnout: this is weird... (but ensures square pixel ratio!)
-  x = cg.refdef_current->width / tan(fov_x / 360 * M_PI);
+  x     = cg.refdef_current->width / tan(fov_x / 360 * M_PI);
   fov_y = atan2(cg.refdef_current->height, x);
   fov_y = fov_y * 360 / M_PI;
   // And this seems better - but isn't really
@@ -1090,15 +1056,15 @@ static int CG_CalcFov(void) {
   // if ( cg_pmove.waterlevel == 3 ) {
   contents = CG_PointContents(cg.refdef.vieworg, -1);
   if (contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA)) {
-    phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
-    v = WAVE_AMPLITUDE * sin(phase);
-    fov_x += v;
-    fov_y -= v;
-    inwater = qtrue;
+    phase                       = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
+    v                           = WAVE_AMPLITUDE * sin(phase);
+    fov_x                      += v;
+    fov_y                      -= v;
+    inwater                     = qtrue;
     cg.refdef_current->rdflags |= RDF_UNDERWATER;
   } else {
     cg.refdef_current->rdflags &= ~RDF_UNDERWATER;
-    inwater = qfalse;
+    inwater                     = qfalse;
   }
 
   // set it
@@ -1111,20 +1077,17 @@ static int CG_CalcFov(void) {
       } else
   */
   // rain - allow freelook when dead until we tap out into limbo
-  if (cg.snap->ps.pm_type == PM_FREEZE ||
-      (cg.snap->ps.pm_type == PM_DEAD && (cg.snap->ps.pm_flags & PMF_LIMBO)) ||
+  if (cg.snap->ps.pm_type == PM_FREEZE || (cg.snap->ps.pm_type == PM_DEAD && (cg.snap->ps.pm_flags & PMF_LIMBO)) ||
       cg.snap->ps.pm_flags & PMF_TIME_LOCKPLAYER) {
     // No movement for pauses
     cg.zoomSensitivity = 0;
   } else if (!cg.zoomedBinoc) {
     // NERVE - SMF - fix for zoomed in/out movement bug
     if (cg.zoomval) {
-      cg.zoomSensitivity =
-          0.6 * (cg.zoomval /
-                 90.f); // NERVE - SMF - changed to get
-                        // less sensitive as you zoom in
-                        //				cg.zoomSensitivity
-                        //= 0.1;
+      cg.zoomSensitivity = 0.6 * (cg.zoomval / 90.f); // NERVE - SMF - changed to get
+                                                      // less sensitive as you zoom in
+                                                      //				cg.zoomSensitivity
+                                                      //= 0.1;
     } else {
       cg.zoomSensitivity = 1;
     }
@@ -1142,10 +1105,9 @@ CG_UnderwaterSounds
 ==============
 */
 inline constexpr int UNDERWATER_BIT = 16;
+
 static void CG_UnderwaterSounds() {
-  trap_S_AddLoopingSound(cg.snap->ps.origin, vec3_origin,
-                         cgs.media.underWaterSound, 255 | (1 << UNDERWATER_BIT),
-                         0);
+  trap_S_AddLoopingSound(cg.snap->ps.origin, vec3_origin, cgs.media.underWaterSound, 255 | (1 << UNDERWATER_BIT), 0);
 }
 
 /*
@@ -1163,9 +1125,7 @@ static void CG_DamageBlendBlob(void) {
 
   // Gordon: no damage blend blobs if in limbo or spectator, and in the
   // limbo menu
-  if ((cg.snap->ps.pm_flags & PMF_LIMBO ||
-       cgs.clientinfo[cg.clientNum].team == TEAM_SPECTATOR) &&
-      cg.showGameView) {
+  if ((cg.snap->ps.pm_flags & PMF_LIMBO || cgs.clientinfo[cg.clientNum].team == TEAM_SPECTATOR) && cg.showGameView) {
     return;
   }
 
@@ -1182,7 +1142,7 @@ static void CG_DamageBlendBlob(void) {
     }
 
     maxTime = vd->damageDuration;
-    t = cg.time - vd->damageTime;
+    t       = cg.time - vd->damageTime;
     if (t <= 0 || t >= maxTime) {
       vd->damageValue = 0;
       continue;
@@ -1196,28 +1156,22 @@ static void CG_DamageBlendBlob(void) {
     }
 
     memset(&ent, 0, sizeof(ent));
-    ent.reType = RT_SPRITE;
+    ent.reType   = RT_SPRITE;
     ent.renderfx = RF_FIRST_PERSON;
 
-    VectorMA(cg.refdef_current->vieworg, 8, cg.refdef_current->viewaxis[0],
-             ent.origin);
-    VectorMA(ent.origin, vd->damageX * -8, cg.refdef_current->viewaxis[1],
-             ent.origin);
-    VectorMA(ent.origin, vd->damageY * 8, cg.refdef_current->viewaxis[2],
-             ent.origin);
+    VectorMA(cg.refdef_current->vieworg, 8, cg.refdef_current->viewaxis[0], ent.origin);
+    VectorMA(ent.origin, vd->damageX * -8, cg.refdef_current->viewaxis[1], ent.origin);
+    VectorMA(ent.origin, vd->damageY * 8, cg.refdef_current->viewaxis[2], ent.origin);
 
-    ent.radius = vd->damageValue * 0.4 * (0.5 + 0.5 * (float)t / maxTime) *
-                 (0.75 + 0.5 * fabs(sin(vd->damageTime)));
+    ent.radius = vd->damageValue * 0.4 * (0.5 + 0.5 * (float)t / maxTime) * (0.75 + 0.5 * fabs(sin(vd->damageTime)));
 
-    ent.customShader = cgs.media.viewBloodAni[(
-        int)(floor(((float)t / maxTime) * 4.9))]; // cgs.media.viewBloodShader;
+    ent.customShader  = cgs.media.viewBloodAni[(int)(floor(((float)t / maxTime) * 4.9))]; // cgs.media.viewBloodShader;
     ent.shaderRGBA[0] = 255;
     ent.shaderRGBA[1] = 255;
     ent.shaderRGBA[2] = 255;
-    ent.shaderRGBA[3] = 255 * ((cg_bloodDamageBlend.value > 1.0f) ? 1.0f
-                               : (cg_bloodDamageBlend.value < 0.0f)
-                                   ? 0.0f
-                                   : cg_bloodDamageBlend.value);
+    ent.shaderRGBA[3] = 255 * ((cg_bloodDamageBlend.value > 1.0f)   ? 1.0f
+                               : (cg_bloodDamageBlend.value < 0.0f) ? 0.0f
+                                                                    : cg_bloodDamageBlend.value);
 
     trap_R_AddRefEntityToScene(&ent);
   }
@@ -1236,8 +1190,8 @@ void updateRefdefAngles(const playerState_t *ps) {
   // necessarily running pmove as fast as we update viewangles,
   // which causes the refdef angles to gradually desync with real viewangles
   // TODO: see if we could make this work? it's not critical though
-  if (ps->eFlags & EF_PRONE || BG_PlayerMounted(ps->eFlags) ||
-      ps->weapon == WP_MORTAR_SET || ps->weapon == WP_MOBILE_MG42_SET) {
+  if (ps->eFlags & EF_PRONE || BG_PlayerMounted(ps->eFlags) || ps->weapon == WP_MORTAR_SET ||
+      ps->weapon == WP_MOBILE_MG42_SET) {
     VectorCopy(ps->viewangles, cg.refdefViewAngles);
     return;
   }
@@ -1291,9 +1245,8 @@ int CG_CalcViewValues() {
   CG_CalcVrect();
   // use the interpolated display state for rendering when available
   // ('etj_lerpPmove')
-  const playerState_t *ps = ETJump::cgame.displayStateValid
-                                ? &ETJump::cgame.displayPlayerState
-                                : &cg.predictedPlayerState;
+  const playerState_t *ps =
+    ETJump::cgame.displayStateValid ? &ETJump::cgame.displayPlayerState : &cg.predictedPlayerState;
 
   if (cg.cameraMode) {
     vec3_t origin, angles;
@@ -1302,7 +1255,7 @@ int CG_CalcViewValues() {
 
     if (trap_getCameraInfo(CAM_PRIMARY, cg.time, &origin, &angles, &fov)) {
       VectorCopy(origin, cg.refdef_current->vieworg);
-      angles[ROLL] = 0;
+      angles[ROLL]  = 0;
       angles[PITCH] = -angles[PITCH]; // (SA) compensate for
                                       // reversed pitch (this makes
                                       // the game match the editor,
@@ -1312,14 +1265,13 @@ int CG_CalcViewValues() {
       VectorCopy(angles, cg.refdefViewAngles);
       AnglesToAxis(cg.refdefViewAngles, cg.refdef_current->viewaxis);
 
-      x = cg.refdef.width / tan(fov / 360 * M_PI);
+      x                        = cg.refdef.width / tan(fov / 360 * M_PI);
       cg.refdef_current->fov_y = atan2(cg.refdef_current->height, x);
       cg.refdef_current->fov_y = cg.refdef_current->fov_y * 360 / M_PI;
       cg.refdef_current->fov_x = fov;
 
       // FIXME: this is really really bad
-      trap_SendClientCommand(
-          va("setCameraOrigin %f %f %f", origin[0], origin[1], origin[2]));
+      trap_SendClientCommand(va("setCameraOrigin %f %f %f", origin[0], origin[1], origin[2]));
       return 0;
 
     } else {
@@ -1343,21 +1295,19 @@ int CG_CalcViewValues() {
   }
 
   if (cg.bobfracsin > 0 && !ps->bobCycle) {
-    cg.lastvalidBobcycle = cg.bobcycle;
+    cg.lastvalidBobcycle   = cg.bobcycle;
     cg.lastvalidBobfracsin = cg.bobfracsin;
   }
 
-  cg.bobcycle = (ps->bobCycle & 128) >> 7;
-  cg.bobfracsin = std::fabs(std::sin(static_cast<float>(ps->bobCycle & 127) /
-                                     127.0f * static_cast<float>(M_PI)));
-  cg.xyspeed = VectorLength2(ps->velocity);
+  cg.bobcycle   = (ps->bobCycle & 128) >> 7;
+  cg.bobfracsin = std::fabs(std::sin(static_cast<float>(ps->bobCycle & 127) / 127.0f * static_cast<float>(M_PI)));
+  cg.xyspeed    = VectorLength2(ps->velocity);
 
   if (cg.showGameView) {
     VectorCopy(cgs.ccPortalPos, cg.refdef_current->vieworg);
     if (cg.showGameView && cgs.ccPortalEnt != -1) {
       vec3_t vec;
-      VectorSubtract(cg_entities[cgs.ccPortalEnt].lerpOrigin,
-                     cg.refdef_current->vieworg, vec);
+      VectorSubtract(cg_entities[cgs.ccPortalEnt].lerpOrigin, cg.refdef_current->vieworg, vec);
       vectoangles(vec, cg.refdefViewAngles);
     } else {
       VectorCopy(cgs.ccPortalAngles, cg.refdefViewAngles);
@@ -1365,21 +1315,18 @@ int CG_CalcViewValues() {
   } else if (cgs.demoCam.renderingFreeCam) {
     // do nothing
   } else if (cg.renderingThirdPerson &&
-             (ps->eFlags & EF_MG42_ACTIVE ||
-              ps->eFlags & EF_AAGUN_ACTIVE)) // Arnout: see if we're
-                                             // attached to a gun
+             (ps->eFlags & EF_MG42_ACTIVE || ps->eFlags & EF_AAGUN_ACTIVE)) // Arnout: see if we're
+                                                                            // attached to a gun
   {
     const centity_t *mg42 = &cg_entities[ps->viewlocked_entNum];
     vec3_t forward;
 
     AngleVectors(ps->viewangles, forward, NULL, NULL);
-    VectorMA(mg42->currentState.pos.trBase, -36, forward,
-             cg.refdef_current->vieworg);
+    VectorMA(mg42->currentState.pos.trBase, -36, forward, cg.refdef_current->vieworg);
     cg.refdef_current->vieworg[2] = ps->origin[2];
     VectorCopy(ps->viewangles, cg.refdefViewAngles);
   } else if (ps->eFlags & EF_MOUNTEDTANK) {
-    const centity_t *tank =
-        &cg_entities[cg_entities[cg.snap->ps.clientNum].tagParent];
+    const centity_t *tank = &cg_entities[cg_entities[cg.snap->ps.clientNum].tagParent];
 
     VectorCopy(tank->mountedMG42Player.origin, cg.refdef_current->vieworg);
     VectorCopy(ps->viewangles, cg.refdefViewAngles);
@@ -1387,8 +1334,7 @@ int CG_CalcViewValues() {
     if (!cgs.demoCam.renderingFreeCam) {
       VectorCopy(ps->origin, cg.refdef_current->vieworg);
 
-      if (!cg.demoPlayback && cg_pmove.pmove_fixed &&
-          !(ps->pm_flags & PMF_FOLLOW) &&
+      if (!cg.demoPlayback && cg_pmove.pmove_fixed && !(ps->pm_flags & PMF_FOLLOW) &&
           (etj_smoothAngles.integer || etj_lerpPmove.integer)) {
         ETJump::updateRefdefAngles(ps);
       } else {
@@ -1406,8 +1352,7 @@ int CG_CalcViewValues() {
       t = cg.time - cg.predictedErrorTime;
       f = (cg_errorDecay.value - t) / cg_errorDecay.value;
       if (f > 0 && f < 1) {
-        VectorMA(cg.refdef_current->vieworg, f, cg.predictedError,
-                 cg.refdef_current->vieworg);
+        VectorMA(cg.refdef_current->vieworg, f, cg.predictedError, cg.refdef_current->vieworg);
       } else {
         cg.predictedErrorTime = 0;
       }
@@ -1418,15 +1363,13 @@ int CG_CalcViewValues() {
       if (ps->viewlocked != static_cast<int>(ETJump::ViewlockState::Medic) &&
           ps->viewlocked != static_cast<int>(ETJump::ViewlockState::Mounted) &&
           ps->viewlocked != static_cast<int>(ETJump::ViewlockState::Jitter)) {
-        BG_EvaluateTrajectory(
-            &cg_entities[ps->viewlocked_entNum].currentState.apos, cg.time,
-            cg.refdefViewAngles, qtrue,
-            cg_entities[ps->viewlocked_entNum].currentState.effect2Time);
+        BG_EvaluateTrajectory(&cg_entities[ps->viewlocked_entNum].currentState.apos, cg.time, cg.refdefViewAngles,
+                              qtrue, cg_entities[ps->viewlocked_entNum].currentState.effect2Time);
       }
 
       if (ps->viewlocked == static_cast<int>(ETJump::ViewlockState::Jitter)) {
         cg.refdefViewAngles[PITCH] += crandom();
-        cg.refdefViewAngles[YAW] += crandom();
+        cg.refdefViewAngles[YAW]   += crandom();
       }
     }
 
@@ -1470,11 +1413,9 @@ int CG_CalcViewValues() {
       oldZ = cg.refdef_current->vieworg[2];
       AngleVectors(cg.refdefViewAngles, fwd, NULL, NULL);
       if (cg.predictedPlayerState.eFlags & EF_AAGUN_ACTIVE) {
-        VectorMA(cg_entities[ps->viewlocked_entNum].lerpOrigin, 0, fwd,
-                 cg.refdef_current->vieworg);
+        VectorMA(cg_entities[ps->viewlocked_entNum].lerpOrigin, 0, fwd, cg.refdef_current->vieworg);
       } else {
-        VectorMA(cg_entities[ps->viewlocked_entNum].lerpOrigin, -34, fwd,
-                 cg.refdef_current->vieworg);
+        VectorMA(cg_entities[ps->viewlocked_entNum].lerpOrigin, -34, fwd, cg.refdef_current->vieworg);
       }
       cg.refdef_current->vieworg[2] = oldZ;
     }
@@ -1520,20 +1461,16 @@ void CG_ParseSkyBox(void) {
     return;
   }
 
-  token = CG_MustParse(&cstr,
-                       "CG_ParseSkyBox: error parsing skybox configstring\n");
+  token               = CG_MustParse(&cstr, "CG_ParseSkyBox: error parsing skybox configstring\n");
   cg.skyboxViewOrg[0] = Q_atof(token);
 
-  token = CG_MustParse(&cstr,
-                       "CG_ParseSkyBox: error parsing skybox configstring\n");
+  token               = CG_MustParse(&cstr, "CG_ParseSkyBox: error parsing skybox configstring\n");
   cg.skyboxViewOrg[1] = Q_atof(token);
 
-  token = CG_MustParse(&cstr,
-                       "CG_ParseSkyBox: error parsing skybox configstring\n");
+  token               = CG_MustParse(&cstr, "CG_ParseSkyBox: error parsing skybox configstring\n");
   cg.skyboxViewOrg[2] = Q_atof(token);
 
-  token = CG_MustParse(&cstr,
-                       "CG_ParseSkyBox: error parsing skybox configstring\n");
+  token            = CG_MustParse(&cstr, "CG_ParseSkyBox: error parsing skybox configstring\n");
   cg.skyboxViewFov = Q_atof(token);
 
   if (!cg.skyboxViewFov) {
@@ -1546,26 +1483,25 @@ void CG_ParseSkyBox(void) {
                               "configstring.  No fog state\n");
   if (Q_atoi(token)) // this camera has fog
   {
-    token = CG_MustParse(&cstr, "CG_DrawSkyBoxPortal: error parsing "
-                                "skybox configstring.  No fog[0]\n");
+    token       = CG_MustParse(&cstr, "CG_DrawSkyBoxPortal: error parsing "
+                                      "skybox configstring.  No fog[0]\n");
     fogColor[0] = Q_atof(token);
 
-    token = CG_MustParse(&cstr, "CG_DrawSkyBoxPortal: error parsing "
-                                "skybox configstring.  No fog[1]\n");
+    token       = CG_MustParse(&cstr, "CG_DrawSkyBoxPortal: error parsing "
+                                      "skybox configstring.  No fog[1]\n");
     fogColor[1] = Q_atof(token);
 
-    token = CG_MustParse(&cstr, "CG_DrawSkyBoxPortal: error parsing "
-                                "skybox configstring.  No fog[2]\n");
+    token       = CG_MustParse(&cstr, "CG_DrawSkyBoxPortal: error parsing "
+                                      "skybox configstring.  No fog[2]\n");
     fogColor[2] = Q_atof(token);
 
-    token = COM_ParseExt(&cstr, qfalse);
+    token    = COM_ParseExt(&cstr, qfalse);
     fogStart = Q_atoi(token);
 
-    token = COM_ParseExt(&cstr, qfalse);
+    token  = COM_ParseExt(&cstr, qfalse);
     fogEnd = Q_atoi(token);
 
-    trap_R_SetFog(FOG_PORTALVIEW, fogStart, fogEnd, fogColor[0], fogColor[1],
-                  fogColor[2], 1.1f);
+    trap_R_SetFog(FOG_PORTALVIEW, fogStart, fogEnd, fogColor[0], fogColor[1], fogColor[2], 1.1f);
   } else {
     trap_R_SetFog(FOG_PORTALVIEW, 0, 0, 0, 0, 0,
                   0); // init to null
@@ -1606,8 +1542,7 @@ void CG_ParseTagConnect(int tagNum) {
   token = CG_MustParse(&pString, "Invalid TAGCONNECT configstring\n");
 
   cg_entities[entNum].tagParent = Q_atoi(token);
-  if (cg_entities[entNum].tagParent < 0 ||
-      cg_entities[entNum].tagParent >= MAX_GENTITIES) {
+  if (cg_entities[entNum].tagParent < 0 || cg_entities[entNum].tagParent >= MAX_GENTITIES) {
     CG_Error("Invalid TAGCONNECT tagparent\n");
   }
 
@@ -1765,36 +1700,33 @@ void CG_DrawSkyBoxPortal(qboolean fLocalView) {
       // do smooth transitions for the binocs
       if (cg.zoomedBinoc) // binoc zooming in
       {
-        f = (cg.time - cg.zoomTime) / (float)ZOOM_TIME;
-        fov_x = (f > 1.0) ? zoomFov : fov_x + f * (zoomFov - fov_x);
+        f       = (cg.time - cg.zoomTime) / (float)ZOOM_TIME;
+        fov_x   = (f > 1.0) ? zoomFov : fov_x + f * (zoomFov - fov_x);
         lastfov = fov_x;
       } else if (cg.zoomval) // zoomed by sniper/snooper
       {
-        fov_x = cg.zoomval;
+        fov_x   = cg.zoomval;
         lastfov = fov_x;
       } else // binoc zooming out
       {
-        f = (cg.time - cg.zoomTime) / (float)ZOOM_TIME;
+        f     = (cg.time - cg.zoomTime) / (float)ZOOM_TIME;
         fov_x = (f > 1.0) ? fov_x : zoomFov + f * (fov_x - zoomFov);
       }
     }
 
     rd.rdflags &= ~RDF_SNOOPERVIEW;
 
-    if (BG_PlayerMounted(cg.snap->ps.eFlags) ||
-        cg.predictedPlayerState.weapon == WP_MOBILE_MG42_SET) {
+    if (BG_PlayerMounted(cg.snap->ps.eFlags) || cg.predictedPlayerState.weapon == WP_MOBILE_MG42_SET) {
       fov_x = 55;
     }
 
     // Account for realfov when drawing skybox
     if (etj_realFov.integer) {
-      fov_x =
-          atan(tan(fov_x * M_PI / 360.0f) * 0.75f *
-               (float)cgs.glconfig.vidWidth / (float)cgs.glconfig.vidHeight) *
-          360.0f / M_PI;
+      fov_x = atan(tan(fov_x * M_PI / 360.0f) * 0.75f * (float)cgs.glconfig.vidWidth / (float)cgs.glconfig.vidHeight) *
+              360.0f / M_PI;
     }
 
-    x = rd.width / tan(fov_x / 360 * M_PI);
+    x     = rd.width / tan(fov_x / 360 * M_PI);
     fov_y = atan2(rd.height, x);
     fov_y = fov_y * 360 / M_PI;
 
@@ -1802,7 +1734,7 @@ void CG_DrawSkyBoxPortal(qboolean fLocalView) {
     rd.fov_y = fov_y;
   }
 
-  rd.time = cg.time;
+  rd.time     = cg.time;
   rd.rdflags |= RDF_SKYBOXPORTAL;
 
   // draw the skybox
@@ -1832,28 +1764,24 @@ void CG_SetupFrustum(void) {
   float ang;
 
   ang = cg.refdef_current->fov_x / 180 * M_PI * 0.5f;
-  xs = sin(ang);
-  xc = cos(ang);
+  xs  = sin(ang);
+  xc  = cos(ang);
 
   VectorScale(cg.refdef_current->viewaxis[0], xs, frustum[0].normal);
-  VectorMA(frustum[0].normal, xc, cg.refdef_current->viewaxis[1],
-           frustum[0].normal);
+  VectorMA(frustum[0].normal, xc, cg.refdef_current->viewaxis[1], frustum[0].normal);
 
   VectorScale(cg.refdef_current->viewaxis[0], xs, frustum[1].normal);
-  VectorMA(frustum[1].normal, -xc, cg.refdef_current->viewaxis[1],
-           frustum[1].normal);
+  VectorMA(frustum[1].normal, -xc, cg.refdef_current->viewaxis[1], frustum[1].normal);
 
   ang = cg.refdef.fov_y / 180 * M_PI * 0.5f;
-  xs = sin(ang);
-  xc = cos(ang);
+  xs  = sin(ang);
+  xc  = cos(ang);
 
   VectorScale(cg.refdef_current->viewaxis[0], xs, frustum[2].normal);
-  VectorMA(frustum[2].normal, xc, cg.refdef_current->viewaxis[2],
-           frustum[2].normal);
+  VectorMA(frustum[2].normal, xc, cg.refdef_current->viewaxis[2], frustum[2].normal);
 
   VectorScale(cg.refdef_current->viewaxis[0], xs, frustum[3].normal);
-  VectorMA(frustum[3].normal, -xc, cg.refdef_current->viewaxis[2],
-           frustum[3].normal);
+  VectorMA(frustum[3].normal, -xc, cg.refdef_current->viewaxis[2], frustum[3].normal);
 
   for (i = 0; i < 4; i++) {
     frustum[i].dist = DotProduct(cg.refdef_current->vieworg, frustum[i].normal);
@@ -1909,8 +1837,7 @@ static void runFrameEnd() {
   if (etj_autoPortalBinds.integer) {
     // confusingly cg.weaponSelect gets set to followed clients weapon,
     // so we need to do this only if we're not in spec
-    if (isPlaying(cg.clientNum) && cg.weaponSelect == WP_PORTAL_GUN &&
-        !cg.portalgunBindingsAdjusted) {
+    if (isPlaying(cg.clientNum) && cg.weaponSelect == WP_PORTAL_GUN && !cg.portalgunBindingsAdjusted) {
       cgDC.getKeysForBinding("weapalt", &cg.weapAltB1, &cg.weapAltB2);
 
       if (cg.weapAltB1 != -1) {
@@ -1924,9 +1851,7 @@ static void runFrameEnd() {
       }
       // since you never spawn with a portalgun,
       // binds should reset at the very beginning of a level too
-    } else if (((cg.weaponSelect != WP_PORTAL_GUN ||
-                 !isPlaying(cg.clientNum)) &&
-                cg.portalgunBindingsAdjusted) ||
+    } else if (((cg.weaponSelect != WP_PORTAL_GUN || !isPlaying(cg.clientNum)) && cg.portalgunBindingsAdjusted) ||
                cg.clientFrame < CGAME_INIT_DELAY_FRAMES) {
       cgDC.getKeysForBinding("+attack2", &cg.weapAltB1, &cg.weapAltB2);
 
@@ -1945,18 +1870,16 @@ static void runFrameEnd() {
   // handle autospec feature
   if (!cg.demoPlayback && etj_autoSpec.integer) {
     constexpr int minAutoSpecDelay = 1000; // 1s
-    static int lastActivity = -minAutoSpecDelay;
+    static int lastActivity        = -minAutoSpecDelay;
 
     const auto *const ps = getValidPlayerState();
-    const auto team = cgs.clientinfo[cg.clientNum].team;
-    const bool moving = ps->stats[STAT_USERCMD_MOVE];
+    const auto team      = cgs.clientinfo[cg.clientNum].team;
+    const bool moving    = ps->stats[STAT_USERCMD_MOVE];
     const bool following = ps->pm_flags & PMF_FOLLOW;
 
-    if (team != TEAM_SPECTATOR || (!following && moving) ||
-        (following && moving)) {
+    if (team != TEAM_SPECTATOR || (!following && moving) || (following && moving)) {
       lastActivity = cg.time;
-    } else if (cg.time - lastActivity >=
-               std::max(etj_autoSpecDelay.integer, minAutoSpecDelay)) {
+    } else if (cg.time - lastActivity >= std::max(etj_autoSpecDelay.integer, minAutoSpecDelay)) {
       // it's time to follow the next player
       trap_SendClientCommand("follownext");
       lastActivity = cg.time;
@@ -1971,8 +1894,7 @@ static void updateHUDData() {
     ETJump::cgame.hudData.pmoveV2->runFrame();
   }
 
-  if (etj_drawSnapHUD.integer ||
-      ((etj_drawCGaz.integer & 1) && etj_CGaz1DrawSnapZone.integer)) {
+  if (etj_drawSnapHUD.integer || ((etj_drawCGaz.integer & 1) && etj_CGaz1DrawSnapZone.integer)) {
     ETJump::cgame.hudData.snaphud->runFrame();
   }
 
@@ -2023,17 +1945,16 @@ Generates and draws a game scene and status information at the given time.
 // static int lightningsequencetime = 0;
 // static int lightningsequencecounter = 0;
 
-void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView,
-                        qboolean demoPlayback) {
+void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoPlayback) {
   int inwater;
 
 #ifdef DEBUGTIME_ENABLED
   int dbgTime = trap_Milliseconds(), elapsed;
-  int dbgCnt = 0;
+  int dbgCnt  = 0;
 #endif
 
-  cg.time = serverTime;
-  cgDC.realTime = cg.time;
+  cg.time         = serverTime;
+  cgDC.realTime   = cg.time;
   cg.demoPlayback = demoPlayback;
 
 #ifdef FAKELAG
@@ -2086,7 +2007,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView,
   // "selectweapon" does not hit the first snap, the server weapon set
   // in cg_playerstate.c line 219 doesn't do the trick)
   if (!cg.weaponSelect && cg.snap->ps.weapon) {
-    cg.weaponSelect = cg.snap->ps.weapon;
+    cg.weaponSelect     = cg.snap->ps.weapon;
     cg.weaponSelectTime = cg.time;
   }
 
@@ -2137,11 +2058,10 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView,
     DEBUGTIME
 
     // decide on third person view
-    cg.renderingThirdPerson =
-        (cg_thirdPerson.integer || (cg.snap->ps.stats[STAT_HEALTH] <= 0) ||
-         cg.showGameView || cgs.demoCam.renderingFreeCam)
-            ? qtrue
-            : qfalse;
+    cg.renderingThirdPerson = (cg_thirdPerson.integer || (cg.snap->ps.stats[STAT_HEALTH] <= 0) || cg.showGameView ||
+                               cgs.demoCam.renderingFreeCam)
+                                ? qtrue
+                                : qfalse;
 
     // build cg.refdef
     inwater = CG_CalcViewValues();
@@ -2204,9 +2124,8 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView,
     // Rafael mg42
     if (!cg.showGameView) {
       if (!cg.snap->ps.persistant[PERS_HWEAPON_USE]) {
-        CG_AddViewWeapon(ETJump::cgame.displayStateValid
-                             ? &ETJump::cgame.displayPlayerState
-                             : &cg.predictedPlayerState);
+        CG_AddViewWeapon(ETJump::cgame.displayStateValid ? &ETJump::cgame.displayPlayerState
+                                                         : &cg.predictedPlayerState);
       } else {
         if (cg.time - cg.predictedPlayerEntity.overheatTime < 3000) {
           vec3_t muzzle;
@@ -2217,15 +2136,11 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView,
 
           if (!(rand() % 3)) {
             float alpha;
-            alpha = 1.0f -
-                    ((float)(cg.time - cg.predictedPlayerEntity.overheatTime) /
-                     3000.0f);
+            alpha  = 1.0f - ((float)(cg.time - cg.predictedPlayerEntity.overheatTime) / 3000.0f);
             alpha *= 0.25f; // .25
                             // max
                             // alpha
-            CG_ParticleImpactSmokePuffExtended(cgs.media.smokeParticleShader,
-                                               muzzle, 1000, 8, 20, 30, alpha,
-                                               8.f);
+            CG_ParticleImpactSmokePuffExtended(cgs.media.smokeParticleShader, muzzle, 1000, 8, 20, 30, alpha, 8.f);
           }
         }
       }
@@ -2273,8 +2188,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView,
 
     // DHM - Nerve :: let client system know our predicted
     // origin
-    trap_SetClientLerpOrigin(cg.refdef.vieworg[0], cg.refdef.vieworg[1],
-                             cg.refdef.vieworg[2]);
+    trap_SetClientLerpOrigin(cg.refdef.vieworg[0], cg.refdef.vieworg[1], cg.refdef.vieworg[2]);
 
     ETJump::updateHUDData();
 
@@ -2284,8 +2198,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView,
     DEBUGTIME
 
     // update audio positions
-    trap_S_Respatialize(cg.snap->ps.clientNum, cg.refdef.vieworg,
-                        cg.refdef.viewaxis, inwater);
+    trap_S_Respatialize(cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater);
   }
 
   if (cg_stats.integer) {
@@ -2296,8 +2209,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView,
 
   // let the client system know what our weapon, holdable item and zoom
   // settings are
-  trap_SetUserCmdValue(cg.weaponSelect, cg.showGameView ? 0x01 : 0x00,
-                       cg.zoomSensitivity, cg.identifyClientRequest);
+  trap_SetUserCmdValue(cg.weaponSelect, cg.showGameView ? 0x01 : 0x00, cg.zoomSensitivity, cg.identifyClientRequest);
 
   ETJump::runFrameEnd();
 }

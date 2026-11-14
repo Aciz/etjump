@@ -23,39 +23,42 @@
  */
 
 #include "etj_fireteam_completions.h"
+
 #include "cg_local.h"
 #include "etj_command_complete_ext.h"
 
 #include "../game/etj_string_utilities.h"
 
 namespace ETJump {
-FireteamCompletions::FireteamCompletions() { setupCompletions(); }
+FireteamCompletions::FireteamCompletions() {
+  setupCompletions();
+}
 
 void FireteamCompletions::setupCompletions() {
   argCompletions.emplace_back("create");
-  argCompletions.emplace_back(
-      "apply",
-      [](const std::vector<std::string> &args) { return apply(args); });
+  argCompletions.emplace_back("apply", [](const std::vector<std::string> &args) {
+    return apply(args);
+  });
   argCompletions.emplace_back("leave");
   argCompletions.emplace_back("disband");
-  argCompletions.emplace_back(
-      "invite",
-      [](const std::vector<std::string> &args) { return invite(args); });
+  argCompletions.emplace_back("invite", [](const std::vector<std::string> &args) {
+    return invite(args);
+  });
   argCompletions.emplace_back("kick", [](const std::vector<std::string> &args) {
     return kickOrWarn(args);
   });
   argCompletions.emplace_back("warn", [](const std::vector<std::string> &args) {
     return kickOrWarn(args);
   });
-  argCompletions.emplace_back(
-      "propose",
-      [](const std::vector<std::string> &args) { return propose(args); });
-  argCompletions.emplace_back(
-      "rules",
-      [](const std::vector<std::string> &args) { return rules(args); });
-  argCompletions.emplace_back(
-      "teamjump", std::vector<std::string>{"tj"},
-      [](const std::vector<std::string> &args) { return teamjump(args); });
+  argCompletions.emplace_back("propose", [](const std::vector<std::string> &args) {
+    return propose(args);
+  });
+  argCompletions.emplace_back("rules", [](const std::vector<std::string> &args) {
+    return rules(args);
+  });
+  argCompletions.emplace_back("teamjump", std::vector<std::string>{"tj"}, [](const std::vector<std::string> &args) {
+    return teamjump(args);
+  });
   argCompletions.emplace_back("countdown");
 }
 
@@ -65,8 +68,7 @@ bool FireteamCompletions::complete(const std::vector<std::string> &args) const {
   }
 
   for (const auto &completion : argCompletions) {
-    if (args[0] == completion.arg ||
-        CommandCompletions::isAlias(args[0], completion.aliases)) {
+    if (args[0] == completion.arg || CommandCompletions::isAlias(args[0], completion.aliases)) {
       if (completion.fn == nullptr) {
         return false;
       }
@@ -87,7 +89,7 @@ bool FireteamCompletions::apply(const std::vector<std::string> &args) {
   }
 
   const std::string currentArg = args.size() > 1 ? args[1] : "";
-  const auto *const ftData = cgs.clientinfo[cg.clientNum].fireteamData;
+  const auto *const ftData     = cgs.clientinfo[cg.clientNum].fireteamData;
 
   for (int32_t i = 0; i < MAX_FIRETEAMS; i++) {
     const auto *const ft = &cg.fireTeams[i];
@@ -101,8 +103,7 @@ bool FireteamCompletions::apply(const std::vector<std::string> &args) {
       continue;
     }
 
-    const std::string ftName =
-        StringUtils::toLowerCase(bg_fireteamNames[ft->ident]);
+    const std::string ftName = StringUtils::toLowerCase(bg_fireteamNames[ft->ident]);
 
     // stop completion if we have a valid arg
     if (ftName == currentArg) {
@@ -144,8 +145,7 @@ bool FireteamCompletions::invite(const std::vector<std::string> &args) {
   // to be treated as a completed completion
   // we also skip 'all' and 'spectator' to allow still
   // suggesting 'allies' and 'spectators'
-  if (currentArg == "axis" || currentArg == "allies" ||
-      currentArg == "allied" || currentArg == "spectators") {
+  if (currentArg == "axis" || currentArg == "allies" || currentArg == "allied" || currentArg == "spectators") {
     return false;
   }
 
@@ -160,8 +160,7 @@ bool FireteamCompletions::invite(const std::vector<std::string> &args) {
     }
 
     // stop completion if we have a valid client name as arg
-    if (!Q_stricmp(ci.cleanname, currentArg.c_str()) ||
-        !Q_stricmp(ci.name, currentArg.c_str())) {
+    if (!Q_stricmp(ci.cleanname, currentArg.c_str()) || !Q_stricmp(ci.name, currentArg.c_str())) {
       return false;
     }
 
@@ -199,8 +198,7 @@ bool FireteamCompletions::kickOrWarn(const std::vector<std::string> &args) {
     }
 
     // stop completion once we have a valid client name as arg
-    if (!Q_stricmp(ci.cleanname, currentArg.c_str()) ||
-        !Q_stricmp(ci.name, currentArg.c_str())) {
+    if (!Q_stricmp(ci.cleanname, currentArg.c_str()) || !Q_stricmp(ci.name, currentArg.c_str())) {
       return false;
     }
 
@@ -238,8 +236,7 @@ bool FireteamCompletions::propose(const std::vector<std::string> &args) {
     }
 
     // stop completion once we have a valid client name as arg
-    if (!Q_stricmp(ci.cleanname, currentArg.c_str()) ||
-        !Q_stricmp(ci.name, currentArg.c_str())) {
+    if (!Q_stricmp(ci.cleanname, currentArg.c_str()) || !Q_stricmp(ci.name, currentArg.c_str())) {
       return false;
     }
 
@@ -264,7 +261,7 @@ bool FireteamCompletions::rules(const std::vector<std::string> &args) {
     return false;
   }
 
-  const std::string mainArg = args.size() > 1 ? args[1] : "";
+  const std::string mainArg      = args.size() > 1 ? args[1] : "";
   const std::string secondaryArg = args.size() > 2 ? args[2] : "";
 
   // complete secondary args if we already have a main arg as input
@@ -276,8 +273,7 @@ bool FireteamCompletions::rules(const std::vector<std::string> &args) {
       return true;
     }
 
-    if (mainArg == "noghost" &&
-        (secondaryArg != "on" && secondaryArg != "off")) {
+    if (mainArg == "noghost" && (secondaryArg != "on" && secondaryArg != "off")) {
       completeArg("on");
       completeArg("off");
 

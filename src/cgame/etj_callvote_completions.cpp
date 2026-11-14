@@ -23,6 +23,7 @@
  */
 
 #include "etj_callvote_completions.h"
+
 #include "cg_local.h"
 #include "etj_command_complete_ext.h"
 #include "etj_local.h"
@@ -30,18 +31,21 @@
 #include "../game/etj_string_utilities.h"
 
 namespace ETJump {
-CallvoteCompletions::CallvoteCompletions() { setupCompletions(); }
+CallvoteCompletions::CallvoteCompletions() {
+  setupCompletions();
+}
 
 void CallvoteCompletions::setupCompletions() {
-  argCompletions.emplace_back(
-      "map", [](const std::vector<std::string> &args) { return map(args); });
-  argCompletions.emplace_back(
-      "devmap", [](const std::vector<std::string> &args) { return map(args); });
+  argCompletions.emplace_back("map", [](const std::vector<std::string> &args) {
+    return map(args);
+  });
+  argCompletions.emplace_back("devmap", [](const std::vector<std::string> &args) {
+    return map(args);
+  });
   argCompletions.emplace_back("maprestart");
-  argCompletions.emplace_back("randommap",
-                              [](const std::vector<std::string> &args) {
-                                return randomMapOrRtv(args);
-                              });
+  argCompletions.emplace_back("randommap", [](const std::vector<std::string> &args) {
+    return randomMapOrRtv(args);
+  });
   argCompletions.emplace_back("rtv", [](const std::vector<std::string> &args) {
     return randomMapOrRtv(args);
   });
@@ -55,8 +59,7 @@ bool CallvoteCompletions::complete(const std::vector<std::string> &args) const {
   }
 
   for (const auto &completion : argCompletions) {
-    if (args[0] == completion.arg ||
-        CommandCompletions::isAlias(args[0], completion.aliases)) {
+    if (args[0] == completion.arg || CommandCompletions::isAlias(args[0], completion.aliases)) {
       if (completion.fn == nullptr) {
         return false;
       }

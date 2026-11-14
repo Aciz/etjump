@@ -32,8 +32,7 @@
 
 class Printer {
 private:
-  template <typename T>
-  static int32_t getClientNum(const T client) {
+  template <typename T> static int32_t getClientNum(const T client) {
     int32_t clientNum = 0;
 
     if constexpr (std::is_pointer_v<T>) {
@@ -50,24 +49,21 @@ private:
   }
 
   template <typename T>
-  static void
-  sendCenterMessage(const T client, const char *cmd, const std::string &message,
-                    std::optional<int32_t> priority = std::nullopt) {
+  static void sendCenterMessage(const T client, const char *cmd, const std::string &message,
+                                std::optional<int32_t> priority = std::nullopt) {
     const int32_t clientNum = getClientNum(client);
 
     if (priority.has_value()) {
-      trap_SendServerCommand(clientNum, va("%s \"%s\" %i\n", cmd,
-                                           message.c_str(), priority.value()));
+      trap_SendServerCommand(clientNum, va("%s \"%s\" %i\n", cmd, message.c_str(), priority.value()));
     } else {
-      trap_SendServerCommand(clientNum,
-                             va("%s \"%s\"\n", cmd, message.c_str()));
+      trap_SendServerCommand(clientNum, va("%s \"%s\"\n", cmd, message.c_str()));
     }
   }
 
 public:
-  static constexpr size_t BYTES_PER_PACKET = 998;
+  static constexpr size_t BYTES_PER_PACKET       = 998;
   static constexpr int32_t CONSOLE_CLIENT_NUMBER = -1;
-  static constexpr int32_t ALL_CLIENTS = -1;
+  static constexpr int32_t ALL_CLIENTS           = -1;
 
   // ---------------------------------------------------------------------------
   // Logging
@@ -79,10 +75,8 @@ public:
    * Message is split into multiple entries if it exceeds 998 bytes.
    * @param message The message to be logged
    */
-  template <typename... Targs>
-  static void log(const std::string &message, const Targs &...fargs) {
-    const auto splits = StringUtils::wrapWords(
-        StringUtils::format(message, fargs...), '\n', BYTES_PER_PACKET);
+  template <typename... Targs> static void log(const std::string &message, const Targs &...fargs) {
+    const auto splits = StringUtils::wrapWords(StringUtils::format(message, fargs...), '\n', BYTES_PER_PACKET);
 
     for (const auto &split : splits) {
       G_LogPrintf(split.c_str());
@@ -93,8 +87,7 @@ public:
    * Same functionality as 'log' but adds a new line in the end.
    * @param message The message to be logged
    */
-  template <typename... Targs>
-  static void logLn(const std::string &message, const Targs &...fargs) {
+  template <typename... Targs> static void logLn(const std::string &message, const Targs &...fargs) {
     log(StringUtils::format(message, fargs...) + '\n');
   }
 
@@ -102,26 +95,22 @@ public:
    * Logs message to the admin log, if one is specified.
    * @param message The message to be logged
    */
-  template <typename... Targs>
-  static void logAdmin(const std::string &message, const Targs &...fargs) {
+  template <typename... Targs> static void logAdmin(const std::string &message, const Targs &...fargs) {
     if (!level.adminLogFile) {
       return;
     }
 
     const auto tm = TimeUtils::getCurrentClock(false);
 
-    const char *msg = va("%02i:%02i:%02i %s", tm.hours, tm.min, tm.sec,
-                         StringUtils::format(message, fargs...).c_str());
-    trap_FS_Write(msg, static_cast<int32_t>(std::strlen(msg)),
-                  level.adminLogFile);
+    const char *msg = va("%02i:%02i:%02i %s", tm.hours, tm.min, tm.sec, StringUtils::format(message, fargs...).c_str());
+    trap_FS_Write(msg, static_cast<int32_t>(std::strlen(msg)), level.adminLogFile);
   }
 
   /**
    * Same functionality as 'logAdmin' but adds a new line in the end.
    * @param message The message to be logged
    */
-  template <typename... Targs>
-  static void logAdminLn(const std::string &message, const Targs &...fargs) {
+  template <typename... Targs> static void logAdminLn(const std::string &message, const Targs &...fargs) {
     logAdmin(StringUtils::format(message, fargs...) + '\n');
   }
 
@@ -137,11 +126,9 @@ public:
    * @param message The message to be sent
    */
   template <typename T, typename... Targs>
-  static void console(const T client, const std::string &message,
-                      const Targs &...fargs) {
+  static void console(const T client, const std::string &message, const Targs &...fargs) {
     const int32_t clientNum = getClientNum(client);
-    const auto splits = StringUtils::wrapWords(
-        StringUtils::format(message, fargs...), '\n', BYTES_PER_PACKET);
+    const auto splits       = StringUtils::wrapWords(StringUtils::format(message, fargs...), '\n', BYTES_PER_PACKET);
 
     for (const auto &split : splits) {
       if (clientNum == CONSOLE_CLIENT_NUMBER) {
@@ -158,10 +145,8 @@ public:
    * Will send multiple messages if the message is longer than 998 bytes.
    * @param message The message to be sent
    */
-  template <typename... Targs>
-  static void consoleAll(const std::string &message, const Targs &...fargs) {
-    const auto splits = StringUtils::wrapWords(
-        StringUtils::format(message, fargs...), '\n', BYTES_PER_PACKET);
+  template <typename... Targs> static void consoleAll(const std::string &message, const Targs &...fargs) {
+    const auto splits = StringUtils::wrapWords(StringUtils::format(message, fargs...), '\n', BYTES_PER_PACKET);
 
     for (const auto &split : splits) {
       trap_SendServerCommand(ALL_CLIENTS, va("print \"%s\"", split.c_str()));
@@ -182,10 +167,9 @@ public:
    * @param message The message to be sent
    */
   template <typename T, typename... Targs>
-  static void chat(const T client, const std::string &message,
-                   const Targs &...fargs) {
+  static void chat(const T client, const std::string &message, const Targs &...fargs) {
     const int32_t clientNum = getClientNum(client);
-    const std::string msg = StringUtils::format(message, fargs...);
+    const std::string msg   = StringUtils::format(message, fargs...);
 
     if (clientNum == CONSOLE_CLIENT_NUMBER) {
       G_Printf("%s\n", msg.c_str());
@@ -201,10 +185,9 @@ public:
    * @param message The message to be sent
    */
   template <typename T, typename... Targs>
-  static void chatEnc(const T client, const std::string &message,
-                      const Targs &...fargs) {
+  static void chatEnc(const T client, const std::string &message, const Targs &...fargs) {
     const int32_t clientNum = getClientNum(client);
-    const std::string msg = StringUtils::format(message, fargs...);
+    const std::string msg   = StringUtils::format(message, fargs...);
 
     if (clientNum == CONSOLE_CLIENT_NUMBER) {
       G_Printf("%s\n", msg.c_str());
@@ -218,8 +201,7 @@ public:
    * Also prints to server console on dedicated servers.
    * @param message The message to be sent
    */
-  template <typename... Targs>
-  static void chatAll(const std::string &message, const Targs &...fargs) {
+  template <typename... Targs> static void chatAll(const std::string &message, const Targs &...fargs) {
     const std::string msg = StringUtils::format(message, fargs...);
     trap_SendServerCommand(ALL_CLIENTS, va("chat \"%s\"", msg.c_str()));
 
@@ -234,8 +216,7 @@ public:
    * Also prints to server console on dedicated servers.
    * @param message The message to be sent
    */
-  template <typename... Targs>
-  static void chatEncAll(const std::string &message, const Targs &...fargs) {
+  template <typename... Targs> static void chatEncAll(const std::string &message, const Targs &...fargs) {
     const std::string msg = StringUtils::format(message, fargs...);
     trap_SendServerCommand(ALL_CLIENTS, va("enc_chat \"%s\"", msg.c_str()));
 
@@ -254,10 +235,9 @@ public:
    * @param message The message to be sent
    */
   template <typename T, typename... Targs>
-  static void popup(const T client, const std::string &message,
-                    const Targs &...fargs) {
+  static void popup(const T client, const std::string &message, const Targs &...fargs) {
     const int32_t clientNum = getClientNum(client);
-    const std::string msg = StringUtils::format(message, fargs...);
+    const std::string msg   = StringUtils::format(message, fargs...);
 
     if (clientNum == CONSOLE_CLIENT_NUMBER) {
       G_Printf("%s\n", msg.c_str());
@@ -271,8 +251,7 @@ public:
    * Also prints to server console on dedicated servers.
    * @param message The message to be sent
    */
-  template <typename... Targs>
-  static void popupAll(const std::string &message, const Targs &...fargs) {
+  template <typename... Targs> static void popupAll(const std::string &message, const Targs &...fargs) {
     const std::string msg = StringUtils::format(message, fargs...);
     trap_SendServerCommand(ALL_CLIENTS, va("cpm \"%s\"", msg.c_str()));
 
@@ -295,8 +274,7 @@ public:
    * @param message The message to be sent
    */
   template <typename T, typename... Targs>
-  static void center(const T client, const std::string &message,
-                     const Targs &...fargs) {
+  static void center(const T client, const std::string &message, const Targs &...fargs) {
     sendCenterMessage(client, "cp", StringUtils::format(message, fargs...));
   }
 
@@ -308,8 +286,7 @@ public:
    * @param message The message to be sent
    */
   template <typename T, typename... Targs>
-  static void centerNoLog(const T client, const std::string &message,
-                          const Targs &...fargs) {
+  static void centerNoLog(const T client, const std::string &message, const Targs &...fargs) {
     sendCenterMessage(client, "cpnl", StringUtils::format(message, fargs...));
   }
 
@@ -318,8 +295,7 @@ public:
    * Also prints to server console on dedicated servers.
    * @param message The message to be sent
    */
-  template <typename... Targs>
-  static void centerAll(const std::string &message, const Targs &...fargs) {
+  template <typename... Targs> static void centerAll(const std::string &message, const Targs &...fargs) {
     const std::string msg = StringUtils::format(message, fargs...);
     sendCenterMessage(ALL_CLIENTS, "cp", msg);
 
@@ -334,8 +310,7 @@ public:
    * @param message The message to be sent
    */
   template <typename T, typename... Targs>
-  static void centerAllNoLog(const std::string &message,
-                             const Targs &...fargs) {
+  static void centerAllNoLog(const std::string &message, const Targs &...fargs) {
     const std::string msg = StringUtils::format(message, fargs...);
     sendCenterMessage(ALL_CLIENTS, "cpnl", msg);
 
@@ -352,11 +327,9 @@ public:
    * @param message The message to be sent
    */
   template <typename T, typename... Targs>
-  static void centerPriority(const T client, const int32_t priority,
-                             const std::string &message,
+  static void centerPriority(const T client, const int32_t priority, const std::string &message,
                              const Targs &...fargs) {
-    sendCenterMessage(client, "cp", StringUtils::format(message, fargs...),
-                      priority);
+    sendCenterMessage(client, "cp", StringUtils::format(message, fargs...), priority);
   }
 
   /**
@@ -368,11 +341,8 @@ public:
    * @param message The message to be sent
    */
   template <typename T, typename... Targs>
-  static void centerPriorityNoLog(const T client, int32_t priority,
-                                  const std::string &message,
-                                  const Targs &...fargs) {
-    sendCenterMessage(client, "cpnl", StringUtils::format(message, fargs...),
-                      priority);
+  static void centerPriorityNoLog(const T client, int32_t priority, const std::string &message, const Targs &...fargs) {
+    sendCenterMessage(client, "cpnl", StringUtils::format(message, fargs...), priority);
   }
 
   /**
@@ -382,9 +352,7 @@ public:
    * @param message The message to be sent
    */
   template <typename... Targs>
-  static void centerPriorityAll(const int32_t priority,
-                                const std::string &message,
-                                const Targs &...fargs) {
+  static void centerPriorityAll(const int32_t priority, const std::string &message, const Targs &...fargs) {
     const std::string msg = StringUtils::format(message, fargs...);
     sendCenterMessage(ALL_CLIENTS, "cp", msg, priority);
 
@@ -401,9 +369,7 @@ public:
    * @param message The message to be sent
    */
   template <typename... Targs>
-  static void centerPriorityAllNoLog(const int32_t priority,
-                                     const std::string &message,
-                                     const Targs &...fargs) {
+  static void centerPriorityAllNoLog(const int32_t priority, const std::string &message, const Targs &...fargs) {
     const std::string msg = StringUtils::format(message, fargs...);
     sendCenterMessage(ALL_CLIENTS, "cpnl", msg, priority);
 
@@ -423,10 +389,9 @@ public:
    * @param message The message to be sent
    */
   template <typename T, typename... Targs>
-  static void banner(const T client, const std::string &message,
-                     const Targs &...fargs) {
+  static void banner(const T client, const std::string &message, const Targs &...fargs) {
     const int32_t clientNum = getClientNum(client);
-    const std::string msg = StringUtils::format(message, fargs...);
+    const std::string msg   = StringUtils::format(message, fargs...);
 
     if (clientNum == CONSOLE_CLIENT_NUMBER) {
       G_Printf("%s\n", msg.c_str());
@@ -440,8 +405,7 @@ public:
    * Also prints to server console on dedicated servers.
    * @param message The message to be sent
    */
-  template <typename... Targs>
-  static void bannerAll(const std::string &message, const Targs &...fargs) {
+  template <typename... Targs> static void bannerAll(const std::string &message, const Targs &...fargs) {
     const std::string msg = StringUtils::format(message, fargs...);
     trap_SendServerCommand(ALL_CLIENTS, va("bp \"%s\"", msg.c_str()));
 
@@ -469,8 +433,7 @@ public:
    * @param clientNums The clients to send the command to
    * @param command The command to be sent
    */
-  static void command(const std::vector<int> &clientNums,
-                      const std::string &command) {
+  static void command(const std::vector<int> &clientNums, const std::string &command) {
     for (const auto &clientNum : clientNums) {
       trap_SendServerCommand(clientNum, command.c_str());
     }

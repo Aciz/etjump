@@ -31,8 +31,7 @@ class FireteamCompletions : public ICompletion {
 public:
   FireteamCompletions();
 
-  [[nodiscard]] bool
-  complete(const std::vector<std::string> &args) const override;
+  [[nodiscard]] bool complete(const std::vector<std::string> &args) const override;
 
 private:
   void setupCompletions();

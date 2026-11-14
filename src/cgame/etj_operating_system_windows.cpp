@@ -26,22 +26,21 @@
 
   #include <windows.h>
   #include <sddl.h>
-  #include "etj_operating_system.h"
+
   #include "etj_client_authentication.h"
+  #include "etj_operating_system.h"
 
 const char *G_SHA1(const char *str);
-void trap_Cvar_VariableStringBuffer(const char *var_name, char *buffer,
-                                    int bufsize);
+void trap_Cvar_VariableStringBuffer(const char *var_name, char *buffer, int bufsize);
 
 static void addMinimizeButton() {
   char buffer[64];
   auto *WindowClassName = "Enemy Territory";
   trap_Cvar_VariableStringBuffer("win_hinstance", buffer, sizeof buffer);
   const auto etHandle = reinterpret_cast<HINSTANCE>(atoll(buffer));
-  HWND wnd = nullptr;
+  HWND wnd            = nullptr;
   while ((wnd = FindWindowEx(nullptr, wnd, WindowClassName, WindowClassName))) {
-    const auto hInst =
-        reinterpret_cast<HINSTANCE>(GetWindowLongPtr(wnd, GWLP_HINSTANCE));
+    const auto hInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(wnd, GWLP_HINSTANCE));
     if (etHandle == hInst) {
       const auto style = GetWindowLongPtr(wnd, GWL_STYLE);
       SetWindowLongPtr(wnd, GWL_STYLE, style | WS_MINIMIZEBOX);
@@ -50,7 +49,9 @@ static void addMinimizeButton() {
   }
 }
 
-ETJump::OperatingSystem::OperatingSystem() { addMinimizeButton(); }
+ETJump::OperatingSystem::OperatingSystem() {
+  addMinimizeButton();
+}
 
 void ETJump::OperatingSystem::minimize() {
   HWND wnd = GetForegroundWindow();
@@ -72,15 +73,13 @@ std::string ETJump::OperatingSystem::getCurrentUserSID() {
     return "";
   }
 
-  const auto pTokenUser =
-      static_cast<PTOKEN_USER>(LocalAlloc(LPTR, dwBufferSize));
+  const auto pTokenUser = static_cast<PTOKEN_USER>(LocalAlloc(LPTR, dwBufferSize));
   if (!pTokenUser) {
     CloseHandle(hToken);
     return "";
   }
 
-  if (!GetTokenInformation(hToken, TokenUser, pTokenUser, dwBufferSize,
-                           &dwBufferSize)) {
+  if (!GetTokenInformation(hToken, TokenUser, pTokenUser, dwBufferSize, &dwBufferSize)) {
     LocalFree(pTokenUser);
     CloseHandle(hToken);
     return "";
@@ -94,12 +93,10 @@ std::string ETJump::OperatingSystem::getCurrentUserSID() {
   }
 
   // convert from wide string to ASCII string
-  const int size = WideCharToMultiByte(CP_UTF8, 0, stringSID, -1, nullptr, 0,
-                                       nullptr, nullptr);
+  const int size = WideCharToMultiByte(CP_UTF8, 0, stringSID, -1, nullptr, 0, nullptr, nullptr);
   // -1 because we don't need the null terminator in std::string
   std::string result(size - 1, 0);
-  WideCharToMultiByte(CP_UTF8, 0, stringSID, -1, &result[0], size, nullptr,
-                      nullptr);
+  WideCharToMultiByte(CP_UTF8, 0, stringSID, -1, &result[0], size, nullptr, nullptr);
 
   LocalFree(stringSID);
   LocalFree(pTokenUser);
@@ -125,9 +122,8 @@ std::string ETJump::OperatingSystem::getHwid() {
   GetSystemInfo(&systemInfo);
 
   // Random data from processor
-  const unsigned int systemInfoSum = systemInfo.dwProcessorType +
-                                     systemInfo.wProcessorLevel +
-                                     systemInfo.wProcessorArchitecture;
+  const unsigned int systemInfoSum =
+    systemInfo.dwProcessorType + systemInfo.wProcessorLevel + systemInfo.wProcessorArchitecture;
 
   char buffer[MAX_PATH]{};
   _ultoa(systemInfoSum, buffer, 10);
@@ -137,8 +133,7 @@ std::string ETJump::OperatingSystem::getHwid() {
   GetEnvironmentVariable("HOMEDRIVE", buffer, sizeof(buffer));
   rootDrive = std::string(buffer) + "\\";
 
-  if (GetVolumeInformation(rootDrive.c_str(), nullptr, 0, &vsn, nullptr,
-                           nullptr, nullptr, 0) == 0) {
+  if (GetVolumeInformation(rootDrive.c_str(), nullptr, 0, &vsn, nullptr, nullptr, nullptr, 0) == 0) {
     // Failed to get volume info
     rootDrive += "failed";
   }

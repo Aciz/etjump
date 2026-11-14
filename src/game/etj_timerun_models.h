@@ -30,13 +30,13 @@
 #include "etj_time_utilities.h"
 
 namespace ETJump::Timerun {
-inline constexpr int32_t DEFAULT_PAGE_SIZE_ALL_RUNS = 3;
+inline constexpr int32_t DEFAULT_PAGE_SIZE_ALL_RUNS   = 3;
 inline constexpr int32_t DEFAULT_PAGE_SIZE_SINGLE_RUN = 20;
-inline constexpr int32_t MAX_PAGE_SIZE_SINGLE_RUN = 100;
-inline constexpr int32_t MAX_PAGE_SIZE_ALL_RUNS = 10;
-inline constexpr int32_t DEFAULT_PAGE_SIZE_HISTORY = 20;
-inline constexpr int32_t MAX_PAGE_SIZE_HISTORY = 100;
-inline constexpr int32_t DEFAULT_SEASON_ID = 1;
+inline constexpr int32_t MAX_PAGE_SIZE_SINGLE_RUN     = 100;
+inline constexpr int32_t MAX_PAGE_SIZE_ALL_RUNS       = 10;
+inline constexpr int32_t DEFAULT_PAGE_SIZE_HISTORY    = 20;
+inline constexpr int32_t MAX_PAGE_SIZE_HISTORY        = 100;
+inline constexpr int32_t DEFAULT_SEASON_ID            = 1;
 
 struct Season {
   int id;
@@ -57,8 +57,7 @@ struct Record {
   std::map<std::string, std::string> metadata;
 
   bool isSameRunAs(const Record *otherRecord) const {
-    return this->seasonId == otherRecord->seasonId &&
-           this->map == otherRecord->map && this->run == otherRecord->run;
+    return this->seasonId == otherRecord->seasonId && this->map == otherRecord->map && this->run == otherRecord->run;
   }
 };
 

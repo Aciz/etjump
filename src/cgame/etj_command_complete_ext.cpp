@@ -23,6 +23,7 @@
  */
 
 #include "etj_command_complete_ext.h"
+
 #include "cg_local.h"
 #include "etj_call_goto_completions.h"
 #include "etj_callvote_completions.h"
@@ -33,23 +34,22 @@
 #include "../game/etj_string_utilities.h"
 
 namespace ETJump {
-CommandCompletions::CommandCompletions() { setupCompletions(); }
+CommandCompletions::CommandCompletions() {
+  setupCompletions();
+}
 
 void CommandCompletions::setupCompletions() {
   completions.emplace_back("fireteam", std::make_unique<FireteamCompletions>());
-  completions.emplace_back("callvote", std::vector<std::string>{"cv"},
-                           std::make_unique<CallvoteCompletions>());
+  completions.emplace_back("callvote", std::vector<std::string>{"cv"}, std::make_unique<CallvoteCompletions>());
   completions.emplace_back("listinfo", std::vector<std::string>{"customvotes"},
                            std::make_unique<ListInfoCompletions>());
-  completions.emplace_back("call", std::vector<std::string>{"iwant"},
-                           std::make_unique<CallGotoCompletions>());
+  completions.emplace_back("call", std::vector<std::string>{"iwant"}, std::make_unique<CallGotoCompletions>());
   completions.emplace_back("goto", std::make_unique<CallGotoCompletions>());
   // add 'unignore' as an alias here - both target any connected client,
   // but there's no way to know who is already ignored, only server has that
   // information, so we can't target only ignored clients with 'unignore',
   // or only unignored clients with 'ignore'
-  completions.emplace_back("ignore", std::vector<std::string>{"unignore"},
-                           std::make_unique<IgnoreCompletions>());
+  completions.emplace_back("ignore", std::vector<std::string>{"unignore"}, std::make_unique<IgnoreCompletions>());
 }
 
 bool CommandCompletions::completeArgument() const {
@@ -76,10 +76,10 @@ bool CommandCompletions::completeArgument() const {
   return false;
 }
 
-bool CommandCompletions::isAlias(const std::string_view arg,
-                                 const std::vector<std::string> &aliases) {
-  return std::any_of(aliases.cbegin(), aliases.cend(),
-                     [&arg](const auto &alias) { return arg == alias; });
+bool CommandCompletions::isAlias(const std::string_view arg, const std::vector<std::string> &aliases) {
+  return std::any_of(aliases.cbegin(), aliases.cend(), [&arg](const auto &alias) {
+    return arg == alias;
+  });
 };
 
 } // namespace ETJump

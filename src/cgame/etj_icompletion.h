@@ -36,16 +36,15 @@ public:
   struct ArgCompletion {
     explicit ArgCompletion(std::string arg) : arg(std::move(arg)) {};
 
-    ArgCompletion(std::string arg,
-                  std::function<bool(const std::vector<std::string> &)> fn)
-        : arg(std::move(arg)), fn(std::move(fn)) {}
+    ArgCompletion(std::string arg, std::function<bool(const std::vector<std::string> &)> fn)
+      : arg(std::move(arg)), fn(std::move(fn)) {}
 
     ArgCompletion(std::string arg, std::vector<std::string> aliases)
-        : arg(std::move(arg)), aliases(std::move(aliases)) {}
+      : arg(std::move(arg)), aliases(std::move(aliases)) {}
 
     ArgCompletion(std::string arg, std::vector<std::string> aliases,
                   std::function<bool(const std::vector<std::string> &)> fn)
-        : arg(std::move(arg)), aliases(std::move(aliases)), fn(std::move(fn)) {}
+      : arg(std::move(arg)), aliases(std::move(aliases)), fn(std::move(fn)) {}
 
     std::string arg;
     std::vector<std::string> aliases;
@@ -67,7 +66,6 @@ public:
   virtual ~ICompletion() = default;
 
   // 'args' should always be lowercased!
-  [[nodiscard]] virtual bool
-  complete(const std::vector<std::string> &args) const = 0;
+  [[nodiscard]] virtual bool complete(const std::vector<std::string> &args) const = 0;
 };
 } // namespace ETJump

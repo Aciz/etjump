@@ -22,14 +22,13 @@
  * SOFTWARE.
  */
 
+#include "etj_portalgun_shared.h"
+
 #include <algorithm>
 #include <cmath>
 
-#include "etj_portalgun_shared.h"
-
 namespace ETJump::PortalgunShared {
-void traceEndpoints(const vec3_t origin, const int32_t viewheight,
-                    const vec3_t viewangles, vec3_t start, vec3_t end) {
+void traceEndpoints(const vec3_t origin, const int32_t viewheight, const vec3_t viewangles, vec3_t start, vec3_t end) {
   vec3_t forward;
 
   VectorCopy(origin, start);
@@ -39,8 +38,7 @@ void traceEndpoints(const vec3_t origin, const int32_t viewheight,
   VectorMA(start, MAX_PORTAL_RANGE, forward, end);
 }
 
-void muzzlePoint(const vec3_t origin, const int32_t viewheight,
-                 const vec3_t viewangles, vec3_t out) {
+void muzzlePoint(const vec3_t origin, const int32_t viewheight, const vec3_t viewangles, vec3_t out) {
   vec3_t right;
   vec3_t up;
 
@@ -68,8 +66,7 @@ bool surfaceAllowsPortal(const trace_t &tr, const bool portalSurfaces) {
   return portalSurfaces ? !isPortalSurface : isPortalSurface;
 }
 
-void computePlacement(const trace_t &tr, const PortalTarget *target,
-                      Placement &out) {
+void computePlacement(const trace_t &tr, const PortalTarget *target, Placement &out) {
   vectoangles(tr.plane.normal, out.angles);
   out.scale = 1.0f;
 
@@ -91,18 +88,15 @@ void computePlacement(const trace_t &tr, const PortalTarget *target,
     VectorCopy(tr.endpos, out.surfacePoint);
   }
 
-  VectorMA(out.surfacePoint, PORTAL_SURFACE_OFFSET, tr.plane.normal,
-           out.origin);
+  VectorMA(out.surfacePoint, PORTAL_SURFACE_OFFSET, tr.plane.normal, out.origin);
 }
 
-bool portalsOverlap(const Placement &placement, const vec3_t otherOrigin,
-                    const vec3_t otherAngles, const int32_t otherSize) {
+bool portalsOverlap(const Placement &placement, const vec3_t otherOrigin, const vec3_t otherAngles,
+                    const int32_t otherSize) {
   const float otherScale = scaleFromSize(otherSize);
-  const float minDist =
-      (MIN_PORTALS_DIST * placement.scale) + (MIN_PORTALS_DIST * otherScale);
+  const float minDist    = (MIN_PORTALS_DIST * placement.scale) + (MIN_PORTALS_DIST * otherScale);
 
-  return Distance(placement.angles, otherAngles) < MIN_ANGLES_DIFF &&
-         Distance(placement.origin, otherOrigin) < minDist;
+  return Distance(placement.angles, otherAngles) < MIN_ANGLES_DIFF && Distance(placement.origin, otherOrigin) < minDist;
 }
 
 int32_t sizeFromScale(const float scale) {
@@ -113,8 +107,7 @@ float scaleFromSize(const int32_t size) {
   return static_cast<float>(size) / (PORTAL_BBOX_RADIUS * 2);
 }
 
-void setPortalTarget(entityState_t &es, const int32_t size,
-                     const vec3_t center) {
+void setPortalTarget(entityState_t &es, const int32_t size, const vec3_t center) {
   es.frame = encodePortalTarget(size);
   VectorCopy(center, es.origin2);
 }
@@ -129,12 +122,10 @@ int32_t encodePortalTarget(const int32_t size) {
 }
 
 bool isPortalTarget(const entityState_t &es) {
-  return (es.eType == ET_MOVER || es.eType == ET_STATIC_CLIENT) &&
-         (es.frame & PORTAL_TARGET_FLAG);
+  return (es.eType == ET_MOVER || es.eType == ET_STATIC_CLIENT) && (es.frame & PORTAL_TARGET_FLAG);
 }
 
 int32_t portalTargetSize(const entityState_t &es) {
-  return std::clamp(es.frame & ~PORTAL_TARGET_FLAG, 0,
-                    MAX_PORTAL_TARGET_SIZE);
+  return std::clamp(es.frame & ~PORTAL_TARGET_FLAG, 0, MAX_PORTAL_TARGET_SIZE);
 }
 } // namespace ETJump::PortalgunShared

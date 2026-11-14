@@ -30,8 +30,8 @@
 #include "etj_cvar_parser.h"
 #include "etj_irenderable.h"
 
-#include "../game/etj_shared.h"
 #include "../game/bg_public.h"
+#include "../game/etj_shared.h"
 
 namespace ETJump {
 class EntityEventsHandler;
@@ -54,8 +54,8 @@ public:
 private:
   enum class SpeedRelation : uint8_t {
     NEUTRAL = 0,
-    FASTER = 1,
-    SLOWER = 2,
+    FASTER  = 1,
+    SLOWER  = 2,
   };
 
   struct Jump {
@@ -87,8 +87,8 @@ private:
 
   enum class Style {
     HORIZONTAL = 1,
-    NO_LABEL = 2,
-    REVERSED = 4,
+    NO_LABEL   = 2,
+    REVERSED   = 4,
   };
 
   std::deque<Jump> jumpSpeeds;

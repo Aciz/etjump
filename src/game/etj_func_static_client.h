@@ -31,18 +31,17 @@ class FuncStaticClient {
 public:
   class Spawnflags {
   public:
-    static constexpr int32_t START_INVIS = 1 << 0;
-    static constexpr int32_t PAIN = 1 << 1;
-    static constexpr int32_t GIB_INSIDE = 1 << 2;
+    static constexpr int32_t START_INVIS      = 1 << 0;
+    static constexpr int32_t PAIN             = 1 << 1;
+    static constexpr int32_t GIB_INSIDE       = 1 << 2;
     static constexpr int32_t FT_TEAMJUMP_SYNC = 1 << 3;
-    static constexpr int32_t CONSUME_PORTALS = 1 << 4;
-    static constexpr int32_t PORTAL_TARGET = 1 << 5;
+    static constexpr int32_t CONSUME_PORTALS  = 1 << 4;
+    static constexpr int32_t PORTAL_TARGET    = 1 << 5;
   };
 
   static void spawn(gentity_t *ent);
   static void use(gentity_t *self, gentity_t *other, gentity_t *activator);
-  static void pain(gentity_t *self, gentity_t *attacker, int32_t damage,
-                   vec3_t point);
+  static void pain(gentity_t *self, gentity_t *attacker, int32_t damage, vec3_t point);
 
   static void syncToFireteamLeaderState(int32_t clientNum, int32_t leaderNum);
 

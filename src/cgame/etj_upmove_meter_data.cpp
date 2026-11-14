@@ -22,17 +22,17 @@
  * SOFTWARE.
  */
 
+#include "etj_upmove_meter_data.h"
+
 #include <algorithm>
 
-#include "etj_upmove_meter_data.h"
 #include "etj_client_commands_handler.h"
 #include "etj_player_events_handler.h"
 
 namespace ETJump {
-UpmoveMeterData::UpmoveMeterData(
-    const std::shared_ptr<ClientCommandsHandler> &consoleCommands,
-    const std::shared_ptr<PlayerEventsHandler> &playerEvents)
-    : consoleCommands(consoleCommands), playerEvents(playerEvents) {
+UpmoveMeterData::UpmoveMeterData(const std::shared_ptr<ClientCommandsHandler> &consoleCommands,
+                                 const std::shared_ptr<PlayerEventsHandler> &playerEvents)
+  : consoleCommands(consoleCommands), playerEvents(playerEvents) {
   startListeners();
 }
 
@@ -42,19 +42,19 @@ UpmoveMeterData::~UpmoveMeterData() {
 }
 
 void UpmoveMeterData::startListeners() {
-  consoleCommands->subscribe(
-      "resetUpmoveMeter",
-      [this](const std::vector<std::string> &) { reset(); });
+  consoleCommands->subscribe("resetUpmoveMeter", [this](const std::vector<std::string> &) {
+    reset();
+  });
 
-  playerEvents->subscribe(
-      "respawn", [this](const std::vector<std::string> &) { reset(); });
+  playerEvents->subscribe("respawn", [this](const std::vector<std::string> &) {
+    reset();
+  });
 }
 
 bool UpmoveMeterData::check() {
   // we're not checking for individual CHS info values here,
   // this is trivial enough the compute anyway
-  return etj_drawUpmoveMeter.integer || etj_drawCHS1.integer ||
-         etj_drawCHS2.integer || etj_drawCHS3.integer ||
+  return etj_drawUpmoveMeter.integer || etj_drawCHS1.integer || etj_drawCHS2.integer || etj_drawCHS3.integer ||
          etj_drawJumpSpeeds.integer;
 }
 
@@ -70,8 +70,7 @@ void UpmoveMeterData::runFrame() {
     reset();
   }
 
-  if (cgame.hudData.pmoveV2->skipUpdate(s.lastUpdateTime, std::nullopt,
-                                        pmove.pm)) {
+  if (cgame.hudData.pmoveV2->skipUpdate(s.lastUpdateTime, std::nullopt, pmove.pm)) {
     return;
   }
 
@@ -81,7 +80,7 @@ void UpmoveMeterData::runFrame() {
 
   // FIXME: should use 's.pm.ps->groundEntityNum' but currently broken,
   // see 'PmoveUtilsV2::groundTrace' for details
-  s.inAir = ps->groundEntityNum == ENTITYNUM_NONE;
+  s.inAir   = ps->groundEntityNum == ENTITYNUM_NONE;
   s.jumping = pmove.pm.cmd.upmove > 0;
 
   updateJumpState();
@@ -89,7 +88,9 @@ void UpmoveMeterData::runFrame() {
   s.lastJumpState = s.jumpState;
 }
 
-const UpmoveMeterData::State &UpmoveMeterData::getState() const { return s; }
+const UpmoveMeterData::State &UpmoveMeterData::getState() const {
+  return s;
+}
 
 void UpmoveMeterData::updateJumpState() {
   switch (s.lastJumpState) {
@@ -98,19 +99,16 @@ void UpmoveMeterData::updateJumpState() {
       if (s.inAir) {
         s.jumpState = s.jumping ? JumpState::AIR_JUMP : JumpState::AIR_NOJUMP;
       } else {
-        s.jumpState =
-            s.jumping ? JumpState::GROUND_JUMP : JumpState::GROUND_NOJUMP;
+        s.jumpState = s.jumping ? JumpState::GROUND_JUMP : JumpState::GROUND_NOJUMP;
       }
       break;
     case JumpState::GROUND_NOJUMP:
     case JumpState::GROUND_JUMP:
     case JumpState::AIR_JUMP_NORELEASE:
       if (s.inAir) {
-        s.jumpState =
-            s.jumping ? JumpState::AIR_JUMP_NORELEASE : JumpState::AIR_NOJUMP;
+        s.jumpState = s.jumping ? JumpState::AIR_JUMP_NORELEASE : JumpState::AIR_NOJUMP;
       } else {
-        s.jumpState =
-            s.jumping ? JumpState::GROUND_JUMP : JumpState::GROUND_NOJUMP;
+        s.jumpState = s.jumping ? JumpState::GROUND_JUMP : JumpState::GROUND_NOJUMP;
       }
       break;
     default:
@@ -123,7 +121,7 @@ void UpmoveMeterData::updateUpmoveValues() {
   switch (s.jumpState) {
     case JumpState::AIR_NOJUMP:
       if (s.lastJumpState == JumpState::GROUND_NOJUMP) {
-        s.preDelay = s.jumpPreGroundTime - s.lastUpdateTime;
+        s.preDelay  = s.jumpPreGroundTime - s.lastUpdateTime;
         s.postDelay = 0;
         s.fullDelay = 0;
       } else if (s.lastJumpState == JumpState::AIR_JUMP) {
@@ -149,15 +147,14 @@ void UpmoveMeterData::updateUpmoveValues() {
       s.groundTouchTime = s.lastUpdateTime;
       break;
     case JumpState::GROUND_NOJUMP:
-      if (s.lastJumpState == JumpState::AIR_JUMP ||
-          s.lastJumpState == JumpState::GROUND_JUMP) {
+      if (s.lastJumpState == JumpState::AIR_JUMP || s.lastJumpState == JumpState::GROUND_JUMP) {
         s.postDelay = 0;
         s.fullDelay = s.preDelay;
       } else if (s.lastJumpState == JumpState::AIR_NOJUMP) {
         s.jumpPreGroundTime = s.lastUpdateTime;
       }
 
-      s.preDelay = s.jumpPreGroundTime - s.lastUpdateTime;
+      s.preDelay        = s.jumpPreGroundTime - s.lastUpdateTime;
       s.groundTouchTime = s.lastUpdateTime;
       break;
     case JumpState::AIR_JUMP_NORELEASE:
@@ -169,12 +166,12 @@ void UpmoveMeterData::updateUpmoveValues() {
       break;
   }
 
-  s.preDelay = std::clamp(s.preDelay, -MAX_UPMOVE_TIME, MAX_UPMOVE_TIME);
+  s.preDelay  = std::clamp(s.preDelay, -MAX_UPMOVE_TIME, MAX_UPMOVE_TIME);
   s.postDelay = std::min(s.postDelay, MAX_UPMOVE_TIME);
 }
 
 void UpmoveMeterData::reset() {
-  s.preDelay = 0;
+  s.preDelay  = 0;
   s.postDelay = 0;
   s.fullDelay = 0;
 
@@ -186,8 +183,7 @@ bool UpmoveMeterData::canSkipUpdate(const PmoveUtilsV2::State &pmove) {
     return true;
   }
 
-  if (BG_PlayerMounted(pmove.pm.ps->eFlags) ||
-      pmove.pm.ps->weapon == WP_MOBILE_MG42_SET ||
+  if (BG_PlayerMounted(pmove.pm.ps->eFlags) || pmove.pm.ps->weapon == WP_MOBILE_MG42_SET ||
       pmove.pm.ps->weapon == WP_MORTAR_SET) {
     return true;
   }

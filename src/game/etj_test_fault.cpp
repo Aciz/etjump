@@ -22,24 +22,23 @@
  * SOFTWARE.
  */
 
+#include "etj_test_fault.h"
+
 #include <cstring>
 #include <stdexcept>
 #include <string>
 
-#include "etj_test_fault.h"
 #include "etj_string_utilities.h"
 #include "q_shared.h"
 
 // provided by each module's syscall layer, with identical signatures
-void trap_Cvar_Register(vmCvar_t *cvar, const char *var_name, const char *value,
-                        int flags);
+void trap_Cvar_Register(vmCvar_t *cvar, const char *var_name, const char *value, int flags);
 void trap_Cvar_Set(const char *var_name, const char *value);
-void trap_Cvar_VariableStringBuffer(const char *var_name, char *buffer,
-                                    int bufsize);
+void trap_Cvar_VariableStringBuffer(const char *var_name, char *buffer, int bufsize);
 
 namespace ETJump::TestFault {
 namespace {
-constexpr const char *CVAR_NAME = "etj_testFault";
+constexpr const char *CVAR_NAME         = "etj_testFault";
 constexpr const char *UNEXPECTED_SUFFIX = ":ex";
 
 // registered on first use, so the cvar can be set by name from the console
@@ -66,16 +65,13 @@ struct Probe {
 
 // raises the fault, as an unexpected C++ exception or a fatal error
 void inject(const char *name, const char *func, const bool unexpected) {
-  Com_Printf("%s[testfault]%s %s: injecting %s from '%s'\n", S_COLOR_CYAN,
-             S_COLOR_WHITE, name,
-             unexpected ? "an unexpected C++ exception" : "a fatal error",
-             func);
+  Com_Printf("%s[testfault]%s %s: injecting %s from '%s'\n", S_COLOR_CYAN, S_COLOR_WHITE, name,
+             unexpected ? "an unexpected C++ exception" : "a fatal error", func);
 
   const Probe probe{name, func};
 
   if (unexpected) {
-    throw std::runtime_error(StringUtils::format(
-        "Test fault (unexpected exception): %s (%s)", name, func));
+    throw std::runtime_error(StringUtils::format("Test fault (unexpected exception): %s (%s)", name, func));
   }
 
   Com_Error(ERR_DROP, "Test fault: %s (%s)", name, func);
@@ -93,7 +89,9 @@ VmCallScope::VmCallScope(const char *name) : previous(currentVmCall) {
   currentVmCall = name;
 }
 
-VmCallScope::~VmCallScope() { currentVmCall = previous; }
+VmCallScope::~VmCallScope() {
+  currentVmCall = previous;
+}
 
 void maybeRaise(const char *func, const char *message) {
   char value[MAX_CVAR_VALUE_STRING]{};
@@ -105,13 +103,12 @@ void maybeRaise(const char *func, const char *message) {
 
   bool unexpected = false;
 
-  const size_t valueLength = std::strlen(value);
+  const size_t valueLength  = std::strlen(value);
   const size_t suffixLength = std::strlen(UNEXPECTED_SUFFIX);
 
-  if (valueLength > suffixLength &&
-      Q_stricmp(value + valueLength - suffixLength, UNEXPECTED_SUFFIX) == 0) {
+  if (valueLength > suffixLength && Q_stricmp(value + valueLength - suffixLength, UNEXPECTED_SUFFIX) == 0) {
     value[valueLength - suffixLength] = '\0';
-    unexpected = true;
+    unexpected                        = true;
   }
 
   if (currentVmCall == nullptr || Q_stricmp(value, currentVmCall) != 0) {

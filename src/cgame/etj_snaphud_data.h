@@ -52,8 +52,7 @@ public:
   [[nodiscard]] const State &getState() const;
 
   // angles should be radians
-  bool inMainAccelZone(const vec2_t wishvel, float wishspeed, float velAngle,
-                       float optAngle, const pmove_t &pm);
+  bool inMainAccelZone(const vec2_t wishvel, float wishspeed, float velAngle, float optAngle, const pmove_t &pm);
 
 private:
   void updateState(float accel);
@@ -62,7 +61,10 @@ private:
   void airMove();
   void accelerate(float wishspeed, float accel);
 
-  enum class SnapTrueness { UPMOVE = 1, GROUND = 2 };
+  enum class SnapTrueness {
+    UPMOVE = 1,
+    GROUND = 2
+  };
 
   State s{};
   EnumBitset<PmoveUtilsV2::PmoveDefaultInput> defaultInput;

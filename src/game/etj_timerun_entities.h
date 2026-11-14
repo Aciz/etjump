@@ -39,8 +39,7 @@ protected:
   static void setTimerunIndex(gentity_t *self);
   static bool canActivate(gentity_t *activator);
   static int getOrSetTimerunIndex(const std::string &runName);
-  static bool canStartTimerun(const gentity_t *self, const gentity_t *activator,
-                              int clientNum, float speed);
+  static bool canStartTimerun(const gentity_t *self, const gentity_t *activator, int clientNum, float speed);
 
 public:
   static void validateTimerunEntities();
@@ -65,8 +64,7 @@ public:
 /**
  * TriggerStartTimer
  */
-class TriggerStartTimer : virtual public TimerunEntity,
-                          virtual public TargetStartTimer {
+class TriggerStartTimer : virtual public TimerunEntity, virtual public TargetStartTimer {
 public:
   static void spawn(gentity_t *self);
 };
@@ -74,8 +72,7 @@ public:
 /**
  * TriggerStartTimerExt
  */
-class TriggerStartTimerExt : virtual public TimerunEntity,
-                             virtual public TargetStartTimer {
+class TriggerStartTimerExt : virtual public TimerunEntity, virtual public TargetStartTimer {
 public:
   static void spawn(gentity_t *self);
 };
@@ -94,8 +91,7 @@ public:
 /**
  * TriggerStopTimer
  */
-class TriggerStopTimer : virtual public TimerunEntity,
-                         virtual public TargetStopTimer {
+class TriggerStopTimer : virtual public TimerunEntity, virtual public TargetStopTimer {
 public:
   static void spawn(gentity_t *self);
 };
@@ -103,8 +99,7 @@ public:
 /**
  * TriggerStopTimerExt
  */
-class TriggerStopTimerExt : virtual public TimerunEntity,
-                            virtual public TargetStopTimer {
+class TriggerStopTimerExt : virtual public TimerunEntity, virtual public TargetStopTimer {
 public:
   static void spawn(gentity_t *self);
 };
@@ -123,8 +118,7 @@ public:
 /**
  * TriggerCheckpoint
  */
-class TriggerCheckpoint : virtual public TimerunEntity,
-                          virtual public TargetCheckpoint {
+class TriggerCheckpoint : virtual public TimerunEntity, virtual public TargetCheckpoint {
 public:
   static void spawn(gentity_t *self);
 };
@@ -132,8 +126,7 @@ public:
 /**
  * TriggerCheckpointExt
  */
-class TriggerCheckpointExt : virtual public TimerunEntity,
-                             virtual public TargetCheckpoint {
+class TriggerCheckpointExt : virtual public TimerunEntity, virtual public TargetCheckpoint {
 public:
   static void spawn(gentity_t *self);
 };

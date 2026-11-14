@@ -1,7 +1,7 @@
 #include <cstring>
+#include <gtest/gtest.h>
 #include <string>
 
-#include <gtest/gtest.h>
 #include "../src/game/etj_game_failure.h"
 
 namespace ETJump {
@@ -39,8 +39,7 @@ TEST(GameFailureTests, Activate_SanitizesDenialMessage) {
   GameFailure failure;
   failure.activate("Tracker error on line: \"1\"\nat 100%s", false, false, 0);
 
-  EXPECT_STREQ(failure.getDenialMessage(),
-               "Tracker error on line: '1' at 100 s");
+  EXPECT_STREQ(failure.getDenialMessage(), "Tracker error on line: '1' at 100 s");
 }
 
 TEST(GameFailureTests, Activate_TruncatesDenialMessage) {
@@ -48,8 +47,7 @@ TEST(GameFailureTests, Activate_TruncatesDenialMessage) {
   const std::string message(GAME_FAILURE_MAX_DENIAL_LENGTH * 4, 'a');
   failure.activate(message.c_str(), false, false, 100);
 
-  EXPECT_EQ(std::strlen(failure.getDenialMessage()),
-            GAME_FAILURE_MAX_DENIAL_LENGTH);
+  EXPECT_EQ(std::strlen(failure.getDenialMessage()), GAME_FAILURE_MAX_DENIAL_LENGTH);
 }
 
 TEST(GameFailureTests, GetDenialMessage_KeepsItsAddress) {
@@ -133,8 +131,7 @@ TEST(GameFailureTests, Activate_StartsNewShutdownAfterReset) {
 
 TEST(GameFailureTests, GetMessage_KeepsFullErrorMessage) {
   const std::string message =
-      "Unhandled exception: \"quoted\" 100%\n" +
-      std::string(GAME_FAILURE_MAX_DENIAL_LENGTH * 2, 'a');
+    "Unhandled exception: \"quoted\" 100%\n" + std::string(GAME_FAILURE_MAX_DENIAL_LENGTH * 2, 'a');
 
   GameFailure failure;
   failure.activate(message.c_str(), true, false, 0);

@@ -23,24 +23,23 @@
  */
 
 #include "etj_progression_tracker_parser.h"
+
 #include <algorithm>
 #include <cassert>
-#include <vector>
 #include <string>
+#include <vector>
+
 #include "etj_string_utilities.h"
 
 namespace ETJump {
-ProgressionTrackerParser::ProgressionTrackerParser(
-    const std::string &trackerString)
-    : _originalTrackerString(trackerString), _trackerString(trackerString) {
+ProgressionTrackerParser::ProgressionTrackerParser(const std::string &trackerString)
+  : _originalTrackerString(trackerString), _trackerString(trackerString) {
   parse();
 }
 
 void ProgressionTrackerParser::parse() {
   // remove whitespace
-  _trackerString.erase(
-      remove_if(begin(_trackerString), end(_trackerString), ::isspace),
-      end(_trackerString));
+  _trackerString.erase(remove_if(begin(_trackerString), end(_trackerString), ::isspace), end(_trackerString));
 
   // get pairs
   std::vector<std::string> pairs = StringUtils::split(_trackerString, "|");
@@ -54,51 +53,42 @@ void ProgressionTrackerParser::parse() {
 }
 
 ProgressionTrackerParser::IndexValuePair
-ProgressionTrackerParser::parseIndexValuePair(
-    std::vector<std::string> indexValuePair) {
+ProgressionTrackerParser::parseIndexValuePair(std::vector<std::string> indexValuePair) {
   IndexValuePair result{};
   if (indexValuePair.size() == 1) {
     result.index = 0;
     try {
       result.value = stoi(indexValuePair[0]);
     } catch (const std::invalid_argument &) {
-      _errors.push_back(StringUtils::format("value \"%s\" is not an integer",
-                                            indexValuePair[0]));
+      _errors.push_back(StringUtils::format("value \"%s\" is not an integer", indexValuePair[0]));
     } catch (const std::out_of_range &) {
-      _errors.push_back(StringUtils::format("value \"%s\" is out of range",
-                                            indexValuePair[0]));
+      _errors.push_back(StringUtils::format("value \"%s\" is out of range", indexValuePair[0]));
     }
   } else {
     try {
       result.index = stoi(indexValuePair[0]) - 1;
     } catch (const std::invalid_argument &) {
-      _errors.push_back(StringUtils::format("index \"%s\" is not an integer",
-                                            indexValuePair[0]));
+      _errors.push_back(StringUtils::format("index \"%s\" is not an integer", indexValuePair[0]));
     } catch (const std::out_of_range &) {
-      _errors.push_back(StringUtils::format("index \"%s\" is out of range",
-                                            indexValuePair[0]));
+      _errors.push_back(StringUtils::format("index \"%s\" is out of range", indexValuePair[0]));
     }
 
     if (result.index < 0) {
-      _errors.push_back(StringUtils::format("index \"%s\" is less than 0",
-                                            indexValuePair[0]));
+      _errors.push_back(StringUtils::format("index \"%s\" is less than 0", indexValuePair[0]));
     }
 
     try {
       result.value = stoi(indexValuePair[1]);
     } catch (const std::invalid_argument &) {
-      _errors.push_back(StringUtils::format("value \"%s\" is not an integer",
-                                            indexValuePair[1]));
+      _errors.push_back(StringUtils::format("value \"%s\" is not an integer", indexValuePair[1]));
     } catch (const std::out_of_range &) {
-      _errors.push_back(StringUtils::format("value \"%s\" is out of range",
-                                            indexValuePair[1]));
+      _errors.push_back(StringUtils::format("value \"%s\" is out of range", indexValuePair[1]));
     }
   }
   return result;
 }
 
-std::vector<ProgressionTrackerParser::IndexValuePair>
-ProgressionTrackerParser::getParsedPairs() const {
+std::vector<ProgressionTrackerParser::IndexValuePair> ProgressionTrackerParser::getParsedPairs() const {
   // NOTE: check for errors before calling this!
   assert(_errors.empty());
   return _parsedPairs;

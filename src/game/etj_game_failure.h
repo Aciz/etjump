@@ -41,8 +41,7 @@ inline constexpr size_t GAME_FAILURE_MAX_DENIAL_LENGTH = 256;
 
 // the text of unexpected errors (unhandled exceptions) might contain
 // internal details, so clients only get a generic message for those
-inline constexpr char GAME_FAILURE_GENERIC_DENIAL[] =
-    "Server shut down due to an internal error.";
+inline constexpr char GAME_FAILURE_GENERIC_DENIAL[] = "Server shut down due to an internal error.";
 
 // holds 'killserver' while a shutdown is queued, the queued command only
 // expands this, so loading a map in the meantime can cancel it
@@ -62,11 +61,11 @@ inline constexpr char GAME_FAILURE_SHUTDOWN_CVAR[] = "etj_failureShutdown";
 // had cgame loaded, the error is raised to the engine at the point the
 // server would be shut down otherwise, when there's nothing left to unwind.
 class GameFailure {
-  bool active = false;
-  bool dropsPending = false;
-  bool shutdownQueued = false;
+  bool active             = false;
+  bool dropsPending       = false;
+  bool shutdownQueued     = false;
   bool localClientDropped = false;
-  int dropTime = 0;
+  int dropTime            = 0;
   std::array<char, GAME_FAILURE_MAX_DENIAL_LENGTH + 1> denialMessage{};
   std::array<char, FatalErrorBoundary::MAX_MESSAGE_LENGTH> message{};
 
@@ -77,8 +76,7 @@ public:
 
   // 'dropClients' is false when the engine drops the clients itself, which
   // happens during map load, as the game denies their reconnect
-  void activate(const char *errorMessage, bool unexpected, bool dropClients,
-                int time);
+  void activate(const char *errorMessage, bool unexpected, bool dropClients, int time);
   void reset();
 
   // reason given to dropped or connecting clients, stays at the same
