@@ -2664,12 +2664,15 @@ void BG_CalculateSpline_r(splinePath_t *spline, vec3_t out1, vec3_t out2, float 
   for (i = 0; i < spline->numControls; i++) {
     VectorCopy(spline->controls[i].origin, points[i + 1]);
   }
+
+  // If we don't have a valid target, copy the point origin instead so we don't do UB in 'BG_EvaluateTrajectory'.
+  // This makes the object following the spline to just teleport to the spline point in question.
   if (!spline->next) {
+    VectorCopy(spline->point.origin, out1);
+    VectorCopy(spline->point.origin, out2);
     return;
-    //		Com_Error( ERR_DROP, "Spline (%s) with no target
-    // referenced",
-    // spline->point.name );
   }
+
   VectorCopy(spline->next->point.origin, points[i + 1]);
 
   while (count > 2) {
@@ -3764,41 +3767,35 @@ void BG_BuildSplinePaths() {
   for (i = 0; i < numSplinePaths; i++) {
     spline = &splinePaths[i];
 
-    if (*spline->strTarget) {
-      for (j = 0; j < spline->numControls; j++) {
-        pnt = BG_Find_PathCorner(spline->controls[j].name);
+    if (!spline || spline->strTarget[0] == '\0') {
+      Com_Printf(S_COLOR_RED "%s: spline point '%s' at %s has no target\n", __func__, spline->point.name,
+                 vtos(spline->point.origin));
+      continue;
+    }
 
-        if (!pnt) {
-          Com_Printf("^1Cant find control "
-                     "point (%s) for spline "
-                     "(%s)\n",
-                     spline->controls[j].name, spline->point.name);
-          // Gordon: Just changing to a
-          // warning for now, easier for
-          // region compiles...
-          continue;
+    for (j = 0; j < spline->numControls; j++) {
+      pnt = BG_Find_PathCorner(spline->controls[j].name);
 
-        } else {
-          VectorCopy(pnt->origin, spline->controls[j].origin);
-        }
-      }
-
-      st = BG_Find_Spline(spline->strTarget);
-      if (!st) {
-        Com_Printf("^1Cant find target point "
-                   "(%s) for spline (%s)\n",
-                   spline->strTarget, spline->point.name);
-        // Gordon: Just changing to a warning
-        // for now, easier for region
-        // compiles...
+      if (!pnt) {
+        Com_Printf(S_COLOR_RED "%s: can't find control point '%s' for spline '%s'\n", __func__,
+                   spline->controls[j].name, spline->point.name);
         continue;
       }
 
-      spline->next = st;
-
-      spline->length = BG_SplineLength(spline);
-      BG_ComputeSegments(spline);
+      VectorCopy(pnt->origin, spline->controls[j].origin);
     }
+
+    st = BG_Find_Spline(spline->strTarget);
+
+    if (!st) {
+      Com_Printf(S_COLOR_RED "%s: can't find target point '%s' for spline '%s'\n", __func__, spline->strTarget,
+                 spline->point.name);
+      continue;
+    }
+
+    spline->next   = st;
+    spline->length = BG_SplineLength(spline);
+    BG_ComputeSegments(spline);
   }
 
   for (i = 0; i < numSplinePaths; i++) {
